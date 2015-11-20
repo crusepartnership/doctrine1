@@ -38,24 +38,22 @@ class Doctrine_Parser_Yml extends Doctrine_Parser
      * Dump an array of data to a specified path or return
      *
      * @throws Doctrine_Parser_Exception dumping error
-     * @param  string $array Array of data to dump to yaml
-     * @param  string $path  Path to dump the yaml to
-     * @return string $yaml
+     * @param  string                    $array Array of data to dump to yaml
+     * @param  string                    $path  Path to dump the yaml to
+     * @return string                    $yaml
      * @return void
      */
     public function dumpData($array, $path = null, $charset = null)
     {
-
         try {
-          $data = sfYaml::dump($array, 6);
+            $data = $this->dumpYaml($array);
 
-          return $this->doDump($data, $path);
+            return $this->doDump($data, $path);
+        } catch (InvalidArgumentException $e) {
+            // rethrow the exceptions
+            $rethrowed_exception = new Doctrine_Parser_Exception($e->getMessage(), $e->getCode());
 
-        } catch(InvalidArgumentException $e) {
-          // rethrow the exceptions
-          $rethrowed_exception = new Doctrine_Parser_Exception($e->getMessage(), $e->getCode());
-
-          throw $rethrowed_exception;
+            throw $rethrowed_exception;
         }
     }
 
@@ -65,27 +63,43 @@ class Doctrine_Parser_Yml extends Doctrine_Parser
      * Load and parse data from a yml file
      *
      * @throws Doctrine_Parser_Exception parsing error
-     * @param  string  $path  Path to load yaml data from
-     * @return array   $array Array of parsed yaml data
+     * @param  string                    $path Path to load yaml data from
+     * @return array                     $array Array of parsed yaml data
      */
     public function loadData($path)
     {
         try {
-          /*
-           * I still use the doLoad method even if sfYaml can load yml from a file
-           * since this way Doctrine can handle file on it own.
-           */
-          $contents = $this->doLoad($path);
+            $contents = $this->doLoad($path);
+            $array = $this->parseYaml($contents);
 
-          $array = sfYaml::load($contents);
+            return $array;
+        } catch (InvalidArgumentException $e) {
+            // rethrow the exceptions
+            $rethrowed_exception = new Doctrine_Parser_Exception($e->getMessage(), $e->getCode());
 
-          return $array;
-
-        } catch(InvalidArgumentException $e) {
-          // rethrow the exceptions
-          $rethrowed_exception = new Doctrine_Parser_Exception($e->getMessage(), $e->getCode());
-
-          throw $rethrowed_exception;
+            throw $rethrowed_exception;
         }
+    }
+
+    protected function dumpYaml($array)
+    {
+        if (function_exists('yaml_emit')) {
+            $data = yaml_emit($array);
+        } else {
+            throw new Exception("Can't dump yaml: libyaml not installed");
+        }
+
+        return $data;
+    }
+
+    protected function parseYaml($content)
+    {
+        if (function_exists('yaml_parse')) {
+            $aConfig = yaml_parse($content);
+        } else {
+            throw new Exception("Can't parse yaml: libyaml not installed");
+        }
+
+        return $aConfig;
     }
 }
