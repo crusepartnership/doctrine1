@@ -2697,4 +2697,12 @@ abstract class Doctrine_Record extends Doctrine_Record_Abstract implements Count
     {
         return (string) $this->_oid;
     }
+
+    /**
+     * @return array
+     */
+    public function getOldValues()
+    {
+        return $this->_oldValues;
+    }
 }
