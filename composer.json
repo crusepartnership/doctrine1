@@ -19,6 +19,9 @@
         "ext-pdo": "*"
     },
     "autoload": {
+        "classmap": [
+			"lib/vendor/sfYaml"
+		],
         "psr-0": { "Doctrine_": "lib/" }
     }
 }

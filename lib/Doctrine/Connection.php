@@ -1475,7 +1475,6 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
         // Close the temporary connection used to issue the drop database command
         $this->getManager()->closeConnection($tmpConnection);
 
-
         if (isset($e)) {
             throw $e;
         }
@@ -1622,6 +1621,8 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
 
     protected function _generateUniqueName($type, $parts, $key, $format = '%s', $maxLength = null)
     {
+        $typeToPrefix = ['indexes' => 'idx', 'foreign_keys' => 'fk'];
+
         if (isset($this->_usedNames[$type][$key])) {
             return $this->_usedNames[$type][$key];
         }
@@ -1631,15 +1632,9 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
 
         $generated = implode('_', $parts);
 
-        // If the final length is greater than 64 we need to create an abbreviated fk name
+        // Fix for non-idempotent unique names
         if (strlen(sprintf($format, $generated)) > $maxLength) {
-            $generated = '';
-
-            foreach ($parts as $part) {
-                $generated .= $part[0];
-            }
-
-            $name = $generated;
+            $name = $typeToPrefix[$type] . '_' . dechex(crc32($generated));
         } else {
             $name = $generated;
         }
