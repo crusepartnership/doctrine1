@@ -878,8 +878,8 @@ abstract class Doctrine_Query_Abstract
             $count = is_array($array) ? count($array) : 1;
             $paramString .= '|' . $count;
         }
-
-        $hash = md5($dql . var_export($this->_pendingJoinConditions, true) . $paramString . 'DOCTRINE_QUERY_CACHE_SALT');
+        $dsn = $this->getConnection()->getOption("dsn");
+        $hash = md5($dql . var_export($this->_pendingJoinConditions, true) . $paramString . 'DOCTRINE_QUERY_CACHE_SALT' . $dsn);
         return $hash;
     }
 
@@ -1154,11 +1154,7 @@ abstract class Doctrine_Query_Abstract
         $copy->free();
 
         if ($componentsBefore !== $componentsAfter) {
-<<<<<<< HEAD
-            return @array_diff_assoc($componentsAfter, $componentsBefore);
-=======
             return $this->array_diff_assoc_recursive($componentsAfter, $componentsBefore);
->>>>>>> v2.0.0
         } else {
             return $componentsAfter;
         }
@@ -2177,8 +2173,6 @@ abstract class Doctrine_Query_Abstract
     {
         $this->disableLimitSubquery = $disableLimitSubquery;
     }
-<<<<<<< HEAD
-=======
 
     protected function array_diff_assoc_recursive($array1,$array2)
     {
@@ -2204,5 +2198,4 @@ abstract class Doctrine_Query_Abstract
         return $difference;
     }
 
->>>>>>> v2.0.0
 }
