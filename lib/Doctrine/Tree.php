@@ -33,7 +33,7 @@
 class Doctrine_Tree
 {
     /**
-     * @param object $table   reference to associated Doctrine_Table instance
+     * @param Doctrine_Table $table   reference to associated Doctrine_Table instance
      */
     protected $table;
 
@@ -42,6 +42,9 @@ class Doctrine_Tree
      */
     protected $options = array();
 
+    /**
+     * @var string
+     */
     protected $_baseComponent;
 
     /**
@@ -52,10 +55,10 @@ class Doctrine_Tree
      */
     public function __construct(Doctrine_Table $table, $options)
     {
-        $this->table = $table;
-        $this->options = $options;
+        $this->table          = $table;
+        $this->options        = $options;
         $this->_baseComponent = $table->getComponentName();
-        $class = $this->_baseComponent;
+        $class                = $this->_baseComponent;
         if ($table->getOption('inheritanceMap')) {
             $subclasses = $table->getOption('subclasses');
             while (in_array($class, $subclasses)) {
@@ -70,6 +73,8 @@ class Doctrine_Tree
      * Used to define table attributes required for the given implementation
      *
      * @throws Doctrine_Tree_Exception          if table attributes have not been defined
+     *
+     * @return void
      */
     public function setTableDefinition()
     {
@@ -79,6 +84,7 @@ class Doctrine_Tree
     /**
      * this method is used for setting up relations and attributes and should be used by specific implementations
      *
+     * @return void
      */
     public function setUp()
     {
@@ -99,7 +105,7 @@ class Doctrine_Tree
     public static function factory(Doctrine_Table $table, $implName, $options = array())
     {
         $class = 'Doctrine_Tree_' . $implName;
-        if ( ! class_exists($class)) {
+        if (! class_exists($class)) {
             throw new Doctrine_Exception('The chosen class must extend Doctrine_Tree');
         }
         return new $class($table, $options);
@@ -107,25 +113,30 @@ class Doctrine_Tree
 
     /**
      * gets tree attribute value
-     *
+     * @param string $name
+     * @return null|mixed
      */
     public function getAttribute($name)
     {
-      return isset($this->options[$name]) ? $this->options[$name] : null;
+        return isset($this->options[$name]) ? $this->options[$name] : null;
     }
 
     /**
      * sets tree attribute value
      *
      * @param mixed $value
+     * @param string $name
+     *
+     * @return void
      */
     public function setAttribute($name, $value)
     {
-      $this->options[$name] = $value;
+        $this->options[$name] = $value;
     }
 
     /**
      * Returns the base tree component.
+     * @return string
      */
     public function getBaseComponent()
     {

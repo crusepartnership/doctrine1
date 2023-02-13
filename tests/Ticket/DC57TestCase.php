@@ -30,7 +30,7 @@
  * @since       1.0
  * @version     $Revision$
  */
-class Doctrine_Ticket_DC57_TestCase extends Doctrine_UnitTestCase 
+class Doctrine_Ticket_DC57_TestCase extends Doctrine_UnitTestCase
 {
     public function prepareTables()
     {
@@ -40,22 +40,22 @@ class Doctrine_Ticket_DC57_TestCase extends Doctrine_UnitTestCase
 
     public function testTest()
     {
-        $test = new Ticket_DC57_Article();
-        $test->date = '1985-09-01';
+        $test            = new Ticket_DC57_Article();
+        $test->date      = '1985-09-01';
         $test->timestamp = '1985-09-01 00:00:00';
         $test->save();
 
-        $test->date = '1985-09-01';
+        $test->date      = '1985-09-01';
         $test->timestamp = '1985-09-01';
         $this->assertFalse($test->isModified());
     }
 
     public function testOldDates()
     {
-        $test = new Ticket_DC57_Article();
+        $test            = new Ticket_DC57_Article();
         $test->timestamp = '1776-07-04';
         $test->save();
-        
+
         $test->timestamp = '1492-09-01';
         $this->assertTrue($test->isModified());
     }

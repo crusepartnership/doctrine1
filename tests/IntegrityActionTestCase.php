@@ -30,42 +30,43 @@
  * @since       1.0
  * @version     $Revision$
  */
-class Doctrine_IntegrityAction_TestCase extends Doctrine_UnitTestCase 
+class Doctrine_IntegrityAction_TestCase extends Doctrine_UnitTestCase
 {
     public function prepareData()
-    { }
+    {
+    }
     public function prepareTables()
     {
         $this->tables = array('CascadeDeleteTest', 'CascadeDeleteRelatedTest', 'CascadeDeleteRelatedTest2');
-        
+
         parent::prepareTables();
     }
     public function testIntegrityActionsAreAddedIntoGlobalActionsArray()
     {
-        $c = new CascadeDeleteTest;
+        $c  = new CascadeDeleteTest;
         $c2 = new CascadeDeleteRelatedTest;
 
         $expected = array('CascadeDeleteRelatedTest' => 'CASCADE');
         $this->assertEqual($this->manager->getDeleteActions('CascadeDeleteTest'), $expected);
-        
+
         $expected = array('CascadeDeleteRelatedTest' => 'SET NULL');
         $this->assertEqual($this->manager->getUpdateActions('CascadeDeleteTest'), $expected);
     }
     public function testOnDeleteCascadeEmulation()
     {
-        $c = new CascadeDeleteTest;
-        $c->name = 'c 1';
-        $c->Related[]->name = 'r 1';
-        $c->Related[]->name = 'r 2';
+        $c                              = new CascadeDeleteTest;
+        $c->name                        = 'c 1';
+        $c->Related[]->name             = 'r 1';
+        $c->Related[]->name             = 'r 2';
         $c->Related[0]->Related[]->name = 'r r 1';
         $c->Related[1]->Related[]->name = 'r r 2';
-        
+
         $c->save();
-        
+
         $this->connection->clear();
-        
+
         $c = $this->conn->queryOne('FROM CascadeDeleteTest c WHERE c.id = 1');
-        
+
         $c->delete();
     }
 }

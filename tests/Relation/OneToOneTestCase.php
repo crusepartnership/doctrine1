@@ -30,43 +30,44 @@
  * @since       1.0
  * @version     $Revision$
  */
-class Doctrine_Relation_OneToOne_TestCase extends Doctrine_UnitTestCase 
+class Doctrine_Relation_OneToOne_TestCase extends Doctrine_UnitTestCase
 {
-    public function prepareData() 
-    { }
-    public function prepareTables() 
-    { 
+    public function prepareData()
+    {
+    }
+    public function prepareTables()
+    {
         $this->tables = array('gnatUser','gnatEmail','Email','Entity','Record_City', 'Record_Country', 'SelfRefTest');
-        
+
         parent::prepareTables();
     }
 
     public function testOneToOneAggregateRelationWithAliasesIsSupported()
     {
-        $city = new Record_City();
+        $city    = new Record_City();
         $country = $city->Country;
 
-        $this->assertTrue($country instanceof Record_Country);  
+        $this->assertTrue($country instanceof Record_Country);
     }
-    
+
     public function testSelfReferentialOneToOneRelationsAreSupported()
     {
         $ref = new SelfRefTest();
-        
+
         $rel = $ref->getTable()->getRelation('createdBy');
 
         $this->assertEqual($rel->getForeign(), 'id');
         $this->assertEqual($rel->getLocal(), 'created_by');
-        
-        $ref->name = 'ref 1';
+
+        $ref->name            = 'ref 1';
         $ref->createdBy->name = 'ref 2';
-        
+
         $ref->save();
     }
     public function testSelfReferentialOneToOneRelationsAreSupported2()
     {
         $this->connection->clear();
-        
+
         $ref = $this->conn->queryOne("FROM SelfRefTest s WHERE s.name = 'ref 1'");
         $this->assertEqual($ref->name, 'ref 1');
         $this->assertEqual($ref->createdBy->name, 'ref 2');
@@ -74,13 +75,13 @@ class Doctrine_Relation_OneToOne_TestCase extends Doctrine_UnitTestCase
 
     public function testUnsetRelation()
     {
-        $user = new User();
-        $user->name = 'test';
-        $email = new Email();
+        $user           = new User();
+        $user->name     = 'test';
+        $email          = new Email();
         $email->address = 'test@test.com';
-        $user->Email = $email;
+        $user->Email    = $email;
         $user->save();
-        $this->assertTrue($user->Email instanceOf Email);
+        $this->assertTrue($user->Email instanceof Email);
         $user->Email = Email::getNullObject();
         $user->save();
         $this->assertTrue($user->Email === null);
@@ -88,14 +89,13 @@ class Doctrine_Relation_OneToOne_TestCase extends Doctrine_UnitTestCase
 
     public function testSavingRelatedObjects()
     {
-        $user = new gnatUser();
-        $user->name = 'test';
-        $email = new gnatEmail();
+        $user           = new gnatUser();
+        $user->name     = 'test';
+        $email          = new gnatEmail();
         $email->address = 'test3@test.com';
-        $user->Email = $email;
+        $user->Email    = $email;
         $user->save();
-        $this->assertTrue($user->Email instanceOf gnatEmail);
+        $this->assertTrue($user->Email instanceof gnatEmail);
         $this->assertEqual($user->foreign_id, $user->Email->id);
-        
     }
 }

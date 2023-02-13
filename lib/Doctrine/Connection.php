@@ -73,7 +73,7 @@
  * @property int $varchar_max_length
  * @property array $wildcards
  * Not initially defined, but added later
- * @property string $dsn
+ * @property string|array $dsn
  * Set by Doctrine_Connection_Oracle
  * @property int $number_max_precision
  */
@@ -88,7 +88,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      * @var array $tables                       an array containing all the initialized Doctrine_Table objects
      *                                          keys representing Doctrine_Table component names and values as Doctrine_Table objects
      */
-    protected $tables           = array();
+    protected $tables = array();
 
     /**
      * $_name
@@ -109,21 +109,21 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
     /**
      * @var boolean $isConnected                whether or not a connection has been established
      */
-    protected $isConnected      = false;
+    protected $isConnected = false;
 
     /**
      * @var array $supported                    an array containing all features this driver supports,
      *                                          keys representing feature names and values as
      *                                          one of the following (true, false, 'emulated')
      */
-    protected $supported        = array();
+    protected $supported = array();
 
     /**
      * @var array $pendingAttributes            An array of pending attributes. When setting attributes
      *                                          no connection is needed. When connected all the pending
      *                                          attributes are passed to the underlying adapter (usually PDO) instance.
      */
-    protected $pendingAttributes  = array();
+    protected $pendingAttributes = array();
 
     /**
      * @var array $modules                      an array containing all modules
@@ -167,16 +167,16 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
     /**
      * @var array $properties               an array of connection properties
      */
-    protected $properties = array('sql_comments'        => array(array('start' => '--', 'end' => "\n", 'escape' => false),
+    protected $properties = array('sql_comments' => array(array('start' => '--', 'end' => "\n", 'escape' => false),
                                                                  array('start' => '/*', 'end' => '*/', 'escape' => false)),
-                                  'identifier_quoting'  => array('start' => '"', 'end' => '"','escape' => '"'),
-                                  'string_quoting'      => array('start' => "'",
-                                                                 'end' => "'",
-                                                                 'escape' => false,
+                                  'identifier_quoting' => array('start' => '"', 'end' => '"','escape' => '"'),
+                                  'string_quoting'     => array('start'           => "'",
+                                                                 'end'            => "'",
+                                                                 'escape'         => false,
                                                                  'escape_pattern' => false),
-                                  'wildcards'           => array('%', '_'),
-                                  'varchar_max_length'  => 255,
-                                  'sql_file_delimiter'  => ";\n",
+                                  'wildcards'             => array('%', '_'),
+                                  'varchar_max_length'    => 255,
+                                  'sql_file_delimiter'    => ";\n",
                                   'max_identifier_length' => 64,
                                   );
 
@@ -185,18 +185,24 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      */
     protected $serverInfo = array();
 
-    protected $options    = array();
+    /**
+     * @var array
+     */
+    protected $options = array();
 
     /**
      * @var array $supportedDrivers         an array containing all supported drivers
      */
-    private static $supportedDrivers    = array(
+    private static $supportedDrivers = array(
                                         'Mysql',
                                         'Pgsql',
                                         'Oracle',
                                         'Mssql',
                                         'Sqlite',
                                         );
+    /**
+     * @var int
+     */
     protected $_count = 0;
 
     /**
@@ -204,7 +210,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      */
     protected $_usedNames = array(
             'foreign_keys' => array(),
-            'indexes' => array()
+            'indexes'      => array()
         );
 
     /**
@@ -213,22 +219,29 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
     protected $parent;
 
     /**
+     * Previously undefined, set as public for no BC break
+     * @var array
+     */
+    public $exported;
+
+    /**
      * the constructor
      *
      * @param Doctrine_Manager $manager                 the manager object
      * @param PDO|Doctrine_Adapter_Interface|array $adapter   database driver
+     * @param string $user
+     * @param string $pass
      */
     public function __construct(Doctrine_Manager $manager, $adapter, $user = null, $pass = null)
     {
         if (is_object($adapter)) {
-            if ( ! ($adapter instanceof PDO) && ! in_array('Doctrine_Adapter_Interface', class_implements($adapter))) {
+            if (! ($adapter instanceof PDO) && ! in_array('Doctrine_Adapter_Interface', class_implements($adapter))) {
                 throw new Doctrine_Connection_Exception('First argument should be an instance of PDO or implement Doctrine_Adapter_Interface');
             }
             $this->dbh = $adapter;
 
             $this->isConnected = true;
-
-        } else if (is_array($adapter)) {
+        } elseif (is_array($adapter)) {
             $this->pendingAttributes[Doctrine_Core::ATTR_DRIVER_NAME] = $adapter['scheme'];
 
             $this->options['dsn']      = $adapter['dsn'];
@@ -239,7 +252,6 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
             if (isset($adapter['other'])) {
                 $this->options['other'] = array(Doctrine_Core::ATTR_PERSISTENT => $adapter['persistent']);
             }
-
         }
 
         $this->setParent($manager);
@@ -269,7 +281,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      */
     public function getOptions()
     {
-      return $this->options;
+        return $this->options;
     }
 
     /**
@@ -293,11 +305,12 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      * Set option value
      *
      * @param string $option
+     * @param mixed $value
      * @return mixed
      */
     public function setOption($option, $value)
     {
-      return $this->options[$option] = $value;
+        return $this->options[$option] = $value;
     }
 
     /**
@@ -310,7 +323,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
     public function getAttribute($attribute)
     {
         if ($attribute >= 100 && $attribute < 1000) {
-            if ( ! isset($this->attributes[$attribute])) {
+            if (! isset($this->attributes[$attribute])) {
                 return parent::getAttribute($attribute);
             }
             return $this->attributes[$attribute];
@@ -323,7 +336,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
                 throw new Doctrine_Connection_Exception('Attribute ' . $attribute . ' not found.');
             }
         } else {
-            if ( ! isset($this->pendingAttributes[$attribute])) {
+            if (! isset($this->pendingAttributes[$attribute])) {
                 $this->connect();
                 $this->getAttribute($attribute);
             }
@@ -334,6 +347,8 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
 
     /**
      * returns an array of available PDO drivers
+     *
+     * @return array
      */
     public static function getAvailableDrivers()
     {
@@ -431,7 +446,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
             return $this->properties[$name];
         }
 
-        if ( ! isset($this->modules[$name])) {
+        if (! isset($this->modules[$name])) {
             throw new Doctrine_Connection_Exception('Unknown module / property ' . $name);
         }
         if ($this->modules[$name] === false) {
@@ -443,7 +458,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
                     $this->modules[$name] = new Doctrine_Formatter($this);
                     break;
                 default:
-                    $class = 'Doctrine_' . ucwords($name) . '_' . $this->getDriverName();
+                    $class                = 'Doctrine_' . ucwords($name) . '_' . $this->getDriverName();
                     $this->modules[$name] = new $class($this);
                 }
         }
@@ -495,8 +510,12 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
         if (extension_loaded('pdo')) {
             if (in_array($e[0], self::getAvailableDrivers())) {
                 try {
-                    $this->dbh = new PDO($this->options['dsn'], $this->options['username'],
-                                     (!$this->options['password'] ? '':$this->options['password']), $this->options['other']);
+                    $this->dbh = new PDO(
+                        $this->options['dsn'],
+                        $this->options['username'],
+                                     (!$this->options['password'] ? '':$this->options['password']),
+                        $this->options['other']
+                    );
 
                     $this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 } catch (PDOException $e) {
@@ -506,7 +525,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
             }
         }
 
-        if ( ! $found) {
+        if (! $found) {
             $class = 'Doctrine_Adapter_' . ucwords($e[0]);
 
             if (class_exists($class)) {
@@ -517,7 +536,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
         }
 
         // attach the pending attributes to adapter
-        foreach($this->pendingAttributes as $attr => $value) {
+        foreach ($this->pendingAttributes as $attr => $value) {
             // some drivers don't support setting this so we just skip it
             if ($attr == Doctrine_Core::ATTR_DRIVER_NAME) {
                 continue;
@@ -531,6 +550,9 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
         return true;
     }
 
+    /**
+     * @return void
+     */
     public function incrementQueryCount()
     {
         $this->_count++;
@@ -540,6 +562,8 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      * converts given driver name
      *
      * @param string $name
+     *
+     * @return void
      */
     public function driverName($name)
     {
@@ -569,28 +593,32 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      * query isemulated through this method for other DBMS using standard types
      * of queries inside a transaction to assure the atomicity of the operation.
      *
-     * @param   Doctrine_Table  $table  name of the table on which the REPLACE query will
-     *                          be executed.
      *
-     * @param   array           $fields an associative array that describes the fields and the
-     *                          values that will be inserted or updated in the specified table. The
-     *                          indexes of the array are the names of all the fields of the table.
+     *
+     *
      *
      *                          The values of the array are values to be assigned to the specified field.
      *
-     * @param array $keys       an array containing all key fields (primary key fields
-     *                          or unique index fields) for this table
+     *
      *
      *                          the uniqueness of a row will be determined according to
      *                          the provided key fields
      *
      *                          this method will fail if no key fields are specified
      *
+     * @param Doctrine_Table  $table  name of the table on which the REPLACE query will
+     *                          be executed.
+     * @param array           $fields an associative array that describes the fields and the
+     *                          values that will be inserted or updated in the specified table. The
+     *                          indexes of the array are the names of all the fields of the table.
+     * @param array $keys       an array containing all key fields (primary key fields
+     *                          or unique index fields) for this table
+     *
      * @throws Doctrine_Connection_Exception        if this driver doesn't support replace
      * @throws Doctrine_Connection_Exception        if some of the key values was null
      * @throws Doctrine_Connection_Exception        if there were no key fields
      * @throws PDOException                         if something fails at PDO level
-     * @ return integer                              number of rows affected
+     * @return integer                              number of rows affected
      */
     public function replace(Doctrine_Table $table, array $fields, array $keys)
     {
@@ -598,19 +626,19 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
             throw new Doctrine_Connection_Exception('Not specified which fields are keys');
         }
         $identifier = (array) $table->getIdentifier();
-        $condition = array();
+        $condition  = array();
 
         foreach ($fields as $fieldName => $value) {
             if (in_array($fieldName, $keys)) {
                 if ($value !== null) {
-                    $condition[] = $table->getColumnName($fieldName) . ' = ?';
+                    $condition[]       = $table->getColumnName($fieldName) . ' = ?';
                     $conditionValues[] = $value;
                 }
             }
         }
 
         $affectedRows = 0;
-        if ( ! empty($condition) && ! empty($conditionValues)) {
+        if (! empty($condition) && ! empty($conditionValues)) {
             $query = 'DELETE FROM ' . $this->quoteIdentifier($table->getTableName())
                     . ' WHERE ' . implode(' AND ', $condition);
 
@@ -674,7 +702,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
 
         $params = array_merge(array_values($fields), array_values($identifier));
 
-        $sql  = 'UPDATE ' . $this->quoteIdentifier($table->getTableName())
+        $sql = 'UPDATE ' . $this->quoteIdentifier($table->getTableName())
               . ' SET ' . implode(', ', $set)
               . ' WHERE ' . implode(' = ? AND ', $this->quoteMultipleIdentifier($table->getIdentifierColumnNames()))
               . ' = ?';
@@ -923,7 +951,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
     public function query($query, array $params = array(), $hydrationMode = null)
     {
         $parser = Doctrine_Query::create($this);
-        $res = $parser->query($query, $params, $hydrationMode);
+        $res    = $parser->query($query, $params, $hydrationMode);
         $parser->free();
 
         return $res;
@@ -946,15 +974,16 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
 
             $stmt = false;
 
-            if ( ! $event->skipOperation) {
+            if (! $event->skipOperation) {
                 $stmt = $this->dbh->prepare($statement);
             }
 
             $this->getAttribute(Doctrine_Core::ATTR_LISTENER)->postPrepare($event);
 
             return new Doctrine_Connection_Statement($this, $stmt);
-        } catch(Doctrine_Adapter_Exception $e) {
-        } catch(PDOException $e) { }
+        } catch (Doctrine_Adapter_Exception $e) {
+        } catch (PDOException $e) {
+        }
 
         $this->rethrowException($e, $this, $statement);
     }
@@ -983,7 +1012,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
         $parser = Doctrine_Query::create();
 
         $coll = $parser->query($query, $params);
-        if ( ! $coll->contains(0)) {
+        if (! $coll->contains(0)) {
             return false;
         }
         return $coll[0];
@@ -1031,7 +1060,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
         $this->connect();
 
         try {
-            if ( ! empty($params)) {
+            if (! empty($params)) {
                 $stmt = $this->prepare($query);
                 $stmt->execute($params);
 
@@ -1041,7 +1070,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
 
                 $this->getAttribute(Doctrine_Core::ATTR_LISTENER)->preQuery($event);
 
-                if ( ! $event->skipOperation) {
+                if (! $event->skipOperation) {
                     $stmt = $this->dbh->query($query);
                     $this->incrementQueryCount();
                 }
@@ -1050,7 +1079,8 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
                 return $stmt;
             }
         } catch (Doctrine_Adapter_Exception $e) {
-        } catch (PDOException $e) { }
+        } catch (PDOException $e) {
+        }
 
         $this->rethrowException($e, $this, $query);
     }
@@ -1067,7 +1097,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
         $this->connect();
 
         try {
-            if ( ! empty($params)) {
+            if (! empty($params)) {
                 $stmt = $this->prepare($query);
                 $stmt->execute($params);
 
@@ -1076,7 +1106,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
                 $event = new Doctrine_Event($this, Doctrine_Event::CONN_EXEC, $query, $params);
 
                 $this->getAttribute(Doctrine_Core::ATTR_LISTENER)->preExec($event);
-                if ( ! $event->skipOperation) {
+                if (! $event->skipOperation) {
                     $count = $this->dbh->exec($query);
                     $this->incrementQueryCount();
                 }
@@ -1085,7 +1115,8 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
                 return $count;
             }
         } catch (Doctrine_Adapter_Exception $e) {
-        } catch (PDOException $e) { }
+        } catch (PDOException $e) {
+        }
 
         $this->rethrowException($e, $this, $query);
     }
@@ -1094,6 +1125,11 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      * rethrowException
      *
      * @throws Doctrine_Connection_Exception
+     *
+     * @param PDOException|Doctrine_Adapter_Exception $e
+     * @param mixed $invoker
+     * @param string $query
+     * @return void
      */
     public function rethrowException(Exception $e, $invoker, $query = null)
     {
@@ -1108,13 +1144,14 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
             $message .= sprintf('. Failing Query: "%s"', $query);
         }
 
-        $exc  = new $name($message, (int) $e->getCode());
-        if ( ! isset($e->errorInfo) || ! is_array($e->errorInfo)) {
+        /** @var Doctrine_Connection_Exception $exc */
+        $exc = new $name($message, (int) $e->getCode());
+        if (! isset($e->errorInfo) || ! is_array($e->errorInfo)) {
             $e->errorInfo = array(null, null, null, null);
         }
         $exc->processErrorInfo($e->errorInfo);
 
-         if ($this->getAttribute(Doctrine_Core::ATTR_THROW_EXCEPTIONS)) {
+        if ($this->getAttribute(Doctrine_Core::ATTR_THROW_EXCEPTIONS)) {
             throw $exc;
         }
 
@@ -1149,9 +1186,11 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
 
         if (class_exists($class, $this->getAttribute(Doctrine_Core::ATTR_AUTOLOAD_TABLE_CLASSES)) &&
                 in_array('Doctrine_Table', class_parents($class))) {
+            /** @var Doctrine_Table $table */
             $table = new $class($name, $this, true);
         } else {
             $tableClass = $this->getAttribute(Doctrine_Core::ATTR_TABLE_CLASS);
+            /** @var Doctrine_Table $table */
             $table = new $tableClass($name, $this, true);
         }
 
@@ -1278,7 +1317,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      */
     public function evictTables()
     {
-        $this->tables = array();
+        $this->tables   = array();
         $this->exported = array();
     }
 
@@ -1345,7 +1384,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      */
     public function getResultCacheDriver()
     {
-        if ( ! $this->getAttribute(Doctrine_Core::ATTR_RESULT_CACHE)) {
+        if (! $this->getAttribute(Doctrine_Core::ATTR_RESULT_CACHE)) {
             throw new Doctrine_Exception('Result Cache driver not initialized.');
         }
 
@@ -1359,7 +1398,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      */
     public function getQueryCacheDriver()
     {
-        if ( ! $this->getAttribute(Doctrine_Core::ATTR_QUERY_CACHE)) {
+        if (! $this->getAttribute(Doctrine_Core::ATTR_QUERY_CACHE)) {
             throw new Doctrine_Exception('Query Cache driver not initialized.');
         }
 
@@ -1377,6 +1416,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      *
      * @param string $table     name of the table into which a new row was inserted
      * @param string $field     name of the field into which a new row was inserted
+     * @return int|mixed
      */
     public function lastInsertId($table = null, $field = null)
     {
@@ -1401,6 +1441,10 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
         return $this->transaction->beginTransaction($savepoint);
     }
 
+    /**
+     * @param  string $savepoint
+     * @return int
+     */
     public function beginInternalTransaction($savepoint = null)
     {
         return $this->transaction->beginInternalTransaction($savepoint);
@@ -1448,11 +1492,11 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      *
      * Issue create database command for this instance of Doctrine_Connection
      *
-     * @return string       Doctrine_Exception catched in case of failure
+     * @return void
      */
     public function createDatabase()
     {
-        if ( ! $dsn = $this->getOption('dsn')) {
+        if (! $dsn = $this->getOption('dsn')) {
             throw new Doctrine_Connection_Exception('You must create your Doctrine_Connection by using a valid Doctrine style dsn in order to use the create/drop database functionality');
         }
 
@@ -1466,7 +1510,8 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
         // the tmp connection
         try {
             $tmpConnection->export->createDatabase($info['dbname']);
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+        }
 
         // Close the temporary connection used to issue the drop database command
         $this->getManager()->closeConnection($tmpConnection);
@@ -1481,11 +1526,11 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      *
      * Issue drop database command for this instance of Doctrine_Connection
      *
-     * @return string       success string. Doctrine_Exception if operation failed
+     * @return void
      */
     public function dropDatabase()
     {
-        if ( ! $dsn = $this->getOption('dsn')) {
+        if (! $dsn = $this->getOption('dsn')) {
             throw new Doctrine_Connection_Exception('You must create your Doctrine_Connection by using a valid Doctrine style dsn in order to use the create/drop database functionality');
         }
 
@@ -1499,7 +1544,8 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
         // the tmp connection
         try {
             $tmpConnection->export->dropDatabase($info['dbname']);
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+        }
 
         // Close the temporary connection used to issue the drop database command
         $this->getManager()->closeConnection($tmpConnection);
@@ -1554,6 +1600,10 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      *
      * Some dbms require specific functionality for this. Check the other connection adapters for examples
      *
+     * @param string $query
+     * @param int|false $limit
+     * @param int|false $offset
+     * @param bool $isManip
      * @return string
      */
     public function modifyLimitQuery($query, $limit = false, $offset = false, $isManip = false)
@@ -1565,11 +1615,19 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      * Creates dbms specific LIMIT/OFFSET SQL for the subqueries that are used in the
      * context of the limit-subquery algorithm.
      *
+     * @param string $query
+     * @param int|false $limit
+     * @param int|false $offset
+     * @param bool $isManip
      * @return string
      */
-    public function modifyLimitSubquery(Doctrine_Table $rootTable, $query, $limit = false,
-            $offset = false, $isManip = false)
-    {
+    public function modifyLimitSubquery(
+        Doctrine_Table $rootTable,
+        $query,
+        $limit = false,
+        $offset = false,
+        $isManip = false
+    ) {
         return $this->modifyLimitQuery($query, $limit, $offset, $isManip);
     }
 
@@ -1589,8 +1647,8 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      */
     public function serialize()
     {
-        $vars = get_object_vars($this);
-        $vars['dbh'] = null;
+        $vars                = get_object_vars($this);
+        $vars['dbh']         = null;
         $vars['isConnected'] = false;
         return serialize($vars);
     }
@@ -1624,7 +1682,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
             $relation['table']->getTableName(),
             $relation->getForeignColumnName(),
         );
-        $key = implode('_', array_merge($parts, array($relation['onDelete']), array($relation['onUpdate'])));
+        $key    = implode('_', array_merge($parts, array($relation['onDelete']), array($relation['onUpdate'])));
         $format = $this->getAttribute(Doctrine_Core::ATTR_FKNAME_FORMAT);
 
         return $this->_generateUniqueName('foreign_keys', $parts, $key, $format, $this->getAttribute(Doctrine_Core::ATTR_MAX_IDENTIFIER_LENGTH));
@@ -1640,14 +1698,22 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
     public function generateUniqueIndexName($tableName, $fields)
     {
         $fields = (array) $fields;
-        $parts = array($tableName);
-        $parts = array_merge($parts, $fields);
-        $key = implode('_', $parts);
+        $parts  = array($tableName);
+        $parts  = array_merge($parts, $fields);
+        $key    = implode('_', $parts);
         $format = $this->getAttribute(Doctrine_Core::ATTR_IDXNAME_FORMAT);
 
         return $this->_generateUniqueName('indexes', $parts, $key, $format, $this->getAttribute(Doctrine_Core::ATTR_MAX_IDENTIFIER_LENGTH));
     }
 
+    /**
+     * @param  string $type
+     * @param  array $parts
+     * @param  string $key
+     * @param  string $format
+     * @param  int $maxLength
+     * @return string
+     */
     protected function _generateUniqueName($type, $parts, $key, $format = '%s', $maxLength = null)
     {
         $typeToPrefix = ['indexes' => 'idx', 'foreign_keys' => 'fk'];
@@ -1656,7 +1722,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
             return $this->_usedNames[$type][$key];
         }
         if ($maxLength === null) {
-          $maxLength = $this->properties['max_identifier_length'];
+            $maxLength = $this->properties['max_identifier_length'];
         }
 
         $generated = implode('_', $parts);
@@ -1669,13 +1735,13 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
         }
 
         while (in_array($name, $this->_usedNames[$type])) {
-            $e = explode('_', $name);
+            $e   = explode('_', $name);
             $end = end($e);
 
             if (is_numeric($end)) {
                 unset($e[count($e) - 1]);
                 $fkName = implode('_', $e);
-                $name = $fkName . '_' . ++$end;
+                $name   = $fkName . '_' . ++$end;
             } else {
                 $name .= '_1';
             }

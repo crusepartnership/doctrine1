@@ -43,6 +43,9 @@ class Doctrine_Query_Check
      */
     protected $sql;
 
+    /**
+     * @var Doctrine_Query_Tokenizer
+     */
     protected $_tokenizer;
 
     /**
@@ -50,12 +53,12 @@ class Doctrine_Query_Check
      */
     public function __construct($table)
     {
-        if ( ! ($table instanceof Doctrine_Table)) {
+        if (! ($table instanceof Doctrine_Table)) {
             $table = Doctrine_Manager::getInstance()
                         ->getCurrentConnection()
                         ->getTable($table);
         }
-        $this->table = $table;
+        $this->table      = $table;
         $this->_tokenizer = new Doctrine_Query_Tokenizer();
     }
 
@@ -74,7 +77,7 @@ class Doctrine_Query_Check
      * parse
      *
      * @param string $dql       DQL CHECK constraint definition
-     * @return string
+     * @return void
      */
     public function parse($dql)
     {
@@ -83,7 +86,7 @@ class Doctrine_Query_Check
 
     /**
      * parseClause
-     *
+     * @param string $dql
      * @return string
      */
     public function parseClause($dql)
@@ -114,6 +117,10 @@ class Doctrine_Query_Check
         return '(' . $r . ')';
     }
 
+    /**
+     * @param string $part
+     * @return string
+     */
     public function parseSingle($part)
     {
         $e = explode(' ', $part);
@@ -135,19 +142,23 @@ class Doctrine_Query_Check
         return implode(' ', $e);
     }
 
+    /**
+     * @param  string $dql
+     * @return mixed
+     */
     public function parseFunction($dql)
     {
         if (($pos = strpos($dql, '(')) !== false) {
             $func  = substr($dql, 0, $pos);
             $value = substr($dql, ($pos + 1), -1);
 
-            $expr  = $this->table->getConnection()->expression;
+            $expr = $this->table->getConnection()->expression;
 
-            if ( ! method_exists($expr, $func)) {
+            if (! method_exists($expr, $func)) {
                 throw new Doctrine_Query_Exception('Unknown function ' . $func);
             }
 
-            $func  = $expr->$func($value);
+            $func = $expr->$func($value);
         }
         return $func;
     }

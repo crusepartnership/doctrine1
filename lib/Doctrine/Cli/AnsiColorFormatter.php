@@ -42,22 +42,38 @@
  */
 class Doctrine_Cli_AnsiColorFormatter extends Doctrine_Cli_Formatter
 {
-    protected
-        $_styles = array(
+    /**
+     * @var array
+     */
+    protected $_styles = array(
             'HEADER'  => array('fg' => 'black', 'bold' => true),
             'ERROR'   => array('bg' => 'red', 'fg' => 'white', 'bold' => true),
             'INFO'    => array('fg' => 'green', 'bold' => true),
             'COMMENT' => array('fg' => 'yellow'),
-            ),
-        $_options    = array('bold' => 1, 'underscore' => 4, 'blink' => 5, 'reverse' => 7, 'conceal' => 8),
-        $_foreground = array('black' => 30, 'red' => 31, 'green' => 32, 'yellow' => 33, 'blue' => 34, 'magenta' => 35, 'cyan' => 36, 'white' => 37),
-        $_background = array('black' => 40, 'red' => 41, 'green' => 42, 'yellow' => 43, 'blue' => 44, 'magenta' => 45, 'cyan' => 46, 'white' => 47);
+        );
+
+    /**
+     * @var array
+     */
+    protected $_options = array('bold' => 1, 'underscore' => 4, 'blink' => 5, 'reverse' => 7, 'conceal' => 8);
+
+    /**
+     * @var array
+     */
+    protected $_foreground = array('black' => 30, 'red' => 31, 'green' => 32, 'yellow' => 33, 'blue' => 34, 'magenta' => 35, 'cyan' => 36, 'white' => 37);
+
+    /**
+     * @var array
+     */
+    protected $_background = array('black' => 40, 'red' => 41, 'green' => 42, 'yellow' => 43, 'blue' => 44, 'magenta' => 45, 'cyan' => 46, 'white' => 47);
 
     /**
      * Sets a new style.
      *
      * @param string $name The style name
      * @param array  $options An array of options
+     *
+     * @return void
      */
     public function setStyle($name, $options = array())
     {
@@ -74,15 +90,15 @@ class Doctrine_Cli_AnsiColorFormatter extends Doctrine_Cli_Formatter
      */
     public function format($text = '', $parameters = array(), $stream = STDOUT)
     {
-        if ( ! $this->supportsColors($stream)) {
+        if (! $this->supportsColors($stream)) {
             return $text;
         }
 
-        if ( ! is_array($parameters) && 'NONE' == $parameters) {
+        if (! is_array($parameters) && 'NONE' == $parameters) {
             return $text;
         }
 
-        if ( ! is_array($parameters) && isset($this->_styles[$parameters])) {
+        if (! is_array($parameters) && isset($this->_styles[$parameters])) {
             $parameters = $this->_styles[$parameters];
         }
 
@@ -101,7 +117,7 @@ class Doctrine_Cli_AnsiColorFormatter extends Doctrine_Cli_Formatter
             }
         }
 
-        return "\033[".implode(';', $codes).'m'.$text."\033[0m";
+        return "\033[" . implode(';', $codes) . 'm' . $text . "\033[0m";
     }
 
     /**
@@ -110,6 +126,8 @@ class Doctrine_Cli_AnsiColorFormatter extends Doctrine_Cli_Formatter
      * @param string  $section The section name
      * @param string  $text  The text message
      * @param integer $size The maximum size allowed for a line (65 by default)
+     *
+     * @return string
      */
     public function formatSection($section, $text, $size = null)
     {
@@ -128,7 +146,7 @@ class Doctrine_Cli_AnsiColorFormatter extends Doctrine_Cli_Formatter
      */
     public function excerpt($text, $size = null)
     {
-        if ( ! $size) {
+        if (! $size) {
             $size = $this->_size;
         }
 
@@ -136,9 +154,9 @@ class Doctrine_Cli_AnsiColorFormatter extends Doctrine_Cli_Formatter
             return $text;
         }
 
-        $subsize = floor(($size - 3) / 2);
+        $subsize = (int) floor(($size - 3) / 2);
 
-        return substr($text, 0, $subsize) . $this->format('...', 'INFO').substr($text, -$subsize);
+        return substr($text, 0, $subsize) . $this->format('...', 'INFO') . substr($text, -$subsize);
     }
 
     /**
@@ -151,7 +169,7 @@ class Doctrine_Cli_AnsiColorFormatter extends Doctrine_Cli_Formatter
      *
      * @param  mixed $stream A stream
      *
-     * @return Boolean true if the stream supports colorization, false otherwise
+     * @return bool true if the stream supports colorization, false otherwise
      */
     public function supportsColors($stream)
     {

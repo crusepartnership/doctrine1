@@ -25,7 +25,7 @@
  * This test case is used for testing the snapshot functionality
  * of the Doctrine_Collection
  *
- * Snapshots are used for counting the diff between original and changed 
+ * Snapshots are used for counting the diff between original and changed
  * state of the collection.
  *
  * @package     Doctrine
@@ -41,7 +41,7 @@ class Doctrine_Collection_Snapshot_TestCase extends Doctrine_UnitTestCase
     public function prepareTables()
     {
         $this->tables = array('Entity', 'User', 'Group', 'GroupUser', 'Account', 'Album', 'Phonenumber', 'Email', 'Book');
-        
+
         parent::prepareTables();
     }
 
@@ -98,13 +98,12 @@ class Doctrine_Collection_Snapshot_TestCase extends Doctrine_UnitTestCase
         $coll = $q->execute();
 
         $this->assertEqual($coll[0]->Phonenumber->count(), 1);
-
     }
 
     public function testDiffForManyToManyRelatedCollection()
     {
-        $user = new User();
-        $user->name = 'zYne';
+        $user                 = new User();
+        $user->name           = 'zYne';
         $user->Group[0]->name = 'PHP';
         $user->Group[1]->name = 'Web';
         $user->save();
@@ -125,19 +124,17 @@ class Doctrine_Collection_Snapshot_TestCase extends Doctrine_UnitTestCase
         $this->assertEqual(count($user->Group->getSnapshot()), 1);
         unset($user->Group[1]);
         $this->assertEqual(count($user->Group->getSnapshot()), 1);
-        
+
         $count = count($this->conn);
         $user->save();
 
         $this->assertEqual(count($user->Group->getSnapshot()), 0);
-        
+
         $this->conn->clear();
 
         $users = Doctrine_Query::create()->from('User u LEFT JOIN u.Group g')
                  ->where('u.id = ' . $user->id)->execute();
-        
+
         $this->assertEqual(count($user->Group), 0);
-
     }
-
 }

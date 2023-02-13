@@ -28,40 +28,41 @@
  * @category    Object Relational Mapping
  * @link        www.doctrine-project.org
  * @since       1.1
- * @version     $Revision$ 
+ * @version     $Revision$
  */
-class Doctrine_Ticket_1622_TestCase extends Doctrine_UnitTestCase 
+class Doctrine_Ticket_1622_TestCase extends Doctrine_UnitTestCase
 {
     public function prepareTables()
     {
-        $this->tables = array();
+        $this->tables   = array();
         $this->tables[] = 'Ticket_1622_User';
         $this->tables[] = 'Ticket_1622_UserReference';
         parent::prepareTables();
     }
-    
+
     public function prepareData()
     {
-            $user = new Ticket_1622_User();
-            $user->name = "floriank";
-            $user->save();
-            
-            $user2 = new Ticket_1622_User();
-            $user2->name = "test";
-            $user2->parents[] = $user;
-            $user2->save();
+        $user       = new Ticket_1622_User();
+        $user->name = 'floriank';
+        $user->save();
+
+        $user2            = new Ticket_1622_User();
+        $user2->name      = 'test';
+        $user2->parents[] = $user;
+        $user2->save();
     }
 
-    public function testUnlink() {
-        $user = Doctrine_Core::getTable('Ticket_1622_User')->findOneByName('floriank');
+    public function testUnlink()
+    {
+        $user  = Doctrine_Core::getTable('Ticket_1622_User')->findOneByName('floriank');
         $child = Doctrine_Core::getTable('Ticket_1622_User')->findOneByName('test');
-        
+
         $user->unlink('children', $child->id);
-        
+
         $this->assertTrue($user->hasReference('children'));
         $this->assertTrue($user->hasRelation('children'));
         $this->assertEqual(count($user->children), 0);
-        
+
         $user->save();
 
         $user->refresh();
@@ -69,7 +70,7 @@ class Doctrine_Ticket_1622_TestCase extends Doctrine_UnitTestCase
         $this->assertEqual(count($user->children), 0);
     }
 }
-    
+
 class Ticket_1622_User extends Doctrine_Record
 {
     public function setTableDefinition()
@@ -80,19 +81,25 @@ class Ticket_1622_User extends Doctrine_Record
 
     public function setUp()
     {
-        $this->hasMany('Ticket_1622_User as parents', 
-                                                array('local'    => 'parent_id',
-                                                'refClass' => 'Ticket_1622_UserReference', 
-                                                'foreign'  => 'child_id',
+        $this->hasMany(
+            'Ticket_1622_User as parents',
+                                                array('local'           => 'parent_id',
+                                                'refClass'              => 'Ticket_1622_UserReference',
+                                                'foreign'               => 'child_id',
                                                 'refClassRelationAlias' => 'childrenLinks'
-                                                ));
-                                                
-        $this->hasMany('Ticket_1622_User as children', 
-                                                 array('local'    => 'child_id',
-                                                 'foreign'  => 'parent_id',
-                                                 'refClass' => 'Ticket_1622_UserReference',
+                                                )
+        );
+
+        $this->hasMany(
+
+            'Ticket_1622_User as children',
+                                                 array('local'           => 'child_id',
+                                                 'foreign'               => 'parent_id',
+                                                 'refClass'              => 'Ticket_1622_UserReference',
                                                  'refClassRelationAlias' => 'parentLinks'
-                                                 ));
+                                                 )
+
+        );
     }
 }
 

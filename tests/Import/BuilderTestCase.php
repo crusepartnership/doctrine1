@@ -30,7 +30,7 @@
  * @since       1.0
  * @version     $Revision$
  */
-class Doctrine_Import_Builder_TestCase extends Doctrine_UnitTestCase 
+class Doctrine_Import_Builder_TestCase extends Doctrine_UnitTestCase
 {
     public function testInheritanceGeneration()
     {
@@ -55,10 +55,10 @@ class Doctrine_Import_Builder_TestCase extends Doctrine_UnitTestCase
         $this->assertTrue($schemaTestInheritanceParent->isSubClassOf('PackageSchemaTestInheritanceParent'));
         $this->assertTrue($schemaTestInheritanceChild1->isSubClassOf('BaseSchemaTestInheritanceChild1'));
         $this->assertTrue($schemaTestInheritanceChild2->isSubClassOf('BaseSchemaTestInheritanceChild2'));
-        
+
         $this->assertTrue($schemaTestInheritanceChild1->isSubClassOf('SchemaTestInheritanceParent'));
         $this->assertTrue($schemaTestInheritanceChild1->isSubClassOf('BaseSchemaTestInheritanceParent'));
-        
+
         $this->assertTrue($schemaTestInheritanceChild2->isSubClassOf('SchemaTestInheritanceParent'));
         $this->assertTrue($schemaTestInheritanceChild2->isSubClassOf('BaseSchemaTestInheritanceParent'));
         $this->assertTrue($schemaTestInheritanceChild2->isSubClassOf('SchemaTestInheritanceChild1'));
@@ -76,22 +76,22 @@ class Doctrine_Import_Builder_TestCase extends Doctrine_UnitTestCase
 
         # Simple Inheritance
         $schemaTestSimpleInheritanceParent = new ReflectionClass('SchemaTestSimpleInheritanceParent');
-        $schemaTestSimpleInheritanceChild = new ReflectionClass('SchemaTestSimpleInheritanceChild');
+        $schemaTestSimpleInheritanceChild  = new ReflectionClass('SchemaTestSimpleInheritanceChild');
 
         $this->assertTrue($schemaTestSimpleInheritanceParent->hasMethod('setTableDefinition'));
         $this->assertTrue($schemaTestSimpleInheritanceChild->isSubClassOf('SchemaTestSimpleInheritanceParent'));
 
         # Class Table Inheritance
         $schemaTestClassTableInheritanceParent = new ReflectionClass('SchemaTestClassTableInheritanceParent');
-        $schemaTestClassTableInheritanceChild = new ReflectionClass('SchemaTestClassTableInheritanceChild');
+        $schemaTestClassTableInheritanceChild  = new ReflectionClass('SchemaTestClassTableInheritanceChild');
 
         # Concrete Inheritance
         $schemaTestConcreteInheritanceParent = new ReflectionClass('SchemaTestConcreteInheritanceParent');
-        $schemaTestConcreteInheritanceChild = new ReflectionClass('SchemaTestConcreteInheritanceChild');
+        $schemaTestConcreteInheritanceChild  = new ReflectionClass('SchemaTestConcreteInheritanceChild');
 
         # Column Aggregation Inheritance
         $schemaTestColumnAggregationInheritanceParent = new ReflectionClass('SchemaTestColumnAggregationInheritanceParent');
-        $schemaTestColumnAggregationInheritanceChild = new ReflectionClass('SchemaTestColumnAggregationInheritanceChild');
+        $schemaTestColumnAggregationInheritanceChild  = new ReflectionClass('SchemaTestColumnAggregationInheritanceChild');
 
         $sql = Doctrine_Core::generateSqlFromArray(array('SchemaTestSimpleInheritanceParent', 'SchemaTestSimpleInheritanceChild'));
         $this->assertEqual(count($sql), 1);

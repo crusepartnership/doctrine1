@@ -30,9 +30,8 @@
  * @since       1.0
  * @version     $Revision$
  */
-class Doctrine_Query_TestCase extends Doctrine_UnitTestCase 
+class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
 {
-    
     public function testWhereInSupportInDql()
     {
         $q = Doctrine_Query::create()
@@ -46,8 +45,8 @@ class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
             'SELECT e.id AS e__id, e.name AS e__name, e.loginname AS e__loginname, e.password AS e__password, e.type AS e__type, e.created AS e__created, e.updated AS e__updated, e.email_id AS e__email_id FROM entity e WHERE (e.id IN (?, ?, ?) AND e.name NOT IN (?, ?) AND e.id NOT IN (?, ?, ?, ?) AND (e.type = 0))'
         );
     }
-    
-    
+
+
     public function testWhereInSupportInDql2()
     {
         $q = Doctrine_Query::create()
@@ -60,7 +59,7 @@ class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
         );
     }
 
-    
+
     public function testGetQueryHookResetsTheManuallyAddedDqlParts()
     {
         $q = new MyQuery();
@@ -76,7 +75,7 @@ class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
 
     public function testParseClauseSupportsArithmeticOperators()
     {
-    	$q = new Doctrine_Query();
+        $q = new Doctrine_Query();
 
         $str = $q->parseClause('2 + 3');
 
@@ -88,7 +87,7 @@ class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
     }
     public function testParseClauseSupportsArithmeticOperatorsWithFunctions()
     {
-    	$q = new Doctrine_Query();
+        $q = new Doctrine_Query();
 
         $str = $q->parseClause('ACOS(2) + 3');
 
@@ -97,7 +96,7 @@ class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
 
     public function testParseClauseSupportsArithmeticOperatorsWithParenthesis()
     {
-    	$q = new Doctrine_Query();
+        $q = new Doctrine_Query();
 
         $str = $q->parseClause('(3 + 3)*3');
 
@@ -110,7 +109,7 @@ class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
 
     public function testParseClauseSupportsArithmeticOperatorsWithParenthesisAndFunctions()
     {
-    	$q = new Doctrine_Query();
+        $q = new Doctrine_Query();
 
         $str = $q->parseClause('(3 + 3)*ACOS(3)');
 
@@ -123,13 +122,13 @@ class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
 
     public function testParseClauseSupportsComponentReferences()
     {
-    	$q = new Doctrine_Query();
+        $q = new Doctrine_Query();
         $q->from('User u')->leftJoin('u.Phonenumber p');
         $q->getSqlQuery();
         //Doctrine_Core::dump($q->getCachedForm(array('foo' => 'bar')));
         $this->assertEqual($q->parseClause("CONCAT('u.name', u.name)"), "CONCAT('u.name', e.name)");
     }
-    
+
     public function testCountMaintainsParams()
     {
         $q = new Doctrine_Query();
@@ -156,24 +155,24 @@ class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
         $query = new Doctrine_Query();
         $query->select('u.*')->from('User u');
         $sql = $query->getSqlQuery();
-        
-        $data = $query->execute();
+
+        $data   = $query->execute();
         $query2 = $query->copy();
-        
+
         $this->assertTrue($sql, $query2->getSqlQuery());
-        
+
         $query2->limit(0);
         $query2->offset(0);
         $query2->select('COUNT(u.id) as nb');
-        
+
         $this->assertTrue($query2->getSqlQuery(), 'SELECT COUNT(e.id) AS e__0 FROM entity e WHERE (e.type = 0)');
     }
-    
+
     public function testNullAggregateIsSet()
     {
-        $user = new User();
-        $user->name = 'jon';
-        $user->loginname = 'jwage';
+        $user                              = new User();
+        $user->name                        = 'jon';
+        $user->loginname                   = 'jwage';
         $user->Phonenumber[0]->phonenumber = new Doctrine_Expression('NULL');
         $user->save();
         $id = $user->id;
@@ -203,8 +202,8 @@ class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
             $this->pass();
         }
     }
-    
-    
+
+
     public function testOrQuerySupport()
     {
         $q1 = Doctrine_Query::create()
@@ -213,7 +212,7 @@ class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
             ->leftJoin('u.Phonenumber p')
             ->where('u.name = ?')
             ->orWhere('u.loginname = ?');
-            
+
         $q2 = Doctrine_Query::create()
             ->select('u.id')
             ->from('User u')
@@ -225,12 +224,12 @@ class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
             'SELECT e.id AS e__id FROM entity e LEFT JOIN phonenumber p ON e.id = p.entity_id ' .
             'WHERE (e.name = ? OR e.loginname = ? AND (e.type = 0))'
         );
-        
+
         $items1 = $q1->execute(array('zYne', 'jwage'), Doctrine_Core::HYDRATE_ARRAY);
         $items2 = $q2->execute(array('zYne', 'jwage'), Doctrine_Core::HYDRATE_ARRAY);
 
         $this->assertEqual(count($items1), count($items2));
-        
+
         $q1->free();
         $q2->free();
     }
@@ -245,7 +244,7 @@ class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
             ->where('u.name = ?')
             ->andWhere('u.loginname = ?')
             ->orWhere('u.id = ?');
-            
+
         $q2 = Doctrine_Query::create()
             ->select('u.id')
             ->from('User u')
@@ -257,7 +256,7 @@ class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
             'SELECT e.id AS e__id FROM entity e LEFT JOIN phonenumber p ON e.id = p.entity_id ' .
             'WHERE (e.name = ? AND e.loginname = ? OR e.id = ? AND (e.type = 0))'
         );
-        
+
         $items1 = $q1->execute(array('jon', 'jwage', 4), Doctrine_Core::HYDRATE_ARRAY);
         $items2 = $q2->execute(array('jon', 'jwage', 4), Doctrine_Core::HYDRATE_ARRAY);
 
@@ -266,8 +265,8 @@ class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
         $q1->free();
         $q2->free();
     }
-    
-    
+
+
     public function testOrQuerySupport3()
     {
         $q1 = Doctrine_Query::create()
@@ -276,10 +275,10 @@ class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
             ->leftJoin('u.Phonenumber p')
             ->where("u.name = 'jon'")
             ->andWhere("u.loginname = 'jwage'")
-            ->orWhere("u.id = 4")
-            ->orWhere("u.id = 5")
+            ->orWhere('u.id = 4')
+            ->orWhere('u.id = 5')
             ->andWhere("u.name LIKE 'Arnold%'");
-            
+
         $q2 = Doctrine_Query::create()
             ->select('u.id')
             ->from('User u')
@@ -288,10 +287,10 @@ class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
 
         $this->assertEqual(
             $q1->getSqlQuery(),
-            "SELECT e.id AS e__id FROM entity e LEFT JOIN phonenumber p ON e.id = p.entity_id " .
+            'SELECT e.id AS e__id FROM entity e LEFT JOIN phonenumber p ON e.id = p.entity_id ' .
             "WHERE (e.name = 'jon' AND e.loginname = 'jwage' OR e.id = 4 OR e.id = 5 AND e.name LIKE 'Arnold%' AND (e.type = 0))"
         );
-        
+
         $items1 = $q1->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
         $items2 = $q2->execute(array(), Doctrine_Core::HYDRATE_ARRAY);
 
@@ -300,22 +299,20 @@ class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
         $q1->free();
         $q2->free();
     }
-    
+
     public function testParseTableAliasesWithBetweenInWhereClause()
     {
-        
         $q1 = Doctrine_Query::create()
             ->select('u.id')
             ->from('QueryTest_User u')
-            ->where("CURRENT_DATE() BETWEEN u.QueryTest_Subscription.begin AND u.QueryTest_Subscription.begin")
-            ->addWhere( 'u.id != 5' )
+            ->where('CURRENT_DATE() BETWEEN u.QueryTest_Subscription.begin AND u.QueryTest_Subscription.begin')
+            ->addWhere('u.id != 5')
             ;
-            
+
         $expected = 'SELECT q.id AS q__id FROM query_test__user q LEFT JOIN query_test__subscription q2 ON q.subscriptionid = q2.id WHERE (CURRENT_DATE() BETWEEN q2.begin AND q2.begin AND q.id != 5)';
-        
-        $this->assertEqual( $q1->getSqlQuery(), $expected );
-        
-    } 
+
+        $this->assertEqual($q1->getSqlQuery(), $expected);
+    }
 
 
     public function testQuoteAndBracketUsageAsValueInQuery()
@@ -369,10 +366,9 @@ class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
 
         $userTable->setAttribute(Doctrine_Core::ATTR_QUERY_CLASS, 'Doctrine_Query');
     }
-    
+
     public function testNoLimitSubqueryIfXToOneSelected()
     {
-        
         $q = Doctrine_Query::create()
                     ->select('u.name, e.address')
                     ->from('User u')
@@ -380,8 +376,8 @@ class Doctrine_Query_TestCase extends Doctrine_UnitTestCase
                     ->leftJoin('u.Phonenumber p')
                     ->distinct()
                     ->limit(1);
-        
-        $this->assertEqual($q->getSqlQuery(), "SELECT DISTINCT e.id AS e__id, e.name AS e__name, e2.id AS e2__id, e2.address AS e2__address FROM entity e LEFT JOIN email e2 ON e.email_id = e2.id LEFT JOIN phonenumber p ON e.id = p.entity_id WHERE (e.type = 0) LIMIT 1");
+
+        $this->assertEqual($q->getSqlQuery(), 'SELECT DISTINCT e.id AS e__id, e.name AS e__name, e2.id AS e2__id, e2.address AS e2__address FROM entity e LEFT JOIN email e2 ON e.email_id = e2.id LEFT JOIN phonenumber p ON e.id = p.entity_id WHERE (e.type = 0) LIMIT 1');
     }
 }
 

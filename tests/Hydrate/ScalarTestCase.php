@@ -34,28 +34,28 @@ class Doctrine_Hydrate_Scalar_TestCase extends Doctrine_UnitTestCase
 {
     public function prepareData()
     {
-        $user = new User();
-        $user->name = 'romanb';
+        $user                              = new User();
+        $user->name                        = 'romanb';
         $user->Phonenumber[0]->phonenumber = '112';
         $user->Phonenumber[1]->phonenumber = '110';
         $user->save();
     }
-    
+
     public function prepareTables()
     {
-        $this->tables = array('Entity', 'Phonenumber'); 
+        $this->tables = array('Entity', 'Phonenumber');
         parent::prepareTables();
     }
-    
+
     public function testHydrateScalarWithJoin()
     {
         $q = Doctrine_Query::create();
-        $q->select("u.*, p.*")
-            ->from("User u")
-            ->innerJoin("u.Phonenumber p");
-        
+        $q->select('u.*, p.*')
+            ->from('User u')
+            ->innerJoin('u.Phonenumber p');
+
         $res = $q->execute(array(), Doctrine_Core::HYDRATE_SCALAR);
-        
+
         $this->assertTrue(is_array($res));
         $this->assertEqual(2, count($res));
         //row1
@@ -82,17 +82,17 @@ class Doctrine_Hydrate_Scalar_TestCase extends Doctrine_UnitTestCase
         $this->assertEqual(2, $res[1]['p_id']);
         $this->assertEqual(110, $res[1]['p_phonenumber']);
         $this->assertEqual(1, $res[1]['p_entity_id']);
-        
+
         $q->free();
     }
-    
+
     public function testHydrateScalar()
     {
         $q = Doctrine_Query::create();
-        $q->select("u.*")->from("User u");
-        
+        $q->select('u.*')->from('User u');
+
         $res = $q->execute(array(), Doctrine_Core::HYDRATE_SCALAR);
-        
+
         $this->assertTrue(is_array($res));
         $this->assertEqual(1, count($res));
         //row1
@@ -104,40 +104,40 @@ class Doctrine_Hydrate_Scalar_TestCase extends Doctrine_UnitTestCase
         $this->assertEqual(null, $res[0]['u_created']);
         $this->assertEqual(null, $res[0]['u_updated']);
         $this->assertEqual(null, $res[0]['u_email_id']);
-        
+
         $q->free();
     }
-    
+
     public function testHydrateSingleScalarDoesNotAddPKToSelect()
     {
         $q = Doctrine_Query::create();
-        $q->select("u.name")->from("User u");
+        $q->select('u.name')->from('User u');
         $res = $q->execute(array(), Doctrine_Core::HYDRATE_SINGLE_SCALAR);
         $this->assertEqual('romanb', $res);
         $q->free();
     }
-    
+
     public function testHydrateSingleScalarWithAggregate()
     {
         $q = Doctrine_Query::create();
-        $q->select("COUNT(u.id) num_ids")->from("User u");
+        $q->select('COUNT(u.id) num_ids')->from('User u');
         $res = $q->execute(array(), Doctrine_Core::HYDRATE_SINGLE_SCALAR);
         $this->assertEqual(1, $res);
         $q->free();
     }
-    
+
     public function testHydrateScalarWithJoinAndAggregate()
     {
         $q = Doctrine_Query::create();
-        $q->select("u.id, UPPER(u.name) nameUpper, p.*")
-            ->from("User u")
-            ->innerJoin("u.Phonenumber p");
-        
+        $q->select('u.id, UPPER(u.name) nameUpper, p.*')
+            ->from('User u')
+            ->innerJoin('u.Phonenumber p');
+
         $res = $q->execute(array(), Doctrine_Core::HYDRATE_SCALAR);
-        
+
         $this->assertTrue(is_array($res));
         $this->assertEqual(2, count($res));
-        
+
         //row1
         $this->assertEqual(1, $res[0]['u_id']);
         $this->assertEqual('ROMANB', $res[0]['u_nameUpper']);
@@ -150,16 +150,16 @@ class Doctrine_Hydrate_Scalar_TestCase extends Doctrine_UnitTestCase
         $this->assertEqual(2, $res[1]['p_id']);
         $this->assertEqual(110, $res[1]['p_phonenumber']);
         $this->assertEqual(1, $res[1]['p_entity_id']);
-        
+
         $q->free();
     }
 
     public function testHydrateArrayShallowWithJoin()
     {
         $q = Doctrine_Query::create();
-        $q->select("u.*, p.id as phonenumber_id, p.phonenumber, p.entity_id")
-            ->from("User u")
-            ->innerJoin("u.Phonenumber p");
+        $q->select('u.*, p.id as phonenumber_id, p.phonenumber, p.entity_id')
+            ->from('User u')
+            ->innerJoin('u.Phonenumber p');
 
         $res = $q->execute(array(), Doctrine_Core::HYDRATE_ARRAY_SHALLOW);
 
@@ -196,7 +196,7 @@ class Doctrine_Hydrate_Scalar_TestCase extends Doctrine_UnitTestCase
     public function testHydrateArrayShallow()
     {
         $q = Doctrine_Query::create();
-        $q->select("u.*")->from("User u");
+        $q->select('u.*')->from('User u');
 
         $res = $q->execute(array(), Doctrine_Core::HYDRATE_ARRAY_SHALLOW);
 
@@ -218,9 +218,9 @@ class Doctrine_Hydrate_Scalar_TestCase extends Doctrine_UnitTestCase
     public function testHydrateArrayShallowWithJoinAndAggregate()
     {
         $q = Doctrine_Query::create();
-        $q->select("u.id, UPPER(u.name) nameUpper, p.id as phonenumber_id, p.phonenumber, p.entity_id")
-            ->from("User u")
-            ->innerJoin("u.Phonenumber p");
+        $q->select('u.id, UPPER(u.name) nameUpper, p.id as phonenumber_id, p.phonenumber, p.entity_id')
+            ->from('User u')
+            ->innerJoin('u.Phonenumber p');
 
         $res = $q->execute(array(), Doctrine_Core::HYDRATE_ARRAY_SHALLOW);
 

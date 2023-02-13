@@ -36,12 +36,14 @@
 class Doctrine_Search_Analyzer_Utf8 extends Doctrine_Search_Analyzer_Standard
 {
     /**
+     * @param string $text
+     * @param string $encoding
      * @return array
      */
     public function analyze($text, $encoding = null)
     {
         if (is_null($encoding)) {
-          $encoding = isset($this->_options['encoding']) ? $this->_options['encoding']:'utf-8';
+            $encoding = isset($this->_options['encoding']) ? $this->_options['encoding']:'utf-8';
         }
 
         // check that $text encoding is utf-8, if not convert it
@@ -55,7 +57,7 @@ class Doctrine_Search_Analyzer_Utf8 extends Doctrine_Search_Analyzer_Standard
         $terms = explode(' ', $text);
 
         $ret = array();
-        if ( ! empty($terms)) {
+        if (! empty($terms)) {
             foreach ($terms as $i => $term) {
                 if (empty($term)) {
                     continue;

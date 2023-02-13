@@ -30,7 +30,7 @@
  * @since       1.0
  * @version     $Revision$
  */
-class Doctrine_Ticket_DC794_TestCase extends Doctrine_UnitTestCase 
+class Doctrine_Ticket_DC794_TestCase extends Doctrine_UnitTestCase
 {
     public function prepareTables()
     {
@@ -41,7 +41,7 @@ class Doctrine_Ticket_DC794_TestCase extends Doctrine_UnitTestCase
     public function testTest()
     {
         $table = Doctrine::getTable('Ticket_DC794_Model');
-        
+
         $this->assertEqual($table->buildFindByWhere('IdOrigenOportunidadClienteOrId'), '(dctrn_find.idOrigenOportunidadCliente = ? OR dctrn_find.id = ?)');
         $this->assertEqual($table->buildFindByWhere('IdAndIdOrIdOrigenOportunidadCliente'), 'dctrn_find.id = ? AND (dctrn_find.id = ? OR dctrn_find.idOrigenOportunidadCliente = ?)');
         $this->assertEqual($table->buildFindByWhere('UsernameOrIdOrIdOrigenOportunidadCliente'), '(dctrn_find.Username = ? OR dctrn_find.id = ? OR dctrn_find.idOrigenOportunidadCliente = ?)');
@@ -53,9 +53,9 @@ class Ticket_DC794_Model extends Doctrine_Record
     public function setTableDefinition()
     {
         $this->hasColumn('id', 'integer', null, array(
-            'type' => 'integer',
-            'unsigned' => false,
-            'primary' => true,
+            'type'          => 'integer',
+            'unsigned'      => false,
+            'primary'       => true,
             'autoincrement' => true,
         ));
         $this->hasColumn('idOrigenOportunidadCliente', 'string', 255);

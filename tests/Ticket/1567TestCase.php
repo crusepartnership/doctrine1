@@ -30,7 +30,7 @@
  * @since       1.0
  * @version     $Revision$
  */
-class Doctrine_Ticket_1567_TestCase extends Doctrine_UnitTestCase 
+class Doctrine_Ticket_1567_TestCase extends Doctrine_UnitTestCase
 {
     public function prepareTables()
     {
@@ -40,8 +40,8 @@ class Doctrine_Ticket_1567_TestCase extends Doctrine_UnitTestCase
 
     public function testTest()
     {
-        $project = new Ticket_1567_Project();
-        $project->name = 'test';
+        $project          = new Ticket_1567_Project();
+        $project->name    = 'test';
         $project->user_id = 1;
         $project->deleted = true;
         $project->save();
@@ -50,7 +50,7 @@ class Doctrine_Ticket_1567_TestCase extends Doctrine_UnitTestCase
         $query->from('Ticket_1567_Project p');
         $query->addWhere('p.user_id = ?', 1);
         $query->addWhere('p.deleted = ?', true);
-        
+
         $this->assertEqual($query->count(), 1);
         $this->assertEqual($query->execute()->count(), 1);
     }

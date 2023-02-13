@@ -53,7 +53,7 @@ class Doctrine_Adapter_Statement_Mock implements Doctrine_Adapter_Statement_Inte
      */
     public function __construct($mock)
     {
-        $this->_mock  = $mock;
+        $this->_mock = $mock;
     }
 
     /**
@@ -69,7 +69,9 @@ class Doctrine_Adapter_Statement_Mock implements Doctrine_Adapter_Statement_Inte
      * @return boolean              Returns TRUE on success or FALSE on failure
      */
     public function bindColumn($column, $param, $type = null)
-    { }
+    {
+        return false;
+    }
 
     /**
      * bindValue
@@ -87,7 +89,9 @@ class Doctrine_Adapter_Statement_Mock implements Doctrine_Adapter_Statement_Inte
      * @return boolean              Returns TRUE on success or FALSE on failure.
      */
     public function bindValue($param, $value, $type = null)
-    { }
+    {
+        return false;
+    }
 
     /**
      * bindParam
@@ -119,7 +123,7 @@ class Doctrine_Adapter_Statement_Mock implements Doctrine_Adapter_Statement_Inte
      */
     public function bindParam($column, &$variable, $type = null, $length = null, $driverOptions = array())
     {
-
+        return false;
     }
 
     /**
@@ -201,10 +205,11 @@ class Doctrine_Adapter_Statement_Mock implements Doctrine_Adapter_Statement_Inte
      *
      * @return mixed
      */
-    public function fetch($fetchStyle = Doctrine_Core::FETCH_BOTH,
+    public function fetch(
+        $fetchStyle = Doctrine_Core::FETCH_BOTH,
                           $cursorOrientation = Doctrine_Core::FETCH_ORI_NEXT,
-                          $cursorOffset = null)
-    {
+                          $cursorOffset = null
+    ) {
         return array();
     }
 
@@ -219,7 +224,7 @@ class Doctrine_Adapter_Statement_Mock implements Doctrine_Adapter_Statement_Inte
      *
      * @return array
      */
-    public function fetchAll($fetchMode = Doctrine_Core::FETCH_BOTH)
+    public function fetchAll($fetchMode = Doctrine_Core::FETCH_BOTH, $colnum = 0)
     {
         return array();
     }
@@ -337,7 +342,9 @@ class Doctrine_Adapter_Statement_Mock implements Doctrine_Adapter_Statement_Inte
      *          pdo_type                    The type of this column as represented by the PDO::PARAM_* constants.
      */
     public function getColumnMeta($column)
-    { }
+    {
+        return array();
+    }
 
     /**
      * getAttribute
@@ -349,7 +356,9 @@ class Doctrine_Adapter_Statement_Mock implements Doctrine_Adapter_Statement_Inte
      * @return mixed                        the attribute value
      */
     public function getAttribute($attribute)
-    { }
+    {
+        return null;
+    }
 
     /**
      * setAttribute
@@ -361,7 +370,9 @@ class Doctrine_Adapter_Statement_Mock implements Doctrine_Adapter_Statement_Inte
      * @return boolean                      Returns TRUE on success or FALSE on failure.
      */
     public function setAttribute($attribute, $value)
-    { }
+    {
+        return false;
+    }
 
     /**
      * setFetchMode
@@ -369,8 +380,12 @@ class Doctrine_Adapter_Statement_Mock implements Doctrine_Adapter_Statement_Inte
      * Set the default fetch mode for this statement
      *
      * @param integer $mode                 The fetch mode must be one of the Doctrine_Core::FETCH_* constants.
-     * @return boolean                      Returns 1 on success or FALSE on failure.
+     * @param int $arg1
+     * @param array $arg2
+     * @return bool
      */
     public function setFetchMode($mode, $arg1 = null, $arg2 = null)
-    { }
+    {
+        return false;
+    }
 }

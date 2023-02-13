@@ -30,23 +30,24 @@
  * @since       1.0
  * @version     $Revision$
  */
-class Doctrine_Search_TestCase extends Doctrine_UnitTestCase 
+class Doctrine_Search_TestCase extends Doctrine_UnitTestCase
 {
     public function prepareTables()
     {
         $this->tables = array('SearchTest');
-        
+
         parent::prepareTables();
     }
     public function prepareData()
-    { }
+    {
+    }
 
     public function testBuildingOfSearchRecordDefinition()
     {
         $e = new SearchTest();
-        
+
         $this->assertTrue($e->SearchTestIndex instanceof Doctrine_Collection);
-        
+
         $rel = $e->getTable()->getRelation('SearchTestIndex');
 
         $this->assertIdentical($rel->getLocal(), 'id');
@@ -56,14 +57,14 @@ class Doctrine_Search_TestCase extends Doctrine_UnitTestCase
     {
         $e = new SearchTest();
 
-        $e->title = 'Once there was an ORM framework';
+        $e->title   = 'Once there was an ORM framework';
         $e->content = 'There are many ORM frameworks, but nevertheless we decided to create one.';
 
         $e->save();
 
         $e = new SearchTest();
 
-        $e->title = '007';
+        $e->title   = '007';
         $e->content = 'Awesome movie series';
 
         $e->save();
@@ -105,7 +106,7 @@ class Doctrine_Search_TestCase extends Doctrine_UnitTestCase
 
         $this->assertEqual($array[0]['title'], '007');
     }
-    
+
     public function testUsingWordRange()
     {
         $q = new Doctrine_Query();
@@ -150,15 +151,15 @@ class Doctrine_Search_TestCase extends Doctrine_UnitTestCase
 
     public function testUpdateIndexInsertsNullValuesForBatchUpdatedEntries()
     {
-        $e = new SearchTest();
+        $e   = new SearchTest();
         $tpl = $e->getTable()->getTemplate('Doctrine_Template_Searchable');
         $tpl->getPlugin()->setOption('batchUpdates', true);
 
-        $e->title = 'Some searchable title';
+        $e->title   = 'Some searchable title';
         $e->content = 'Some searchable content';
 
         $e->save();
-        
+
         $coll = Doctrine_Query::create()
                 ->from('SearchTestIndex s')
                 ->orderby('s.id DESC')
@@ -176,25 +177,23 @@ class Doctrine_Search_TestCase extends Doctrine_UnitTestCase
     {
         $e = new SearchTest();
         $e->batchUpdateIndex();
-        
+
         $coll = Doctrine_Query::create()
                 ->from('SearchTestIndex s')
                 ->setHydrationMode(Doctrine_Core::HYDRATE_ARRAY)
                 ->execute();
 
         $coll = $this->conn->fetchAll('SELECT * FROM search_test_index');
-        
-
     }
 
     public function testThrowExceptionIfInvalidTable()
     {
-       try {
-           $oQuery = new Doctrine_Search_Query(new Doctrine_Query());
-           $this->fail('Should throw exception');
-       } catch(Doctrine_Search_Exception $exception) {
-           $this->assertEqual($exception->getMessage(), 'Invalid argument type. Expected instance of Doctrine_Table.');
-       }
+        try {
+            $oQuery = new Doctrine_Search_Query(new Doctrine_Query());
+            $this->fail('Should throw exception');
+        } catch (Doctrine_Search_Exception $exception) {
+            $this->assertEqual($exception->getMessage(), 'Invalid argument type. Expected instance of Doctrine_Table.');
+        }
     }
 
     public function testGenerateSearchQueryForWeightedSearch()
@@ -213,7 +212,7 @@ class Doctrine_Search_TestCase extends Doctrine_UnitTestCase
         $this->assertEqual($words[2], 'ca');
         $this->assertEqual($words[4], 'enormement');
     }
-    
+
     public function testUtf8AnalyzerWorks()
     {
         $analyzer = new Doctrine_Search_Analyzer_Utf8(array('encoding' => 'utf-8'));
@@ -223,13 +222,13 @@ class Doctrine_Search_TestCase extends Doctrine_UnitTestCase
         $this->assertEqual($words[2], 'ça');
         $this->assertEqual($words[4], 'énormément');
     }
- 
+
     public function testUtf8AnalyzerKnowsToHandleOtherEncodingsWorks()
     {
         $analyzer = new Doctrine_Search_Analyzer_Utf8();
 
         // convert our test string to iso8859-15
-        $iso = iconv('UTF-8','ISO8859-15', 'un éléphant ça trompe énormément');
+        $iso = iconv('UTF-8', 'ISO8859-15', 'un éléphant ça trompe énormément');
 
         $words = $analyzer->analyze($iso, 'ISO8859-15');
         $this->assertEqual($words[1], 'éléphant');

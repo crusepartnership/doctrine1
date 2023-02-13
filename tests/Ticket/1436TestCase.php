@@ -36,33 +36,33 @@ class Doctrine_Ticket_1436_TestCase extends Doctrine_UnitTestCase
     {
         parent::prepareTables();
     }
-    
+
     public function prepareData()
     {
-        $user = new User();
+        $user       = new User();
         $user->name = 'John';
         $user->save();
-        
+
         # Create existing groups
-        $group = new Group();
+        $group       = new Group();
         $group->name = 'Group One';
         $group->save();
         $this->group_one = $group['id'];
-        
-        $group = new Group();
+
+        $group       = new Group();
         $group->name = 'Group Two';
         $group->save();
         $this->group_two = $group['id'];
-        
-        $group = new Group();
+
+        $group       = new Group();
         $group->name = 'Group Three';
         $group->save();
         $this->group_three = $group['id'];
     }
-    
+
     public function testSynchronizeAddMNLinks()
     {
-        $user = Doctrine_Query::create()->from('User u')->fetchOne();
+        $user      = Doctrine_Query::create()->from('User u')->fetchOne();
         $userArray = array(
             'Group' => array(
                 $this->group_one,
@@ -73,9 +73,9 @@ class Doctrine_Ticket_1436_TestCase extends Doctrine_UnitTestCase
         $user->synchronizeWithArray($userArray);
 
         try {
-          $user->save();
-        } catch (Exception $e ) {
-          $this->fail("Failed saving with " . $e->getMessage());
+            $user->save();
+        } catch (Exception $e) {
+            $this->fail('Failed saving with ' . $e->getMessage());
         }
     }
     public function testSynchronizeAddMNLinksAfterSave()
@@ -87,27 +87,27 @@ class Doctrine_Ticket_1436_TestCase extends Doctrine_UnitTestCase
     }
     public function testSynchronizeChangeMNLinks()
     {
-        $user = Doctrine_Query::create()->from('User u, u.Group g')->fetchOne();
+        $user      = Doctrine_Query::create()->from('User u, u.Group g')->fetchOne();
         $userArray = array(
             'Group' => array(
                 $this->group_two,
                 $this->group_three
             )
         );
-        
+
         $user->synchronizeWithArray($userArray);
-        
+
         $this->assertTrue(!isset($user->Groups));
-        
+
         try {
-          $user->save();
-        } catch (Exception $e ) {
-          $this->fail("Failed saving with " . $e->getMessage());
+            $user->save();
+        } catch (Exception $e) {
+            $this->fail('Failed saving with ' . $e->getMessage());
         }
-        
+
         $user->refresh();
         $user->loadReference('Group');
-        
+
         $this->assertEqual($user->Group[0]->name, 'Group Two');
         $this->assertEqual($user->Group[1]->name, 'Group Three');
         $this->assertTrue(!isset($user->Group[2]));
@@ -115,7 +115,7 @@ class Doctrine_Ticket_1436_TestCase extends Doctrine_UnitTestCase
 
     public function testFromArray()
     {
-        $user = new User();
+        $user      = new User();
         $userArray = array('Group' => array($this->group_two, $this->group_three));
         $user->fromArray($userArray);
         $this->assertEqual($user->Group[0]->name, 'Group Two');
@@ -125,7 +125,7 @@ class Doctrine_Ticket_1436_TestCase extends Doctrine_UnitTestCase
     public function testSynchronizeMNRecordsDontDeleteAfterUnlink()
     {
         $group = Doctrine_Core::getTable('Group')->find($this->group_one);
-        
+
         $this->assertTrue(!empty($group));
         $this->assertEqual($group->name, 'Group One');
     }

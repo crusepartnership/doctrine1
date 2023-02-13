@@ -43,13 +43,14 @@ class Doctrine_Transaction_Mssql extends Doctrine_Transaction
      *                  SERIALIZABLE (prevents phantom reads)
      *      mssql specific modes:
      *                  SNAPSHOT
-     *
+     * @param array $options
      * @link http://msdn2.microsoft.com/en-us/library/ms173763.aspx
      * @throws PDOException                         if something fails at the PDO level
      * @throws Doctrine_Transaction_Exception       if using unknown isolation level or unknown wait option
      * @return void
      */
-    public function setIsolation($isolation, $options = array()) {
+    public function setIsolation($isolation, $options = array())
+    {
         switch ($isolation) {
             case 'READ UNCOMMITTED':
             case 'READ COMMITTED':
@@ -68,6 +69,8 @@ class Doctrine_Transaction_Mssql extends Doctrine_Transaction
 
     /**
      * Performs the rollback.
+     *
+     * @return void
      */
     protected function _doRollback()
     {
@@ -76,6 +79,8 @@ class Doctrine_Transaction_Mssql extends Doctrine_Transaction
 
     /**
      * Performs the commit.
+     *
+     * @return void
      */
     protected function _doCommit()
     {
@@ -84,6 +89,8 @@ class Doctrine_Transaction_Mssql extends Doctrine_Transaction
 
     /**
      * Begins a database transaction.
+     *
+     * @return void
      */
     protected function _doBeginTransaction()
     {

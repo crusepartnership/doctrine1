@@ -32,11 +32,19 @@
  */
 class Doctrine_Expression_Driver extends Doctrine_Connection_Module
 {
+    /**
+     * @param  string|int $column
+     * @return string|int
+     */
     public function getIdentifier($column)
     {
         return $column;
     }
 
+    /**
+     * @param  array $columns
+     * @return array
+     */
     public function getIdentifiers($columns)
     {
         return $columns;
@@ -62,7 +70,7 @@ class Doctrine_Expression_Driver extends Doctrine_Connection_Module
     public function avg($column)
     {
         $column = $this->getIdentifier($column);
-        return 'AVG(' .  $column . ')';
+        return 'AVG(' . $column . ')';
     }
 
     /**
@@ -123,6 +131,7 @@ class Doctrine_Expression_Driver extends Doctrine_Connection_Module
      *
      * Note: Not SQL92, but common functionality
      *
+     * @param string $column
      * @return string
      */
     public function md5($column)
@@ -287,9 +296,9 @@ class Doctrine_Expression_Driver extends Doctrine_Connection_Module
     public function substring($value, $from, $len = null)
     {
         $value = $this->getIdentifier($value);
-        if ($len === null)
+        if ($len === null) {
             return 'SUBSTRING(' . $value . ' FROM ' . $from . ')';
-        else {
+        } else {
             $len = $this->getIdentifier($len);
             return 'SUBSTRING(' . $value . ' FROM ' . $from . ' FOR ' . $len . ')';
         }
@@ -302,6 +311,8 @@ class Doctrine_Expression_Driver extends Doctrine_Connection_Module
      * must contain an expression or an array with expressions.
      *
      * @param string ...$args strings that will be concatinated.
+     *
+     * @return string
      */
     public function concat(...$args)
     {
@@ -310,7 +321,7 @@ class Doctrine_Expression_Driver extends Doctrine_Connection_Module
 
     /**
      * Returns the SQL for a logical not.
-     *
+     * @param string $expression
      * @return string a logical expression
      */
     public function not($expression)
@@ -371,7 +382,7 @@ class Doctrine_Expression_Driver extends Doctrine_Connection_Module
      */
     public function sub(array $args)
     {
-        return $this->basicMath('-', $args );
+        return $this->basicMath('-', $args);
     }
 
     /**
@@ -505,7 +516,7 @@ class Doctrine_Expression_Driver extends Doctrine_Connection_Module
      */
     public function in($column, $values)
     {
-        if ( ! is_array($values)) {
+        if (! is_array($values)) {
             $values = array($values);
         }
         $values = $this->getIdentifiers($values);
@@ -559,9 +570,9 @@ class Doctrine_Expression_Driver extends Doctrine_Connection_Module
     public function between($expression, $value1, $value2)
     {
         $expression = $this->getIdentifier($expression);
-        $value1 = $this->getIdentifier($value1);
-        $value2 = $this->getIdentifier($value2);
-        return $expression . ' BETWEEN ' .$value1 . ' AND ' . $value2;
+        $value1     = $this->getIdentifier($value1);
+        $value2     = $this->getIdentifier($value2);
+        return $expression . ' BETWEEN ' . $value1 . ' AND ' . $value2;
     }
 
     /**
@@ -576,7 +587,7 @@ class Doctrine_Expression_Driver extends Doctrine_Connection_Module
 
     /**
      * returns arcus cosine SQL string
-     *
+     * @param string $value
      * @return string
      */
     public function acos($value)
@@ -625,13 +636,15 @@ class Doctrine_Expression_Driver extends Doctrine_Connection_Module
     {
         $args = func_get_args();
 
-	    return 'COALESCE(' . join(', ', (array) $args) . ')';
+        return 'COALESCE(' . join(', ', (array) $args) . ')';
     }
 
     /**
      * __call
      *
      * for all native RDBMS functions the function name itself is returned
+     * @param string $m
+     * @param array $a
      */
     public function __call($m, $a)
     {

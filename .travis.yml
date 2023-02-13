@@ -1,20 +1,23 @@
 language: php
 
-env:
-  global:
-    - CC_TEST_REPORTER_ID=f424c3957298b215ddff899f624b534dac452ed703b42f70b74188a2edf0b5d0
-
 php:
   - 5.6
   - 7.0
   - 7.1
   - 7.2
   - hhvm
+  - nightly
 
-install: composer install
+env:
+  global:
+    - CC_TEST_REPORTER_ID=f424c3957298b215ddff899f624b534dac452ed703b42f70b74188a2edf0b5d0
 
-notifications:
-  email: false
+install:
+  - travis_retry composer install --no-interaction --prefer-source
+
+stages:
+  - style check
+  - test
 
 before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -26,13 +29,23 @@ script:
   - php run.php --coverage=clover
   - cd ..
 
-matrix:
-  allow_failures:
-    - php: hhvm
-
 after_success:
   - bash <(curl -s https://codecov.io/bash) -f tests/coverage/clover.xml
 
 after_script:
   - cp tests/coverage/clover.xml ./clover.xml
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+
+jobs:
+  fast_finish: true
+  allow_failures:
+    - php: hhvm
+    - php: nightly
+  include:
+    - stage: style check
+      php: 7.2
+      before_script: skip
+      script:
+        - ./vendor/bin/php-cs-fixer fix --dry-run -vv
+      after_script: skip
+      after_success: skip

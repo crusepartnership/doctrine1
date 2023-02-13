@@ -32,7 +32,6 @@
  */
 class Doctrine_Query_Cache_TestCase extends Doctrine_UnitTestCase
 {
-
     public function testQueryCacheAddsQueryIntoCache()
     {
         $cache = $this->_getCacheDriver();
@@ -236,7 +235,7 @@ class Doctrine_Query_Cache_TestCase extends Doctrine_UnitTestCase
     public function testQueryCacheCanBeDisabledForSingleQuery()
     {
         $cache = $this->_getCacheDriver();
-        $q = new Doctrine_Query();
+        $q     = new Doctrine_Query();
         $q->select('u.name')->from('User u')->leftJoin('u.Phonenumber p')->where('u.name = ?', 'walhala')
                 ->useQueryCache(false);
 
@@ -250,7 +249,7 @@ class Doctrine_Query_Cache_TestCase extends Doctrine_UnitTestCase
         $this->assertFalse($cache->contains($q->calculateQueryCacheHash()));
         $this->assertEqual(count($coll), 0);
     }
-    
+
     protected function _getCacheDriver()
     {
         return new Doctrine_Cache_Array();

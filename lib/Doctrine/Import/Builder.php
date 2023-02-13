@@ -216,7 +216,7 @@ class Doctrine_Import_Builder extends Doctrine_Builder
     public function setTargetPath($path)
     {
         if ($path) {
-            if ( ! $this->_packagesPath) {
+            if (! $this->_packagesPath) {
                 $this->setOption('packagesPath', $path . DIRECTORY_SEPARATOR . $this->_packagesFolderName);
             }
 
@@ -276,7 +276,7 @@ class Doctrine_Import_Builder extends Doctrine_Builder
      */
     public function setOptions($options)
     {
-        if ( ! empty($options)) {
+        if (! empty($options)) {
             foreach ($options as $key => $value) {
                 $this->setOption($key, $value);
             }
@@ -297,7 +297,7 @@ class Doctrine_Import_Builder extends Doctrine_Builder
         if (method_exists($this, $name)) {
             $this->$name($value);
         } else {
-            $key = '_' . $key;
+            $key        = '_' . $key;
             $this->$key = $value;
         }
     }
@@ -331,10 +331,13 @@ class Doctrine_Import_Builder extends Doctrine_Builder
      * @param  string $table
      * @param  array  $tableColumns
      */
+    /**
+     * @return string|null
+     */
     public function buildTableDefinition(array $definition)
     {
         if (isset($definition['inheritance']['type']) && ($definition['inheritance']['type'] == 'simple' || $definition['inheritance']['type'] == 'column_aggregation')) {
-            return;
+            return null;
         }
 
         $ret = array();
@@ -342,12 +345,12 @@ class Doctrine_Import_Builder extends Doctrine_Builder
         $i = 0;
 
         if (isset($definition['inheritance']['type']) && $definition['inheritance']['type'] == 'concrete') {
-            $ret[$i] = "        parent::setTableDefinition();";
+            $ret[$i] = '        parent::setTableDefinition();';
             $i++;
         }
 
         if (isset($definition['tableName']) && !empty($definition['tableName'])) {
-            $ret[$i] = "        ".'$this->setTableName(\''. $definition['tableName'].'\');';
+            $ret[$i] = '        ' . '$this->setTableName(\'' . $definition['tableName'] . '\');';
             $i++;
         }
 
@@ -379,43 +382,43 @@ class Doctrine_Import_Builder extends Doctrine_Builder
         if (isset($definition['inheritance']['subclasses']) && ! empty($definition['inheritance']['subclasses'])) {
             $subClasses = array();
             foreach ($definition['inheritance']['subclasses'] as $className => $def) {
-                $className = $this->_classPrefix . $className;
+                $className              = $this->_classPrefix . $className;
                 $subClasses[$className] = $def;
             }
-            $ret[$i] = "        ".'$this->setSubClasses('. $this->varExport($subClasses).');';
+            $ret[$i] = '        ' . '$this->setSubClasses(' . $this->varExport($subClasses) . ');';
             $i++;
         }
 
         $code = implode(PHP_EOL, $ret);
         $code = trim($code);
 
-        return PHP_EOL . "    public function setTableDefinition()" . PHP_EOL . '    {' . PHP_EOL . '        ' . $code . PHP_EOL . '    }';
+        return PHP_EOL . '    public function setTableDefinition()' . PHP_EOL . '    {' . PHP_EOL . '        ' . $code . PHP_EOL . '    }';
     }
 
     /**
      * buildSetUp
      *
      * @param  array $definition
-     * @return string
+     * @return string|null
      */
     public function buildSetUp(array $definition)
     {
         $ret = array();
-        $i = 0;
+        $i   = 0;
 
         if (isset($definition['relations']) && is_array($definition['relations']) && ! empty($definition['relations'])) {
             foreach ($definition['relations'] as $name => $relation) {
                 $class = isset($relation['class']) ? $relation['class']:$name;
                 $alias = (isset($relation['alias']) && $relation['alias'] !== $this->_classPrefix . $relation['class']) ? ' as ' . $relation['alias'] : '';
 
-                if ( ! isset($relation['type'])) {
+                if (! isset($relation['type'])) {
                     $relation['type'] = Doctrine_Relation::ONE;
                 }
 
                 if ($relation['type'] === Doctrine_Relation::ONE) {
-                    $ret[$i] = "        ".'$this->hasOne(\'' . $class . $alias . '\'';
+                    $ret[$i] = '        ' . '$this->hasOne(\'' . $class . $alias . '\'';
                 } else {
-                    $ret[$i] = "        ".'$this->hasMany(\'' . $class . $alias . '\'';
+                    $ret[$i] = '        ' . '$this->hasMany(\'' . $class . $alias . '\'';
                 }
 
                 $a = array();
@@ -468,13 +471,13 @@ class Doctrine_Import_Builder extends Doctrine_Builder
                     $a[] = '\'orderBy\' => ' . $this->varExport($relation['orderBy']);
                 }
 
-                if ( ! empty($a)) {
+                if (! empty($a)) {
                     $ret[$i] .= ', ' . 'array(' . PHP_EOL . str_repeat(' ', 13);
                     $length = strlen($ret[$i]);
                     $ret[$i] .= implode(',' . PHP_EOL . str_repeat(' ', 13), $a) . ')';
                 }
 
-                $ret[$i] .= ');'.PHP_EOL;
+                $ret[$i] .= ');' . PHP_EOL;
                 $i++;
             }
         }
@@ -492,7 +495,7 @@ class Doctrine_Import_Builder extends Doctrine_Builder
         $code = implode(PHP_EOL, $ret);
         $code = trim($code);
 
-        $code = "parent::setUp();" . PHP_EOL . '        ' . $code;
+        $code = 'parent::setUp();' . PHP_EOL . '        ' . $code;
 
         // If we have some code for the function then lets define it and return it
         if ($code) {
@@ -524,7 +527,7 @@ class Doctrine_Import_Builder extends Doctrine_Builder
     public function buildColumns(array $columns)
     {
         $manager = Doctrine_Manager::getInstance();
-        $refl = new ReflectionClass($this->_baseClassName);
+        $refl    = new ReflectionClass($this->_baseClassName);
 
         $build = null;
         foreach ($columns as $name => $column) {
@@ -542,11 +545,11 @@ class Doctrine_Import_Builder extends Doctrine_Builder
 
             $columnName = isset($column['name']) ? $column['name']:$name;
             if ($manager->getAttribute(Doctrine_Core::ATTR_AUTO_ACCESSOR_OVERRIDE)) {
-                $e = explode(' as ', $columnName);
-                $fieldName = isset($e[1]) ? $e[1] : $e[0];
+                $e          = explode(' as ', $columnName);
+                $fieldName  = isset($e[1]) ? $e[1] : $e[0];
                 $classified = Doctrine_Inflector::classify($fieldName);
-                $getter = 'get' . $classified;
-                $setter = 'set' . $classified;
+                $getter     = 'get' . $classified;
+                $setter     = 'set' . $classified;
 
                 if ($refl->hasMethod($getter) || $refl->hasMethod($setter)) {
                     throw new Doctrine_Import_Exception(
@@ -554,7 +557,7 @@ class Doctrine_Import_Builder extends Doctrine_Builder
                     );
                 }
             }
-            $build .= "        ".'$this->hasColumn(\'' . $columnName . '\', \'' . $column['type'] . '\'';
+            $build .= '        ' . '$this->hasColumn(\'' . $columnName . '\', \'' . $column['type'] . '\'';
 
             if ($column['length']) {
                 $build .= ', ' . $column['length'];
@@ -604,6 +607,9 @@ class Doctrine_Import_Builder extends Doctrine_Builder
      * @param  string $table
      * @param  array  $columns
      */
+    /**
+     * @return string
+     */
     public function buildAccessors(array $definition)
     {
         $accessors = array();
@@ -618,16 +624,16 @@ class Doctrine_Import_Builder extends Doctrine_Builder
         $ret = '';
         foreach ($accessors as $name) {
             // getters
-            $ret .= PHP_EOL . '  public function get' . Doctrine_Inflector::classify(Doctrine_Inflector::tableize($name)) . "(\$load = true)" . PHP_EOL;
-            $ret .= "  {" . PHP_EOL;
+            $ret .= PHP_EOL . '  public function get' . Doctrine_Inflector::classify(Doctrine_Inflector::tableize($name)) . '($load = true)' . PHP_EOL;
+            $ret .= '  {' . PHP_EOL;
             $ret .= "    return \$this->get('{$name}', \$load);" . PHP_EOL;
-            $ret .= "  }" . PHP_EOL;
+            $ret .= '  }' . PHP_EOL;
 
             // setters
             $ret .= PHP_EOL . '  public function set' . Doctrine_Inflector::classify(Doctrine_Inflector::tableize($name)) . "(\${$name}, \$load = true)" . PHP_EOL;
-            $ret .= "  {" . PHP_EOL;
+            $ret .= '  {' . PHP_EOL;
             $ret .= "    return \$this->set('{$name}', \${$name}, \$load);" . PHP_EOL;
-            $ret .= "  }" . PHP_EOL;
+            $ret .= '  }' . PHP_EOL;
         }
 
         return $ret;
@@ -637,6 +643,9 @@ class Doctrine_Import_Builder extends Doctrine_Builder
      * Build the phpDoc for a class definition
      *
      * @param  array  $definition
+     */
+    /**
+     * @return string
      */
     public function buildPhpDocs(array $definition)
     {
@@ -651,8 +660,7 @@ class Doctrine_Import_Builder extends Doctrine_Builder
             foreach ($definition['columns'] as $name => $column) {
                 $name = isset($column['name']) ? $column['name']:$name;
                 // extract column name & field name
-                if (stripos($name, ' as '))
-                {
+                if (stripos($name, ' as ')) {
                     if (strpos($name, ' as')) {
                         $parts = explode(' as ', $name);
                     } else {
@@ -668,18 +676,51 @@ class Doctrine_Import_Builder extends Doctrine_Builder
                     $name = $parts[0];
                 } else {
                     $fieldName = $name;
-                    $name = $name;
+                    $name      = $name;
                 }
 
-                $name = trim($name);
+                $name      = trim($name);
                 $fieldName = trim($fieldName);
 
-                $ret[] = '@property ' . $column['type'] . ' $' . $fieldName;
+                switch (strtolower($column['type'])) {
+                    case 'boolean':
+                    case 'integer':
+                    case 'float':
+                    case 'string':
+                    case 'array':
+                    case 'object':
+                    default:
+                        $type = strtolower($column['type']);
+                        break;
+                    case 'decimal':
+                        $type = 'float';
+                        break;
+                    case 'blob':
+                    case 'clob':
+                    case 'timestamp':
+                    case 'time':
+                    case 'date':
+                    case 'datetime':
+                    case 'enum':
+                    case 'gzip':
+                        $type = 'string';
+                        break;
+                }
+
+                // Add "null" union types for columns that aren't marked as notnull = true
+                if (!isset($column['notnull']) || ((bool) $column['notnull'] === false)) {
+                    // But not our primary columns, as they're notnull = true implicitly in Doctrine
+                    if (!isset($column['primary']) || (bool) $column['primary'] !== true) {
+                        $type .= '|null';
+                    }
+                }
+
+                $ret[] = '@property ' . $type . ' $' . $fieldName;
             }
 
             if (isset($definition['relations']) && ! empty($definition['relations'])) {
                 foreach ($definition['relations'] as $relation) {
-                    $type = (isset($relation['type']) && $relation['type'] == Doctrine_Relation::MANY) ? 'Doctrine_Collection' : $this->_classPrefix . $relation['class'];
+                    $type  = (isset($relation['type']) && $relation['type'] == Doctrine_Relation::MANY) ? 'Doctrine_Collection' : $this->_classPrefix . $relation['class'];
                     $ret[] = '@property ' . $type . ' $' . $relation['alias'];
                 }
             }
@@ -702,7 +743,7 @@ class Doctrine_Import_Builder extends Doctrine_Builder
      *
      * @param int $level
      * @param string $name
-     * @param string $option
+     * @param string|null $option
      * @return string assignation code
      */
     private function emitAssign($level, $name, $option)
@@ -712,7 +753,7 @@ class Doctrine_Import_Builder extends Doctrine_Builder
         if (class_exists("Doctrine_Template_$name", true)) {
             $classname = "Doctrine_Template_$name";
         }
-        return "        \$" . strtolower($name) . "$level = new $classname($option);". PHP_EOL;
+        return '        $' . strtolower($name) . "$level = new $classname($option);" . PHP_EOL;
     }
 
     /**
@@ -725,7 +766,7 @@ class Doctrine_Import_Builder extends Doctrine_Builder
      */
     private function emitAddChild($level, $parent, $name)
     {
-        return "        \$" . strtolower($parent) . ($level - 1) . "->addChild(\$" . strtolower($name) . "$level);" . PHP_EOL;
+        return '        $' . strtolower($parent) . ($level - 1) . '->addChild($' . strtolower($name) . "$level);" . PHP_EOL;
     }
 
     /**
@@ -737,18 +778,21 @@ class Doctrine_Import_Builder extends Doctrine_Builder
      */
     private function emitActAs($level, $name)
     {
-        return "        \$this->actAs(\$" . strtolower($name) . "$level);" . PHP_EOL;
+        return '        $this->actAs($' . strtolower($name) . "$level);" . PHP_EOL;
     }
 
     /**
      * buildActAs: builds a complete actAs code. It supports hierarchy of plugins
+     *
      * @param array $actAs array of plugin definitions and options
+     *
+     * @return string
      */
     public function buildActAs($actAs)
     {
         $emittedActAs = array();
-        $build = $this->innerBuildActAs($actAs, 0, null, $emittedActAs);
-        foreach($emittedActAs as $str) {
+        $build        = $this->innerBuildActAs($actAs, 0, null, $emittedActAs);
+        foreach ($emittedActAs as $str) {
             $build .= $str;
         }
         return $build;
@@ -778,18 +822,18 @@ class Doctrine_Import_Builder extends Doctrine_Builder
             $actAs = $tmp;
         }
 
-        $build = '';
+        $build         = '';
         $currentParent = $parent;
         if (is_array($actAs)) {
-            foreach($actAs as $template => $options) {
+            foreach ($actAs as $template => $options) {
                 if ($template == 'actAs') {
                     // found another actAs
                     $build .= $this->innerBuildActAs($options, $level + 1, $parent, $emittedActAs);
-                } else if (is_array($options)) {
+                } elseif (is_array($options)) {
                     // remove actAs from options
                     $realOptions = array();
-                    $leftActAs = array();
-                    foreach($options as $name => $value) {
+                    $leftActAs   = array();
+                    foreach ($options as $name => $value) {
                         if ($name != 'actAs') {
                             $realOptions[$name] = $options[$name];
                         } else {
@@ -839,17 +883,17 @@ class Doctrine_Import_Builder extends Doctrine_Builder
     {
         $build = '';
 
-        foreach($listeners as $name => $options) {
-            if ( ! is_array($options) && $options !== null) {
-                $name = $options;
+        foreach ($listeners as $name => $options) {
+            if (! is_array($options) && $options !== null) {
+                $name    = $options;
                 $options = null;
             }
 
-            $useOptions = ( ! empty($options) && isset($options['useOptions']) && $options['useOptions'] == true)
+            $useOptions = (! empty($options) && isset($options['useOptions']) && $options['useOptions'] == true)
                 ? '$this->getTable()->getOptions()' : 'array()';
-            $class = ( ! empty($options) && isset($options['class'])) ? $options['class'] : $name;
+            $class = (! empty($options) && isset($options['class'])) ? $options['class'] : $name;
 
-            $build .= "    \$this->addListener(new " . $class . "(" . $useOptions . "), '" . $name . "');" . PHP_EOL;
+            $build .= '    $this->addListener(new ' . $class . '(' . $useOptions . "), '" . $name . "');" . PHP_EOL;
         }
 
         return $build;
@@ -865,18 +909,16 @@ class Doctrine_Import_Builder extends Doctrine_Builder
     {
         $build = PHP_EOL;
         foreach ($attributes as $key => $value) {
-
             $values = array();
-            if (is_bool($value))
-            {
-              $values[] = $value ? 'true':'false';
+            if (is_bool($value)) {
+                $values[] = $value ? 'true':'false';
             } else {
-                if ( ! is_array($value)) {
+                if (! is_array($value)) {
                     $value = array($value);
                 }
 
                 foreach ($value as $attr) {
-                    $const = "Doctrine_Core::" . strtoupper($key) . "_" . strtoupper($attr);
+                    $const = 'Doctrine_Core::' . strtoupper($key) . '_' . strtoupper($attr);
                     if (defined($const)) {
                         $values[] = $const;
                     } else {
@@ -886,7 +928,7 @@ class Doctrine_Import_Builder extends Doctrine_Builder
             }
 
             $string = implode(' ^ ', $values);
-            $build .= "        \$this->setAttribute(Doctrine_Core::ATTR_" . strtoupper($key) . ", " . $string . ");" . PHP_EOL;
+            $build .= '        $this->setAttribute(Doctrine_Core::ATTR_' . strtoupper($key) . ', ' . $string . ');' . PHP_EOL;
         }
 
         return $build;
@@ -902,7 +944,7 @@ class Doctrine_Import_Builder extends Doctrine_Builder
     {
         $build = '';
         foreach ($options as $name => $value) {
-            $build .= "        \$this->option('$name', " . $this->varExport($value) . ");" . PHP_EOL;
+            $build .= "        \$this->option('$name', " . $this->varExport($value) . ');' . PHP_EOL;
         }
 
         return $build;
@@ -916,15 +958,15 @@ class Doctrine_Import_Builder extends Doctrine_Builder
      */
     public function buildIndexes(array $indexes)
     {
-      $build = '';
+        $build = '';
 
-      foreach ($indexes as $indexName => $definitions) {
-          $build .= PHP_EOL . "        \$this->index('" . $indexName . "'";
-          $build .= ', ' . $this->varExport($definitions);
-          $build .= ');';
-      }
+        foreach ($indexes as $indexName => $definitions) {
+            $build .= PHP_EOL . "        \$this->index('" . $indexName . "'";
+            $build .= ', ' . $this->varExport($definitions);
+            $build .= ');';
+        }
 
-      return $build;
+        return $build;
     }
 
     /**
@@ -935,14 +977,14 @@ class Doctrine_Import_Builder extends Doctrine_Builder
      */
     public function buildToString(array $definition)
     {
-        if ( empty($definition['toString'])) {
+        if (empty($definition['toString'])) {
             return '';
         }
 
         $ret = PHP_EOL . PHP_EOL . '    public function __toString()' . PHP_EOL;
-        $ret .= "    {" . PHP_EOL;
-        $ret .= "      return (string) \$this->".$definition['toString'].";" . PHP_EOL;
-        $ret .= "    }";
+        $ret .= '    {' . PHP_EOL;
+        $ret .= '      return (string) $this->' . $definition['toString'] . ';' . PHP_EOL;
+        $ret .= '    }';
         return $ret;
     }
 
@@ -954,34 +996,38 @@ class Doctrine_Import_Builder extends Doctrine_Builder
      */
     public function buildDefinition(array $definition)
     {
-        if ( ! isset($definition['className'])) {
+        if (! isset($definition['className'])) {
             throw new Doctrine_Import_Builder_Exception('Missing class name.');
         }
-        $abstract = isset($definition['abstract']) && $definition['abstract'] === true ? 'abstract ':null;
+        $abstract  = isset($definition['abstract']) && $definition['abstract'] === true ? 'abstract ':null;
         $className = $definition['className'];
-        $extends = isset($definition['inheritance']['extends']) ? $definition['inheritance']['extends']:$this->_baseClassName;
+        $extends   = isset($definition['inheritance']['extends']) ? $definition['inheritance']['extends']:$this->_baseClassName;
 
-        if ( ! (isset($definition['no_definition']) && $definition['no_definition'] === true)) {
+        if (! (isset($definition['no_definition']) && $definition['no_definition'] === true)) {
             $tableDefinitionCode = $this->buildTableDefinition($definition);
-            $setUpCode = $this->buildSetUp($definition);
+            $setUpCode           = $this->buildSetUp($definition);
         } else {
             $tableDefinitionCode = null;
-            $setUpCode = null;
+            $setUpCode           = null;
         }
 
         if ($tableDefinitionCode && $setUpCode) {
             $setUpCode = PHP_EOL . $setUpCode;
         }
 
-        $setUpCode.= $this->buildToString($definition);
+        $setUpCode .= $this->buildToString($definition);
 
         $docs = PHP_EOL . $this->buildPhpDocs($definition);
 
-        $content = sprintf(self::$_tpl, $docs, $abstract,
+        $content = sprintf(
+            self::$_tpl,
+            $docs,
+            $abstract,
                                        $className,
                                        $extends,
                                        $tableDefinitionCode,
-                                       $setUpCode);
+                                       $setUpCode
+        );
 
         return $content;
     }
@@ -994,7 +1040,7 @@ class Doctrine_Import_Builder extends Doctrine_Builder
      */
     public function buildRecord(array $definition)
     {
-        if ( ! isset($definition['className'])) {
+        if (! isset($definition['className'])) {
             throw new Doctrine_Import_Builder_Exception('Missing class name.');
         }
 
@@ -1004,7 +1050,7 @@ class Doctrine_Import_Builder extends Doctrine_Builder
             $definition['is_package'] = (isset($definition['package']) && $definition['package']) ? true:false;
 
             if ($definition['is_package']) {
-                $e = explode('.', trim($definition['package']));
+                $e                          = explode('.', trim($definition['package']));
                 $definition['package_name'] = $e[0];
 
                 $definition['package_path'] = ! empty($e) ? implode(DIRECTORY_SEPARATOR, $e):$definition['package_name'];
@@ -1016,43 +1062,42 @@ class Doctrine_Import_Builder extends Doctrine_Builder
             // If we have a package then we need to make this extend the package definition and not the base definition
             // The package definition will then extends the base definition
             $topLevel['inheritance']['extends'] = (isset($topLevel['package']) && $topLevel['package']) ? $this->_packagesPrefix . $topLevel['className']:$this->_baseClassPrefix . $topLevel['className'];
-            $topLevel['no_definition'] = true;
-            $topLevel['generate_once'] = true;
-            $topLevel['is_main_class'] = true;
+            $topLevel['no_definition']          = true;
+            $topLevel['generate_once']          = true;
+            $topLevel['is_main_class']          = true;
             unset($topLevel['connection']);
 
             // Package level definition that extends from the base definition
             if (isset($definition['package'])) {
-
-                $packageLevel = $definition;
-                $packageLevel['className'] = $topLevel['inheritance']['extends'];
+                $packageLevel                           = $definition;
+                $packageLevel['className']              = $topLevel['inheritance']['extends'];
                 $packageLevel['inheritance']['extends'] = $this->_baseClassPrefix . $topLevel['className'];
-                $packageLevel['no_definition'] = true;
-                $packageLevel['abstract'] = true;
-                $packageLevel['override_parent'] = true;
-                $packageLevel['generate_once'] = true;
-                $packageLevel['is_package_class'] = true;
+                $packageLevel['no_definition']          = true;
+                $packageLevel['abstract']               = true;
+                $packageLevel['override_parent']        = true;
+                $packageLevel['generate_once']          = true;
+                $packageLevel['is_package_class']       = true;
                 unset($packageLevel['connection']);
 
-                $packageLevel['tableClassName'] = sprintf($this->_tableClassFormat, $packageLevel['className']);
+                $packageLevel['tableClassName']              = sprintf($this->_tableClassFormat, $packageLevel['className']);
                 $packageLevel['inheritance']['tableExtends'] = isset($definition['inheritance']['extends']) ? sprintf($this->_tableClassFormat, $definition['inheritance']['extends']):$this->_baseTableClassName;
 
-                $topLevel['tableClassName'] = sprintf($this->_tableClassFormat, $topLevel['topLevelClassName']);
+                $topLevel['tableClassName']              = sprintf($this->_tableClassFormat, $topLevel['topLevelClassName']);
                 $topLevel['inheritance']['tableExtends'] = sprintf($this->_tableClassFormat, $packageLevel['className']);
             } else {
-                $topLevel['tableClassName'] = sprintf($this->_tableClassFormat, $topLevel['className']);
+                $topLevel['tableClassName']              = sprintf($this->_tableClassFormat, $topLevel['className']);
                 $topLevel['inheritance']['tableExtends'] = isset($definition['inheritance']['extends']) ? sprintf($this->_tableClassFormat, $definition['inheritance']['extends']):$this->_baseTableClassName;
             }
 
-            $baseClass = $definition;
-            $baseClass['className'] = $this->_getBaseClassName($baseClass['className']);
-            $baseClass['abstract'] = true;
+            $baseClass                    = $definition;
+            $baseClass['className']       = $this->_getBaseClassName($baseClass['className']);
+            $baseClass['abstract']        = true;
             $baseClass['override_parent'] = false;
-            $baseClass['is_base_class'] = true;
+            $baseClass['is_base_class']   = true;
 
             $this->writeDefinition($baseClass);
 
-            if ( ! empty($packageLevel)) {
+            if (! empty($packageLevel)) {
                 $this->writeDefinition($packageLevel);
             }
 
@@ -1062,11 +1107,21 @@ class Doctrine_Import_Builder extends Doctrine_Builder
         }
     }
 
+    /**
+     * @param string $className
+     * @return string
+     */
     protected function _getBaseClassName($className)
     {
         return $this->_baseClassPrefix . $className;
     }
 
+    /**
+     * @param string $className
+     * @param array $definition
+     * @param array $options
+     * @return string
+     */
     public function buildTableClassDefinition($className, $definition, $options = array())
     {
         $extends = isset($options['extends']) ? $options['extends']:$this->_baseTableClassName;
@@ -1084,14 +1139,15 @@ class Doctrine_Import_Builder extends Doctrine_Builder
         return Doctrine_Core::getTable('%s');
     }", $className, $definition['className']);
 
-        $docBlock = array();
+        $docBlock   = array();
         $docBlock[] = $className;
         $docBlock[] = '';
         $docBlock[] = 'This class has been auto-generated by the Doctrine ORM Framework';
-        $docBlock = PHP_EOL.' * ' . implode(PHP_EOL . ' * ', $docBlock);
+        $docBlock   = PHP_EOL . ' * ' . implode(PHP_EOL . ' * ', $docBlock);
 
-        $content  = '<?php' . PHP_EOL.PHP_EOL;
-        $content .= sprintf(self::$_tpl,
+        $content = '<?php' . PHP_EOL . PHP_EOL;
+        $content .= sprintf(
+            self::$_tpl,
             $docBlock,
             false,
             $className,
@@ -1110,7 +1166,8 @@ class Doctrine_Import_Builder extends Doctrine_Builder
 
     /**
      * writeTableClassDefinition
-     *
+     * @param string $path
+     * @param array $options
      * @return void
      */
     public function writeTableClassDefinition(array $definition, $path, $options = array())
@@ -1125,7 +1182,7 @@ class Doctrine_Import_Builder extends Doctrine_Builder
             $writePath = $path . DIRECTORY_SEPARATOR . $fileName;
         } else {
             $className = $definition['tableClassName'];
-            $fileName = $className . $this->_suffix;
+            $fileName  = $className . $this->_suffix;
         }
 
         if ($this->_pearStyle) {
@@ -1140,7 +1197,7 @@ class Doctrine_Import_Builder extends Doctrine_Builder
 
         Doctrine_Core::loadModel($className, $writePath);
 
-        if ( ! file_exists($writePath)) {
+        if (! file_exists($writePath)) {
             file_put_contents($writePath, $content);
         }
     }
@@ -1214,11 +1271,11 @@ class Doctrine_Import_Builder extends Doctrine_Builder
             }
         }
         // If is the package class then we need to make the path to the complete package
-        else if (isset($definition['is_package_class']) && $definition['is_package_class']) {
+        elseif (isset($definition['is_package_class']) && $definition['is_package_class']) {
             if (isset($definition['package_custom_path'])) {
-              $writePath = $definition['package_custom_path'];
+                $writePath = $definition['package_custom_path'];
             } else {
-              $writePath = $packagesPath . DIRECTORY_SEPARATOR . $definition['package_path'];
+                $writePath = $packagesPath . DIRECTORY_SEPARATOR . $definition['package_path'];
             }
 
             if ($this->generateTableClasses()) {
@@ -1226,10 +1283,10 @@ class Doctrine_Import_Builder extends Doctrine_Builder
             }
         }
         // If it is the base class of the doctrine record definition
-        else if (isset($definition['is_base_class']) && $definition['is_base_class']) {
+        elseif (isset($definition['is_base_class']) && $definition['is_base_class']) {
             // If it is a part of a package then we need to put it in a package subfolder
             if (isset($definition['is_package']) && $definition['is_package']) {
-                $basePath = $this->_path . DIRECTORY_SEPARATOR . $definition['package_name'];
+                $basePath  = $this->_path . DIRECTORY_SEPARATOR . $definition['package_name'];
                 $writePath = $basePath . DIRECTORY_SEPARATOR . $this->_baseClassesDirectory;
             // Otherwise lets just put it in the root generated folder
             } else {
@@ -1249,10 +1306,10 @@ class Doctrine_Import_Builder extends Doctrine_Builder
             $writePath = $this->_path . DIRECTORY_SEPARATOR . $fileName;
         }
 
-        $code = "<?php" . PHP_EOL;
+        $code = '<?php' . PHP_EOL;
 
         if (isset($definition['connection']) && $definition['connection']) {
-            $code .= "// Connection Component Binding" . PHP_EOL;
+            $code .= '// Connection Component Binding' . PHP_EOL;
             $code .= "Doctrine_Manager::getInstance()->bindComponent('" . $definition['connectionClassName'] . "', '" . $definition['connection'] . "');" . PHP_EOL;
         }
 
@@ -1265,7 +1322,7 @@ class Doctrine_Import_Builder extends Doctrine_Builder
         Doctrine_Lib::makeDirectories(dirname($writePath));
 
         if (isset($definition['generate_once']) && $definition['generate_once'] === true) {
-            if ( ! file_exists($writePath)) {
+            if (! file_exists($writePath)) {
                 $bytes = file_put_contents($writePath, $code);
             }
         } else {

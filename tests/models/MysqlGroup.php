@@ -5,12 +5,12 @@ class MysqlGroup extends Doctrine_Record
     {
         $this->hasColumn('name', 'string', null);
     }
-    
+
     public function setUp()
     {
         $this->hasMany('MysqlUser', array(
-            'local' => 'group_id', 
-            'foreign' => 'user_id',
+            'local'    => 'group_id',
+            'foreign'  => 'user_id',
             'refClass' => 'MysqlGroupMember'
         ));
     }

@@ -47,7 +47,7 @@ class Doctrine_Transaction_TestCase extends Doctrine_UnitTestCase
             $this->transaction->beginTransaction('point');
 
             $this->pass();
-        } catch(Doctrine_Transaction_Exception $e) {
+        } catch (Doctrine_Transaction_Exception $e) {
             $this->fail();
         }
 
@@ -61,7 +61,7 @@ class Doctrine_Transaction_TestCase extends Doctrine_UnitTestCase
             $this->transaction->commit('point');
 
             $this->pass();
-        } catch(Doctrine_Transaction_Exception $e) {
+        } catch (Doctrine_Transaction_Exception $e) {
             $this->fail();
         }
 
@@ -94,7 +94,7 @@ class Doctrine_Transaction_TestCase extends Doctrine_UnitTestCase
             $this->transaction->rollback('point');
 
             $this->pass();
-        } catch(Doctrine_Transaction_Exception $e) {
+        } catch (Doctrine_Transaction_Exception $e) {
             $this->fail();
         }
 
@@ -108,12 +108,12 @@ class Doctrine_Transaction_TestCase extends Doctrine_UnitTestCase
         $this->conn->setListener($this->listener);
     }
 
-    public function testCreateSavepointIsOnlyImplementedAtDriverLevel() 
+    public function testCreateSavepointIsOnlyImplementedAtDriverLevel()
     {
         try {
             $this->transaction->beginTransaction('savepoint');
             $this->fail();
-        } catch(Doctrine_Transaction_Exception $e) {
+        } catch (Doctrine_Transaction_Exception $e) {
             $this->pass();
         }
     }
@@ -128,22 +128,22 @@ class Doctrine_Transaction_TestCase extends Doctrine_UnitTestCase
         }
     }
 
-    public function testRollbackSavepointIsOnlyImplementedAtDriverLevel() 
+    public function testRollbackSavepointIsOnlyImplementedAtDriverLevel()
     {
         try {
             $this->transaction->rollback('savepoint');
             $this->fail();
-        } catch(Doctrine_Transaction_Exception $e) {
+        } catch (Doctrine_Transaction_Exception $e) {
             $this->pass();
-        }    
+        }
     }
 
-    public function testSetIsolationIsOnlyImplementedAtDriverLevel() 
+    public function testSetIsolationIsOnlyImplementedAtDriverLevel()
     {
         try {
             $this->transaction->setIsolation('READ UNCOMMITTED');
             $this->fail();
-        } catch(Doctrine_Transaction_Exception $e) {
+        } catch (Doctrine_Transaction_Exception $e) {
             $this->pass();
         }
     }
@@ -153,16 +153,16 @@ class Doctrine_Transaction_TestCase extends Doctrine_UnitTestCase
         try {
             $this->transaction->GetIsolation('READ UNCOMMITTED');
             $this->fail();
-        } catch(Doctrine_Transaction_Exception $e) {
+        } catch (Doctrine_Transaction_Exception $e) {
             $this->pass();
         }
     }
 
-    public function testTransactionLevelIsInitiallyZero() 
+    public function testTransactionLevelIsInitiallyZero()
     {
         $this->assertEqual($this->transaction->getTransactionLevel(), 0);
     }
-    
+
     public function testSubsequentTransactionsAfterRollback()
     {
         try {
@@ -183,29 +183,28 @@ class Doctrine_Transaction_TestCase extends Doctrine_UnitTestCase
             $this->assertEqual(0, $this->transaction->getTransactionLevel());
             $this->assertEqual(0, $this->transaction->getInternalTransactionLevel());
         }
-        
+
         $i = 0;
         while ($i < 5) {
             $this->assertEqual(0, $this->transaction->getTransactionLevel());
-    		$this->transaction->beginTransaction();
+            $this->transaction->beginTransaction();
             $this->assertEqual(1, $this->transaction->getTransactionLevel());
-    		try {
-    		    if ($i == 0) {
-    		        throw new Exception();
-    		    }                
-    		    $this->transaction->commit();
-    		}
-    		catch (Exception $e) {
-    			$this->transaction->rollback();
+            try {
+                if ($i == 0) {
+                    throw new Exception();
+                }
+                $this->transaction->commit();
+            } catch (Exception $e) {
+                $this->transaction->rollback();
                 $this->assertEqual(0, $this->transaction->getTransactionLevel());
-    		}
-    		++$i;
-    	}
+            }
+            ++$i;
+        }
     }
 
-    public function testGetStateReturnsStateConstant() 
+    public function testGetStateReturnsStateConstant()
     {
-        $this->assertEqual($this->transaction->getState(), Doctrine_Transaction::STATE_SLEEP);                                                      
+        $this->assertEqual($this->transaction->getState(), Doctrine_Transaction::STATE_SLEEP);
     }
 
     public function testCommittingWithNoActiveTransactionThrowsException()
@@ -218,7 +217,7 @@ class Doctrine_Transaction_TestCase extends Doctrine_UnitTestCase
         }
     }
 
-    public function testExceptionIsThrownWhenUsingRollbackOnNotActiveTransaction() 
+    public function testExceptionIsThrownWhenUsingRollbackOnNotActiveTransaction()
     {
         try {
             $this->transaction->rollback();
@@ -228,11 +227,11 @@ class Doctrine_Transaction_TestCase extends Doctrine_UnitTestCase
         }
     }
 
-    public function testBeginTransactionStartsNewTransaction() 
+    public function testBeginTransactionStartsNewTransaction()
     {
-        $this->transaction->beginTransaction();  
+        $this->transaction->beginTransaction();
 
-        $this->assertEqual($this->adapter->pop(), 'BEGIN TRANSACTION');                                                         
+        $this->assertEqual($this->adapter->pop(), 'BEGIN TRANSACTION');
     }
 
     public function testCommitMethodCommitsCurrentTransaction()
@@ -244,10 +243,10 @@ class Doctrine_Transaction_TestCase extends Doctrine_UnitTestCase
     public function testNestedTransaction()
     {
         $conn = Doctrine_Manager::connection();
-        
+
         try {
             $conn->beginTransaction();
-        
+
             // Create new client
             $user = new User();
             $user->set('name', 'Test User');
@@ -259,11 +258,11 @@ class Doctrine_Transaction_TestCase extends Doctrine_UnitTestCase
             $phonenumber->set('phonenumber', '123 123');
             $phonenumber->save();
 
-            $conn->commit();    
+            $conn->commit();
         } catch (Exception $e) {
             $conn->rollback();
         }
-        
+
         $this->assertTrue($user->id > 0);
         $this->assertTrue($phonenumber->id > 0);
     }
@@ -271,15 +270,14 @@ class Doctrine_Transaction_TestCase extends Doctrine_UnitTestCase
     public function testAddDuplicateRecordToTransactionShouldSkipSecond()
     {
         $transaction = new Doctrine_Transaction();
-        $user = new User();
+        $user        = new User();
         $transaction->addInvalid($user);
         $this->assertEqual(1, count($transaction->getInvalid()));
         $transaction->addInvalid($user);
         $this->assertEqual(1, count($transaction->getInvalid()));
     }
-
 }
-class TransactionListener extends Doctrine_EventListener 
+class TransactionListener extends Doctrine_EventListener
 {
     protected $_messages = array();
 
@@ -312,19 +310,19 @@ class TransactionListener extends Doctrine_EventListener
         $event->skipOperation();
     }
     public function postTransactionBegin(Doctrine_Event $event)
-    { 
+    {
         $this->_messages[] = __FUNCTION__;
     }
 
 
     public function preSavepointCommit(Doctrine_Event $event)
-    {           
+    {
         $this->_messages[] = __FUNCTION__;
 
         $event->skipOperation();
     }
     public function postSavepointCommit(Doctrine_Event $event)
-    { 
+    {
         $this->_messages[] = __FUNCTION__;
     }
 
@@ -335,22 +333,22 @@ class TransactionListener extends Doctrine_EventListener
         $event->skipOperation();
     }
     public function postSavepointRollback(Doctrine_Event $event)
-    { 
+    {
         $this->_messages[] = __FUNCTION__;
     }
 
     public function preSavepointCreate(Doctrine_Event $event)
-    { 
+    {
         $this->_messages[] = __FUNCTION__;
 
         $event->skipOperation();
     }
 
     public function postSavepointCreate(Doctrine_Event $event)
-    { 
+    {
         $this->_messages[] = __FUNCTION__;
     }
-    
+
     public function pop()
     {
         return array_pop($this->_messages);

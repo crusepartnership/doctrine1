@@ -46,7 +46,7 @@ class Doctrine_Parser_Xml extends Doctrine_Parser
     {
         $data = self::arrayToXml($array, 'data', null, $charset);
 
-        return $this->doDump($data, $path);
+        return $this->doDump((string) $data, $path);
     }
 
     /**
@@ -55,7 +55,8 @@ class Doctrine_Parser_Xml extends Doctrine_Parser
      * @param  array $array        Array to convert to xml
      * @param  string $rootNodeName Name of the root node
      * @param  SimpleXMLElement|null $xml          SimpleXmlElement, if null SimpleXMLElement will be created
-     * @return string $asXml        String of xml built from array
+     * @param  string $charset
+     * @return string|false         String of xml built from array
      */
     public static function arrayToXml($array, $rootNodeName = 'data', $xml = null, $charset = null)
     {
@@ -63,8 +64,7 @@ class Doctrine_Parser_Xml extends Doctrine_Parser
             $xml = new SimpleXMLElement("<?xml version=\"1.0\" encoding=\"utf-8\"?><$rootNodeName/>");
         }
 
-        foreach($array as $key => $value)
-        {
+        foreach ($array as $key => $value) {
             $key = preg_replace('/[^a-z]/i', '', $key);
 
             if (is_array($value) && ! empty($value)) {
@@ -73,12 +73,13 @@ class Doctrine_Parser_Xml extends Doctrine_Parser
                 foreach ($value as $k => $v) {
                     if (is_numeric($v)) {
                         unset($value[$k]);
-                        $node->addAttribute($k, $v);
+                        $node->addAttribute($k, (string) $v);
                     }
                 }
 
                 self::arrayToXml($value, $rootNodeName, $node, $charset);
-            } else if (is_int($key)) {
+            } elseif (is_int($key)) {
+                // $key will never be an int, since preg_replace never returns an int
                 $xml->addChild($value, 'true');
             } else {
                 $charset = $charset ? $charset : 'utf-8';
@@ -121,7 +122,7 @@ class Doctrine_Parser_Xml extends Doctrine_Parser
     public function prepareData($simpleXml)
     {
         $children = array();
-        $return = array();
+        $return   = array();
 
         if ($simpleXml instanceof SimpleXMLElement) {
             $children = $simpleXml->children();
@@ -134,10 +135,10 @@ class Doctrine_Parser_Xml extends Doctrine_Parser
                 if (count($values) > 0) {
                     $return[$element] = $this->prepareData($value);
                 } else {
-                    if ( ! isset($return[$element])) {
+                    if (! isset($return[$element])) {
                         $return[$element] = (string) $value;
                     } else {
-                        if ( ! is_array($return[$element])) {
+                        if (! is_array($return[$element])) {
                             $return[$element] = array($return[$element], (string) $value);
                         } else {
                             $return[$element][] = (string) $value;

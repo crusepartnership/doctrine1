@@ -63,6 +63,8 @@ abstract class Doctrine_Template extends Doctrine_Record_Abstract
      * Set the table object that this Template belongs to
      *
      * @var Doctrine_Table $table        the table object this Template belongs to
+     *
+     * @return void
      */
     public function setTable(Doctrine_Table $table)
     {
@@ -83,7 +85,7 @@ abstract class Doctrine_Template extends Doctrine_Record_Abstract
      * sets the last used invoker
      *
      * @param Doctrine_Record_Abstract $invoker      the record that invoked the last delegated call
-     * @return Doctrine_Template            this object
+     * @return void
      */
     public function setInvoker(Doctrine_Record_Abstract $invoker)
     {
@@ -190,7 +192,6 @@ abstract class Doctrine_Template extends Doctrine_Record_Abstract
      */
     public function setUp()
     {
-
     }
 
     /**
@@ -200,6 +201,5 @@ abstract class Doctrine_Template extends Doctrine_Record_Abstract
      */
     public function setTableDefinition()
     {
-
     }
 }

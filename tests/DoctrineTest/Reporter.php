@@ -2,9 +2,8 @@
 
 class DoctrineTest_Reporter
 {
-    protected
-        $_formatter,
-        $_test;
+    protected $_formatter;
+    protected $_test;
 
     public function __construct()
     {
@@ -18,7 +17,7 @@ class DoctrineTest_Reporter
         } else {
             if ($type == 'INFO') {
                 $color = 'green';
-            } else if ($type == 'ERROR') {
+            } elseif ($type == 'ERROR') {
                 $color = 'red';
             } else {
                 $color = 'black';
@@ -26,22 +25,22 @@ class DoctrineTest_Reporter
             return '<span style="font-weight: bold; color: ' . $color . ';">' . $message . '</span>';
         }
     }
-    
-    public function setTestCase($test) 
+
+    public function setTestCase($test)
     {
         $this->_test = $test;
     }
 
     public function paintMessages()
     {
-        $max = 80;
-        $class = get_class($this->_test);
+        $max      = 80;
+        $class    = get_class($this->_test);
         $messages = $this->_test->getMessages();
-        $failed = ($this->_test->getFailCount() || count($messages)) ? true:false;
+        $failed   = ($this->_test->getFailCount() || count($messages)) ? true:false;
 
         if ($class != 'GroupTest') {
             $strRepeatLength = $max - strlen($class);
-            echo $class.str_repeat('.', $strRepeatLength).$this->format($failed ? 'failed':'passed', $failed ? 'ERROR':'INFO')."\n";
+            echo $class . str_repeat('.', $strRepeatLength) . $this->format($failed ? 'failed':'passed', $failed ? 'ERROR':'INFO') . "\n";
         }
 
         if (! empty($messages)) {

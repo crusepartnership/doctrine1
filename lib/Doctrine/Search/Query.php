@@ -32,20 +32,34 @@
  */
 class Doctrine_Search_Query
 {
-
     /**
      * @var Doctrine_Table $_table          the index table
      */
     protected $_table;
 
+    /**
+     * @var string
+     */
     protected $_sql = '';
 
+    /**
+     * @var array
+     */
     protected $_params = array();
 
+    /**
+     * @var array
+     */
     protected $_words = array();
 
+    /**
+     * @var Doctrine_Query_Tokenizer
+     */
     protected $_tokenizer;
 
+    /**
+     * @var string
+     */
     protected $_condition;
 
     /**
@@ -54,22 +68,26 @@ class Doctrine_Search_Query
     public function __construct($table)
     {
         if (is_string($table)) {
-           $table = Doctrine_Core::getTable($table);
+            $table = Doctrine_Core::getTable($table);
         } else {
-            if ( ! $table instanceof Doctrine_Table) {
+            if (! $table instanceof Doctrine_Table) {
                 throw new Doctrine_Search_Exception('Invalid argument type. Expected instance of Doctrine_Table.');
             }
         }
 
         $this->_tokenizer = new Doctrine_Query_Tokenizer();
-        $this->_table = $table;
+        $this->_table     = $table;
 
         $foreignId = current(array_diff($this->_table->getColumnNames(), array('keyword', 'field', 'position')));
 
         $this->_condition = $foreignId . ' %s (SELECT ' . $foreignId . ' FROM ' . $this->_table->getTableName() . ' WHERE ';
     }
 
-
+    /**
+     * @param string $text
+     * @param bool $includeRelevance
+     * @return void
+     */
     public function query($text, $includeRelevance = true)
     {
         $text = trim($text);
@@ -91,7 +109,7 @@ class Doctrine_Search_Query
             }
         }
 
-        $from = 'FROM ' . $this->_table->getTableName();
+        $from  = 'FROM ' . $this->_table->getTableName();
         $where = 'WHERE ';
         $where .= $this->parseClause($text);
 
@@ -107,6 +125,11 @@ class Doctrine_Search_Query
         }
     }
 
+    /**
+     * @param  string $originalClause
+     * @param  bool $recursive
+     * @return string
+     */
     public function parseClause($originalClause, $recursive = false)
     {
         $clause = $this->_tokenizer->bracketTrim($originalClause);
@@ -128,7 +151,7 @@ class Doctrine_Search_Query
 
             foreach ($terms as $k => $term) {
                 if ($this->isExpression($term)) {
-                    $ret[$k] = $this->parseClause($term, true);
+                    $ret[$k]    = $this->parseClause($term, true);
                     $leavesOnly = false;
                 } else {
                     $ret[$k] = $this->parseTerm($term);
@@ -138,7 +161,7 @@ class Doctrine_Search_Query
             $return = implode(' OR ', $ret);
 
             if ($leavesOnly && $recursive) {
-                $return = sprintf($this->_condition, 'IN') . $return . ')';
+                $return   = sprintf($this->_condition, 'IN') . $return . ')';
                 $brackets = false;
             }
         } else {
@@ -156,7 +179,7 @@ class Doctrine_Search_Query
 
                     if (substr($term, 0, 1) === '-') {
                         $operator = 'NOT IN';
-                        $term = substr($term, 1);
+                        $term     = substr($term, 1);
                     } else {
                         $operator = 'IN';
                     }
@@ -178,6 +201,10 @@ class Doctrine_Search_Query
         }
     }
 
+    /**
+     * @param string $term
+     * @return bool
+     */
     public function isExpression($term)
     {
         if (strpos($term, '(') !== false) {
@@ -189,6 +216,10 @@ class Doctrine_Search_Query
         }
     }
 
+    /**
+     * @param  string $term
+     * @return string
+     */
     public function parseTerm($term)
     {
         $negation = false;
@@ -211,13 +242,16 @@ class Doctrine_Search_Query
         return $where;
     }
 
+    /**
+     * @param string $word
+     * @return string
+     */
     public function parseWord($word)
     {
         $this->_words[] = str_replace('*', '', $word);
 
         if (strpos($word, '?') !== false ||
             strpos($word, '*') !== false) {
-
             $word = str_replace('*', '%', $word);
 
             $where = 'keyword LIKE ?';
@@ -232,16 +266,25 @@ class Doctrine_Search_Query
         return $where;
     }
 
+    /**
+     * @return array
+     */
     public function getWords()
     {
         return $this->_words;
     }
 
+    /**
+     * @return array
+     */
     public function getParams()
     {
         return $this->_params;
     }
 
+    /**
+     * @return string
+     */
     public function getSqlQuery()
     {
         return $this->_sql;

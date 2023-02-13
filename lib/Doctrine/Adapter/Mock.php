@@ -116,7 +116,7 @@ class Doctrine_Adapter_Mock implements Doctrine_Adapter_Interface, Countable
      */
     public function prepare($query)
     {
-        $mock = new Doctrine_Adapter_Statement_Mock($this);
+        $mock              = new Doctrine_Adapter_Statement_Mock($this);
         $mock->queryString = $query;
 
         return $mock;
@@ -143,17 +143,20 @@ class Doctrine_Adapter_Mock implements Doctrine_Adapter_Interface, Countable
     {
         $this->_queries[] = $query;
 
-        $e    = $this->_exception;
+        $e = $this->_exception;
 
-        if ( ! empty($e)) {
+        if (! empty($e)) {
             $name = $e[0];
 
             $this->_exception = array();
 
-            throw new $name($e[1], $e[2]);
+            /** @var Exception $exception */
+            $exception = new $name($e[1], $e[2]);
+
+            throw $exception;
         }
 
-        $stmt = new Doctrine_Adapter_Statement_Mock($this);
+        $stmt              = new Doctrine_Adapter_Statement_Mock($this);
         $stmt->queryString = $query;
 
         return $stmt;
@@ -190,14 +193,17 @@ class Doctrine_Adapter_Mock implements Doctrine_Adapter_Interface, Countable
     {
         $this->_queries[] = $statement;
 
-        $e    = $this->_exception;
+        $e = $this->_exception;
 
-        if ( ! empty($e)) {
+        if (! empty($e)) {
             $name = $e[0];
 
             $this->_exception = array();
 
-            throw new $name($e[1], $e[2]);
+            /** @var Exception $exception */
+            $exception = new $name($e[1], $e[2]);
+
+            throw $exception;
         }
 
         return 0;
@@ -273,6 +279,10 @@ class Doctrine_Adapter_Mock implements Doctrine_Adapter_Interface, Countable
         $this->_queries[] = 'ROLLBACK';
     }
 
+    /**
+     * @param string|int $attribute
+     * @return string|null
+     */
     public function getAttribute($attribute)
     {
         if ($attribute == Doctrine_Core::ATTR_DRIVER_NAME) {
@@ -280,15 +290,33 @@ class Doctrine_Adapter_Mock implements Doctrine_Adapter_Interface, Countable
         }
     }
 
+    /**
+     * @return void
+     */
     public function errorCode()
-    { }
+    {
+    }
 
+    /**
+     * @return void
+     */
     public function errorInfo()
-    { }
+    {
+    }
 
+    /**
+     * @param string|int $attribute
+     * @param mixed $value
+     * @return void
+     */
     public function setAttribute($attribute, $value)
-    { }
+    {
+    }
 
+    /**
+     * @return void
+     */
     public function sqliteCreateFunction()
-    { }
+    {
+    }
 }

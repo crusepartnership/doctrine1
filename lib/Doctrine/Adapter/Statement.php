@@ -40,16 +40,18 @@ abstract class Doctrine_Adapter_Statement
      * @return void
      */
     public function bindValue($no, $value)
-    { }
+    {
+    }
 
     /**
      * fetch
      *
      * @see Doctrine_Core::FETCH_* constants
-     * @return mixed
+     * @return void
      */
     public function fetch()
-    { }
+    {
+    }
 
     /**
      * nextRowSet
@@ -57,7 +59,8 @@ abstract class Doctrine_Adapter_Statement
      * @return void
      */
     public function nextRowset()
-    { }
+    {
+    }
 
     /**
      * execute()
@@ -65,7 +68,8 @@ abstract class Doctrine_Adapter_Statement
      * @return void
      */
     public function execute()
-    { }
+    {
+    }
 
     /**
      * errorCode
@@ -73,7 +77,8 @@ abstract class Doctrine_Adapter_Statement
      * @return void
      */
     public function errorCode()
-    { }
+    {
+    }
 
     /**
      * errorInfo
@@ -81,7 +86,8 @@ abstract class Doctrine_Adapter_Statement
      * @return void
      */
     public function errorInfo()
-    { }
+    {
+    }
 
     /**
      * rowCount
@@ -89,7 +95,8 @@ abstract class Doctrine_Adapter_Statement
      * @return void
      */
     public function rowCount()
-    { }
+    {
+    }
 
     /**
      * setFetchMode
@@ -98,7 +105,8 @@ abstract class Doctrine_Adapter_Statement
      * @return void
      */
     public function setFetchMode($mode)
-    { }
+    {
+    }
 
     /**
      * columnCount
@@ -106,5 +114,6 @@ abstract class Doctrine_Adapter_Statement
      * @return void
      */
     public function columnCount()
-    { }
+    {
+    }
 }

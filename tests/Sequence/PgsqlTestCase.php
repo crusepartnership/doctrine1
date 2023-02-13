@@ -30,26 +30,25 @@
  * @since       1.0
  * @version     $Revision$
  */
-class Doctrine_Sequence_Pgsql_TestCase extends Doctrine_UnitTestCase 
+class Doctrine_Sequence_Pgsql_TestCase extends Doctrine_UnitTestCase
 {
-     public function testCurrIdExecutesSql() 
-     {
+    public function testCurrIdExecutesSql()
+    {
         $this->sequence->currId('user');
-        $q = "SELECT last_value FROM user_seq";
+        $q = 'SELECT last_value FROM user_seq';
 
         $this->assertEqual($this->adapter->pop(), $q);
     }
-    public function testNextIdExecutesSql() 
+    public function testNextIdExecutesSql()
     {
         $id = $this->sequence->nextId('user');
 
         $this->assertEqual($this->adapter->pop(), "SELECT NEXTVAL('user_seq')");
-
     }
     public function testLastInsertIdExecutesSql()
     {
         $this->sequence->lastInsertId('user');
-        
+
         $this->assertEqual($this->adapter->pop(), "SELECT CURRVAL('user_seq')");
     }
 }

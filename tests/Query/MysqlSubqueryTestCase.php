@@ -30,11 +30,11 @@
  * @since       1.0
  * @version     $Revision$
  */
-class Doctrine_Query_MysqlSubquery_TestCase extends Doctrine_UnitTestCase 
+class Doctrine_Query_MysqlSubquery_TestCase extends Doctrine_UnitTestCase
 {
     public function setUp()
     {
-        $this->dbh = new Doctrine_Adapter_Mock('mysql');
+        $this->dbh  = new Doctrine_Adapter_Mock('mysql');
         $this->conn = Doctrine_Manager::getInstance()->openConnection($this->dbh);
     }
 
@@ -53,6 +53,7 @@ class Doctrine_Query_MysqlSubquery_TestCase extends Doctrine_UnitTestCase
 
         $this->assertEqual($this->dbh->pop(), 'SELECT DISTINCT e2.id, COUNT(DISTINCT a2.id) AS a2__0 FROM entity e2 LEFT JOIN album a2 ON e2.id = a2.user_id WHERE (e2.type = 0) GROUP BY e2.id ORDER BY a2__0 LIMIT 5');
     }
+
     public function testGetLimitSubquerySupportsOrderByWithAggregateValuesAndDescKeyword()
     {
         $q = new Doctrine_Query();
@@ -66,8 +67,9 @@ class Doctrine_Query_MysqlSubquery_TestCase extends Doctrine_UnitTestCase
 
         $this->dbh->pop();
 
-        $this->assertEqual($this->dbh->pop(), 'SELECT DISTINCT e2.id, COUNT(DISTINCT a2.id) AS a2__0 FROM entity e2 LEFT JOIN album a2 ON e2.id = a2.user_id WHERE (e2.type = 0) GROUP BY e2.id ORDER BY a2__0 DESC, e2.name LIMIT 5');
+        $this->assertEqual($this->dbh->pop(), 'SELECT DISTINCT e2.id, e2.name, COUNT(DISTINCT a2.id) AS a2__0 FROM entity e2 LEFT JOIN album a2 ON e2.id = a2.user_id WHERE (e2.type = 0) GROUP BY e2.id ORDER BY a2__0 DESC, e2.name LIMIT 5');
     }
+
     public function testGetLimitSubquerySupportsOrderByWithAggregateValuesAndColumns()
     {
         $q = new Doctrine_Query();
@@ -81,8 +83,9 @@ class Doctrine_Query_MysqlSubquery_TestCase extends Doctrine_UnitTestCase
 
         $this->dbh->pop();
 
-        $this->assertEqual($this->dbh->pop(), 'SELECT DISTINCT e2.id, COUNT(DISTINCT a2.id) AS a2__0 FROM entity e2 LEFT JOIN album a2 ON e2.id = a2.user_id WHERE (e2.type = 0) GROUP BY e2.id ORDER BY a2__0, e2.name LIMIT 5');
+        $this->assertEqual($this->dbh->pop(), 'SELECT DISTINCT e2.id, e2.name, COUNT(DISTINCT a2.id) AS a2__0 FROM entity e2 LEFT JOIN album a2 ON e2.id = a2.user_id WHERE (e2.type = 0) GROUP BY e2.id ORDER BY a2__0, e2.name LIMIT 5');
     }
+
     public function testGetLimitSubquerySupportsOrderByAndHavingWithAggregateValues()
     {
         $q = new Doctrine_Query();
@@ -96,9 +99,10 @@ class Doctrine_Query_MysqlSubquery_TestCase extends Doctrine_UnitTestCase
         $q->execute();
 
         $this->dbh->pop();
-        
+
         $this->assertEqual($this->dbh->pop(), 'SELECT DISTINCT e2.id, COUNT(DISTINCT a2.id) AS a2__0 FROM entity e2 LEFT JOIN album a2 ON e2.id = a2.user_id WHERE (e2.type = 0) GROUP BY e2.id HAVING a2__0 > 0 ORDER BY a2__0 DESC LIMIT 5');
     }
+
     public function testGetLimitSubquerySupportsHavingWithAggregateValues()
     {
         $q = new Doctrine_Query();
@@ -111,7 +115,7 @@ class Doctrine_Query_MysqlSubquery_TestCase extends Doctrine_UnitTestCase
         $q->execute();
 
         $this->dbh->pop();
-        
+
         $this->assertEqual($this->dbh->pop(), 'SELECT DISTINCT e2.id, COUNT(DISTINCT a2.id) AS a2__0 FROM entity e2 LEFT JOIN album a2 ON e2.id = a2.user_id WHERE (e2.type = 0) GROUP BY e2.id HAVING a2__0 > 0 LIMIT 5');
     }
 }

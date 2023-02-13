@@ -86,6 +86,8 @@ class Doctrine_Locator implements Countable, IteratorAggregate
      * setClassPrefix
      *
      * @param string $prefix
+     *
+     * @return void
      */
     public function setClassPrefix($prefix)
     {
@@ -106,6 +108,7 @@ class Doctrine_Locator implements Countable, IteratorAggregate
      * contains
      * checks if a resource exists under the given name
      *
+     * @param string $name
      * @return boolean      whether or not given resource name exists
      */
     public function contains($name)
@@ -143,8 +146,7 @@ class Doctrine_Locator implements Countable, IteratorAggregate
         } else {
             $className = $name;
 
-            if ( ! class_exists($className)) {
-
+            if (! class_exists($className)) {
                 $name = explode('.', $name);
                 $name = array_map('strtolower', $name);
                 $name = array_map('ucfirst', $name);
@@ -152,7 +154,7 @@ class Doctrine_Locator implements Countable, IteratorAggregate
 
                 $className = $this->_classPrefix . $name;
 
-                if ( ! class_exists($className)) {
+                if (! class_exists($className)) {
                     throw new Doctrine_Locator_Exception("Couldn't locate resource " . $className);
                 }
             }

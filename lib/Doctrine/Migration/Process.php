@@ -32,14 +32,19 @@
  */
 class Doctrine_Migration_Process
 {
-    protected
-        $_migration;
+    /**
+     * @var Doctrine_Migration
+     */
+    protected $_migration;
 
     public function __construct(Doctrine_Migration $migration)
     {
         $this->_migration = $migration;
     }
 
+    /**
+     * @return Doctrine_Connection
+     */
     public function getConnection()
     {
         return $this->_migration->getConnection();
@@ -122,8 +127,8 @@ class Doctrine_Migration_Process
      */
     public function processChangedColumn(array $column)
     {
-        $options = array();
-        $options = $column['options'];
+        $options         = array();
+        $options         = $column['options'];
         $options['type'] = $column['type'];
 
         $this->getConnection()->export->alterTable($column['tableName'], array('change' => array($column['columnName'] => array('definition' => $options))));

@@ -3,3 +3,6 @@ tests/test.yml
 tests/coverage
 composer.lock
 vendor
+tools/phpstan
+tools/psalm
+.php_cs.cache

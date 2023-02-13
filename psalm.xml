@@ -1,0 +1,250 @@
+<?xml version="1.0"?>
+<psalm
+    totallyTyped="false"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config ./vendor/vimeo/psalm/config.xsd"
+>
+    <projectFiles>
+        <directory name="./lib/" />
+    </projectFiles>
+
+    <stubs>
+        <file name="./vendor/jetbrains/phpstorm-stubs/memcache/memcache.php" />
+        <file name="./vendor/jetbrains/phpstorm-stubs/oci8/oci8.php" />
+        <file name="./vendor/jetbrains/phpstorm-stubs/xcache/xcache.php" />
+    </stubs>
+
+    <issueHandlers>
+        <LessSpecificReturnType errorLevel="info" />
+
+        <!-- level 3 issues - slightly lazy code writing, but provably low false-negatives -->
+
+        <DeprecatedMethod errorLevel="info" />
+        <DeprecatedProperty errorLevel="info" />
+        <DeprecatedClass errorLevel="info" />
+        <DeprecatedInterface errorLevel="info" />
+
+        <MissingClosureReturnType errorLevel="info" />
+        <MissingReturnType errorLevel="info" />
+        <MissingPropertyType errorLevel="info" />
+        <InvalidDocblock errorLevel="info" />
+        <MisplacedRequiredParam errorLevel="info" />
+
+        <PropertyNotSetInConstructor errorLevel="info" />
+        <MissingConstructor errorLevel="info" />
+        <MissingClosureParamType errorLevel="info" />
+        <MissingParamType errorLevel="info" />
+
+        <DocblockTypeContradiction errorLevel="info" />
+        <RedundantConditionGivenDocblockType errorLevel="info" />
+
+        <UnresolvableInclude errorLevel="info" />
+
+        <RawObjectIteration errorLevel="info" />
+
+        <!-- level 4 issues - points to possible deficiencies in logic, higher false-positives -->
+
+        <MoreSpecificReturnType errorLevel="info" />
+        <LessSpecificReturnStatement errorLevel="info" />
+        <TypeCoercion errorLevel="info" />
+        <RedundantCondition errorLevel="info" />
+
+        <PossiblyFalseArgument errorLevel="info" />
+        <PossiblyFalseIterator errorLevel="info" />
+        <PossiblyFalseOperand errorLevel="info" />
+        <PossiblyFalsePropertyAssignmentValue errorLevel="info" />
+        <PossiblyFalseReference errorLevel="info" />
+        <PossiblyInvalidArgument errorLevel="info" />
+        <PossiblyInvalidArrayAccess errorLevel="info" />
+        <PossiblyInvalidArrayAssignment errorLevel="info" />
+        <PossiblyInvalidArrayOffset errorLevel="info" />
+        <PossiblyInvalidFunctionCall errorLevel="info" />
+        <PossiblyInvalidIterator errorLevel="info" />
+        <PossiblyInvalidMethodCall errorLevel="info" />
+        <PossiblyInvalidOperand errorLevel="info" />
+        <PossiblyInvalidPropertyAssignment errorLevel="info" />
+        <PossiblyInvalidPropertyAssignmentValue errorLevel="info" />
+        <PossiblyInvalidPropertyFetch errorLevel="info" />
+        <PossiblyNullArgument errorLevel="info" />
+        <PossiblyNullArrayAccess errorLevel="info" />
+        <PossiblyNullArrayAssignment errorLevel="info" />
+        <PossiblyNullArrayOffset errorLevel="info" />
+        <PossiblyNullFunctionCall errorLevel="info" />
+        <PossiblyNullIterator errorLevel="info" />
+        <PossiblyNullOperand errorLevel="info" />
+        <PossiblyNullPropertyAssignment errorLevel="info" />
+        <PossiblyNullPropertyAssignmentValue errorLevel="info" />
+        <PossiblyNullPropertyFetch errorLevel="info" />
+        <PossiblyNullReference errorLevel="info" />
+        <PossiblyUndefinedGlobalVariable errorLevel="info" />
+        <PossiblyUndefinedVariable errorLevel="info" />
+        <PossiblyUndefinedMethod errorLevel="info" />
+
+
+        <TooManyArguments>
+            <errorLevel type="info">
+                <!-- different number of parameters passed depending on the mode -->
+                <file name="lib/Doctrine/Connection/Statement.php" />
+            </errorLevel>
+        </TooManyArguments>
+
+        <TypeDoesNotContainType>
+            <errorLevel type="info">
+                <!-- In this case the variable will never be an int, can probably remove the is_int condition, though maybe
+                needs to be changed to something like is_numeric -->
+                <file name="lib/Doctrine/Parser/Xml.php" />
+            </errorLevel>
+        </TypeDoesNotContainType>
+
+        <!-- Doctrine isn't terribly consistent with its inherited/overridden methods -->
+        <ImplementedReturnTypeMismatch errorLevel="info" />
+
+        <!-- These all come from missing extensions, and psalm apparently doesn't load them from stubs files -->
+        <UndefinedConstant errorLevel="info" />
+        <EmptyArrayAccess>
+            <errorLevel type="info">
+                <!-- This array is built in a do/while loop, so will be empty on first time through -->
+                <file name="lib/Doctrine/Hydrator/Graph.php" />
+                <!-- I believe this is broken (isn't covered by tests). Almost seems like $match should come from a preg_match call perhaps -->
+                <file name="lib/Doctrine/Connection/Pgsql.php" />
+            </errorLevel>
+        </EmptyArrayAccess>
+        <UndefinedVariable>
+            <errorLevel type="info">
+                <!-- This variable will be defined on the first iteration of the loop -->
+                <file name="lib/Doctrine/Connection/UnitOfWork.php" />
+            </errorLevel>
+        </UndefinedVariable>
+        <UndefinedMethod>
+            <errorLevel type="info">
+                <!-- No Doctrine_Collection objects define the "expand" method, and no __call implementations that I can see -->
+                <file name="lib/Doctrine/Collection/Iterator/Expandable.php" />
+                <!-- getSequenceName does not live on Doctrine_Connection (or any subclasses), but does live on Doctrine_Formatter, don't see a path to it from Doctrine_Connection though -->
+                <file name="lib/Doctrine/Export/Mssql.php" />
+                <!-- The getNode() call on the record here should return a Doctrine_Node_NestedSet, not easy to hint that though without breaking up the if condition -->
+                <file name="lib/Doctrine/Tree/NestedSet.php" />
+                <!-- Can't hint which validator this is, and Doctrine_Validator_Driver doesn't implement the validate method -->
+                <file name="lib/Doctrine/Table.php" />
+                <!-- This should be hinted to Doctrine_Record (since Doctrine_Record_Abstract doesn't define the delete method), would need to pull $this->_invoker to a variable for that though -->
+                <file name="lib/Doctrine/Template/SoftDelete.php" />
+                <!-- _connect and lastSquenceId don't exist -->
+                <file name="lib/Doctrine/Sequence/Db2.php" />
+                <!-- indexFile does not exist anywhere -->
+                <file name="lib/Doctrine/Search/Indexer/Dir.php" />
+                <!-- parseLiteralValue does not exist on Doctrine_Query_Set or its parents, does live on Doctrine_Query_Condition, but not path to that that I can see -->
+                <file name="lib/Doctrine/Query/Set.php" />
+                <!-- load method exists in subclasses, but not this base class -->
+                <file name="lib/Doctrine/Query/Condition.php" />
+                <!-- parse method exists in subclass, but not this base class -->
+                <file name="lib/Doctrine/Query/Abstract.php" />
+                <!-- experimental code, no tests, methods live on Doctrine_Formatter, not Doctrine_Connection -->
+                <file name="lib/Doctrine/Expression/Mysql.php" />
+                <!-- experimental code, no tests, methods live on Doctrine_Formatter, not Doctrine_Connection -->
+                <file name="lib/Doctrine/Expression/Pgsql.php" />
+                <!-- fixSequenceName lives on Doctrine_Formatter, not on any Doctrine_Connection objects, no path there, not covered by tests -->
+                <file name="lib/Doctrine/Import/Sqlite.php" />
+                <!-- getDeleteActions does not exist, not covered by tests -->
+                <file name="lib/Doctrine/IntegrityMapper.php" />
+                <!-- setLevel doesn't exist anywhere, updateLevel does, perhaps this is supposed to be updateLevel -->
+                <file name="lib/Doctrine/Node/NestedSet/PreOrderIterator.php" />
+                <!-- There are a bunch here due to calls to "getNode" on Doctrine_Record. Since this is NestedSet, these probably return Doctrine_Node_NestedSet, not Doctrine_Node. Could try to hint all of them, but not really worth it -->
+                <file name="lib/Doctrine/Node/NestedSet.php" />
+            </errorLevel>
+        </UndefinedMethod>
+
+        <InvalidArrayAssignment>
+            <errorLevel type="info">
+                <!-- A count is performed on the data variable, which should prevent getFirst here from returning false -->
+                <file name="lib/Doctrine/Tree/NestedSet.php" />
+            </errorLevel>
+        </InvalidArrayAssignment>
+
+        <InvalidArgument>
+            <errorLevel type="info">
+                <file name="lib/Doctrine/Adapter/Statement/Oracle.php" />
+                <file name="lib/Doctrine/Template/Listener/Timestampable.php" />
+                <file name="lib/Doctrine/Validator/Readonly.php" />
+            </errorLevel>
+        </InvalidArgument>
+
+        <InvalidReturnType>
+            <errorLevel type="info">
+                <!-- Hydration mode not specified, defaults to Doctrine_Collection -->
+                <file name="lib/Doctrine/View.php" />
+                <file name="lib/Doctrine/Relation/Association/Self.php" />
+                <file name="lib/Doctrine/IntegrityMapper.php" />
+                <file name="lib/Doctrine/Node/NestedSet.php" />
+                <!-- Hydration mode is specified as HYDRATE_ARRAY, will be an array -->
+                <file name="lib/Doctrine/Query.php" />
+                <!-- Cannot be bool, if it is, gets converted to an int -->
+                <file name="lib/Doctrine/Formatter.php" />
+                <!-- SimpleXMLElement::asXml returns string|false if filename isn't specified to asXml call, which is the
+                case here, so "true" won't ever be returned in this case. -->
+                <file name="lib/Doctrine/Parser/Xml.php" />
+            </errorLevel>
+        </InvalidReturnType>
+
+        <InvalidReturnStatement>
+            <errorLevel type="info">
+                <!-- Hydration mode not specified, defaults to Doctrine_Collection -->
+                <file name="lib/Doctrine/View.php" />
+                <file name="lib/Doctrine/Relation/Association/Self.php" />
+                <file name="lib/Doctrine/IntegrityMapper.php" />
+                <file name="lib/Doctrine/Node/NestedSet.php" />
+                <!-- Hydration mode is specified as HYDRATE_ARRAY, will be an array -->
+                <file name="lib/Doctrine/Query.php" />
+                <!-- Cannot be bool, if it is, gets converted to an int -->
+                <file name="lib/Doctrine/Formatter.php" />
+                <!-- SimpleXMLElement::asXml returns string|false if filename isn't specified to asXml call, which is the
+                case here, so "true" won't ever be returned in this case. -->
+                <file name="lib/Doctrine/Parser/Xml.php" />
+                <!-- Psalm wants to use numeric type, but other analyzers, like phpstan, don't like that type -->
+                <file name="lib/Doctrine/Parser/sfYaml/sfYamlInline.php" />
+            </errorLevel>
+        </InvalidReturnStatement>
+
+        <MoreSpecificImplementedParamType errorLevel="info" />
+
+        <InvalidNullableReturnType>
+            <errorLevel type="info">
+                <!-- The prepare method will throw an exception before it'll return null -->
+                <file name="lib/Doctrine/Connection.php" />
+                <!-- The migrate method sets $to to an int if it's null via call to getVersion -->
+                <file name="lib/Doctrine/Migration.php" />
+            </errorLevel>
+        </InvalidNullableReturnType>
+        <NullableReturnStatement>
+            <errorLevel type="info">
+                <!-- The migrate method sets $to to an int if it's null via call to getVersion -->
+                <file name="lib/Doctrine/Migration.php" />
+            </errorLevel>
+        </NullableReturnStatement>
+
+        <InvalidScalarArgument>
+            <errorLevel type="info">
+                <!-- scalar|null is probably fine here, will be coerced to be an array key, or could change the docblock -->
+                <file name="lib/Doctrine/Validator/ErrorStack.php" />
+            </errorLevel>
+        </InvalidScalarArgument>
+
+        <NoInterfaceProperties>
+            <errorLevel type="info">
+                <!-- this is defined as a @property annotation on Doctrine_Adapter_Statement_Interface, probably needs to be
+                moved to the concrete implementations -->
+                <file name="lib/Doctrine/Connection/Statement.php" />
+            </errorLevel>
+        </NoInterfaceProperties>
+
+        <PossiblyUndefinedArrayOffset>
+            <errorLevel type="info">
+                <!-- Tokenizer does weird things in a loop -->
+                <file name="lib/Doctrine/Query/Tokenizer.php" />
+            </errorLevel>
+        </PossiblyUndefinedArrayOffset>
+
+        <!-- newer version of psalm does not like the @property annotations -->
+        <UndefinedThisPropertyFetch errorLevel="info" />
+        <UndefinedPropertyFetch errorLevel="info" />
+    </issueHandlers>
+</psalm>
