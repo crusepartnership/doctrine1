@@ -34,12 +34,18 @@
 class Doctrine_Export_Mysql extends Doctrine_Export
 {
     /**
+     * @var Doctrine_Connection_Mysql $conn       Doctrine_Connection object, every connection
+     *                                            module holds an instance of Doctrine_Connection
+     */
+    protected $conn;
+
+    /**
      * drop existing constraint
      *
      * @param string    $table        name of table that should be used in method
      * @param string    $name         name of the constraint to be dropped
      * @param string    $primary      hint if the constraint is primary
-     * @return void
+     * @return int
      */
     public function dropConstraint($table, $name, $primary = false)
     {
@@ -57,8 +63,8 @@ class Doctrine_Export_Mysql extends Doctrine_Export
     /**
      * createDatabaseSql
      *
-     * @param string $name 
-     * @return void
+     * @param string $name
+     * @return string
      */
     public function createDatabaseSql($name)
     {
@@ -69,7 +75,7 @@ class Doctrine_Export_Mysql extends Doctrine_Export
      * drop an existing database
      *
      * @param string $name name of the database that should be dropped
-     * @return string
+     * @return array
      */
     public function dropDatabaseSql($name)
     {
@@ -112,9 +118,9 @@ class Doctrine_Export_Mysql extends Doctrine_Export
      *                              'type'    => 'innodb',
      *                          );
      *
-     * @return void
+     * @return array
      */
-    public function createTableSql($name, array $fields, array $options = array()) 
+    public function createTableSql($name, array $fields, array $options = array())
     {
         if ( ! $name)
             throw new Doctrine_Export_Exception('no valid table name specified');
@@ -132,8 +138,8 @@ class Doctrine_Export_Mysql extends Doctrine_Export
                 if (isset($options['indexes'])) {
                     foreach ($options['indexes'] as $definition) {
                         if (is_string($definition['fields'])) {
-                            // Check if index already exists on the column                            
-                            $found = $found || ($local == $definition['fields']);                    
+                            // Check if index already exists on the column
+                            $found = $found || ($local == $definition['fields']);
                         } else if (in_array($local, $definition['fields']) && count($definition['fields']) === 1) {
                             // Index already exists on the column
                             $found = true;
@@ -145,14 +151,14 @@ class Doctrine_Export_Mysql extends Doctrine_Export
                     // field is part of the PK and therefore already indexed
                     $found = true;
                 }
-                
+
                 if ( ! $found) {
                     if (is_array($local)) {
                       foreach($local as $localidx) {
                         $options['indexes'][$localidx] = array('fields' => array($localidx => array()));
                       }
                     } else {
-                      $options['indexes'][$local] = array('fields' => array($local => array()));                      
+                      $options['indexes'][$local] = array('fields' => array($local => array()));
                     }
                 }
             }
@@ -288,8 +294,8 @@ class Doctrine_Export_Mysql extends Doctrine_Export
             } else {
                 $dec = $this->conn->dataDict->getNativeDeclaration($field);
             }
-    
-            return $this->conn->quoteIdentifier($name, true) 
+
+            return $this->conn->quoteIdentifier($name, true)
                  . ' ' . $dec . $charset . $default . $notnull . $comment . $unique . $check . $collation;
         } catch (Exception $e) {
             throw new Doctrine_Exception('Around field ' . $name . ': ' . $e->getMessage() . "\n\n" . $e->getTraceAsString() . "\n\n");
@@ -382,7 +388,7 @@ class Doctrine_Export_Mysql extends Doctrine_Export
      * @param boolean $check     indicates whether the function should just check if the DBMS driver
      *                           can perform the requested table alterations if the value is true or
      *                           actually perform them otherwise.
-     * @return boolean
+     * @return boolean|string
      */
     public function alterTableSql($name, array $changes, $check = false)
     {
@@ -450,7 +456,7 @@ class Doctrine_Export_Mysql extends Doctrine_Export
                     $oldFieldName = $fieldName;
                 }
                 $oldFieldName = $this->conn->quoteIdentifier($oldFieldName, true);
-                $query .= 'CHANGE ' . $oldFieldName . ' ' 
+                $query .= 'CHANGE ' . $oldFieldName . ' '
                         . $this->getDeclaration($fieldName, $field['definition']);
             }
         }
@@ -472,7 +478,7 @@ class Doctrine_Export_Mysql extends Doctrine_Export
         }
 
         $name = $this->conn->quoteIdentifier($name, true);
-        
+
         return 'ALTER TABLE ' . $name . ' ' . $query;
     }
 
@@ -584,7 +590,7 @@ class Doctrine_Export_Mysql extends Doctrine_Export
      *                                        )
      *                                    )
      * @throws PDOException
-     * @return void
+     * @return string
      */
     public function createIndexSql($table, $name, array $definition)
     {
@@ -612,7 +618,7 @@ class Doctrine_Export_Mysql extends Doctrine_Export
         return $query;
     }
 
-    /** 
+    /**
      * getDefaultDeclaration
      * Obtain DBMS specific SQL code portion needed to set a default value
      * declaration to be used in statements like CREATE TABLE.
@@ -634,28 +640,28 @@ class Doctrine_Export_Mysql extends Doctrine_Export
                     $field['default'] = ' ';
                 }
             }
-    
+
             // Proposed patch:
             if ($field['type'] == 'enum' && $this->conn->getAttribute(Doctrine_Core::ATTR_USE_NATIVE_ENUM)) {
                 $fieldType = 'varchar';
             } else {
                 $fieldType = $field['type'];
             }
-            
+
             $default = ' DEFAULT ' . (is_null($field['default'])
-                ? 'NULL' 
+                ? 'NULL'
                 : $this->conn->quote($field['default'], $fieldType));
             //$default = ' DEFAULT ' . $this->conn->quote($field['default'], $field['type']);
         }
-        
+
         return $default;
     }
 
     /**
-     * Obtain DBMS specific SQL code portion needed to set an index 
+     * Obtain DBMS specific SQL code portion needed to set an index
      * declaration to be used in statements like CREATE TABLE.
      *
-     * @param string $charset       name of the index
+     * @param string $name       name of the index
      * @param array $definition     index definition
      * @return string  DBMS specific SQL code portion needed to set an index
      */
@@ -675,7 +681,7 @@ class Doctrine_Export_Mysql extends Doctrine_Export
                     );
             }
         }
-        
+
         if ( ! isset($definition['fields'])) {
             throw new Doctrine_Export_Exception('No columns given for index ' . $name);
         }
@@ -686,7 +692,7 @@ class Doctrine_Export_Mysql extends Doctrine_Export
         $query = $type . 'INDEX ' . $this->conn->quoteIdentifier($name);
 
         $query .= ' (' . $this->getIndexFieldDeclarationList($definition['fields']) . ')';
-        
+
         return $query;
     }
 
@@ -780,7 +786,7 @@ class Doctrine_Export_Mysql extends Doctrine_Export
      *
      * @param string    $table          name of table that should be used in method
      * @param string    $name           name of the index to be dropped
-     * @return void
+     * @return string
      */
     public function dropIndexSql($table, $name)
     {
@@ -794,7 +800,7 @@ class Doctrine_Export_Mysql extends Doctrine_Export
      *
      * @param string    $table          name of table that should be dropped from the database
      * @throws PDOException
-     * @return void
+     * @return string
      */
     public function dropTableSql($table)
     {
@@ -807,7 +813,7 @@ class Doctrine_Export_Mysql extends Doctrine_Export
      *
      * @param string    $table        name of table that should be used in method
      * @param string    $name         name of the foreign key to be dropped
-     * @return void
+     * @return int
      */
     public function dropForeignKey($table, $name)
     {

@@ -58,7 +58,8 @@ class Doctrine_Relation_Association extends Doctrine_Relation
     {
         $table = $this->definition['refTable'];
         $component = $this->definition['refTable']->getComponentName();
-        
+        $dql = '';
+
         switch ($context) {
             case "record":
                 $sub  = substr(str_repeat("?, ", $count),0,-2);

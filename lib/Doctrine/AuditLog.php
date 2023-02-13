@@ -128,6 +128,7 @@ class Doctrine_AuditLog extends Doctrine_Record_Generator
             ->createQuery();
 
         $values = array();
+        $conditions = array();
         foreach ((array) $this->_options['table']->getIdentifier() as $id) {
             $conditions[] = $className . '.' . $id . ' = ?';
             $values[] = $record->get($id);
@@ -152,6 +153,8 @@ class Doctrine_AuditLog extends Doctrine_Record_Generator
     {
         $className = $this->_options['className'];
         $select = 'MAX(' . $className . '.' . $this->_options['version']['name'] . ') max_version';
+        $conditions = array();
+        $values = array();
 
         foreach ((array) $this->_options['table']->getIdentifier() as $id) {
             $conditions[] = $className . '.' . $id . ' = ?';

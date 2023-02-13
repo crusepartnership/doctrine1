@@ -36,14 +36,14 @@ class Doctrine_Template_Listener_Timestampable extends Doctrine_Record_Listener
     /**
      * Array of timestampable options
      *
-     * @var string
+     * @var array
      */
     protected $_options = array();
 
     /**
      * __construct
      *
-     * @param string $options 
+     * @param array $options
      * @return void
      */
     public function __construct(array $options)
@@ -79,7 +79,7 @@ class Doctrine_Template_Listener_Timestampable extends Doctrine_Record_Listener
     /**
      * Set updated Timestampable column when a record is updated
      *
-     * @param Doctrine_Event $evet
+     * @param Doctrine_Event $event
      * @return void
      */
     public function preUpdate(Doctrine_Event $event)
@@ -96,7 +96,7 @@ class Doctrine_Template_Listener_Timestampable extends Doctrine_Record_Listener
     /**
      * Set the updated field for dql update queries
      *
-     * @param Doctrine_Event $evet
+     * @param Doctrine_Event $event
      * @return void
      */
     public function preDqlUpdate(Doctrine_Event $event)
@@ -116,8 +116,8 @@ class Doctrine_Template_Listener_Timestampable extends Doctrine_Record_Listener
     /**
      * Gets the timestamp in the correct format based on the way the behavior is configured
      *
-     * @param string $type 
-     * @return void
+     * @param string $type
+     * @return int|string|Doctrine_Expression
      */
     public function getTimestamp($type, $conn = null)
     {

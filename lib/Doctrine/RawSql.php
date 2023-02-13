@@ -46,8 +46,8 @@ class Doctrine_RawSql extends Doctrine_Query_Abstract
     /**
      * Constructor.
      *
-     * @param Doctrine_Connection  The connection object the query will use.
-     * @param Doctrine_Hydrator_Abstract  The hydrator that will be used for generating result sets.
+     * @param Doctrine_Connection $connection The connection object the query will use.
+     * @param Doctrine_Hydrator_Abstract $hydrator The hydrator that will be used for generating result sets.
      */
     function __construct(Doctrine_Connection $connection = null, Doctrine_Hydrator_Abstract $hydrator = null) {
         parent::__construct($connection, $hydrator);
@@ -76,7 +76,7 @@ class Doctrine_RawSql extends Doctrine_Query_Abstract
      * @param boolean $append           whether or not to append the query part to its stack
      *                                  if false is given, this method will overwrite
      *                                  the given query part stack with $queryPart
-     * @return Doctrine_Query           this object
+     * @return $this           this object
      */
  	public function parseDqlQueryPart($queryPartName, $queryPart, $append = false)
     {
@@ -87,7 +87,7 @@ class Doctrine_RawSql extends Doctrine_Query_Abstract
      	if ( ! isset($this->_sqlParts[$queryPartName])) {
      	    $this->_sqlParts[$queryPartName] = array();
      	}
-     	
+
      	if ( ! $append) {
      	    $this->_sqlParts[$queryPartName] = array($queryPart);
      	} else {
@@ -95,7 +95,7 @@ class Doctrine_RawSql extends Doctrine_Query_Abstract
      	}
      	return $this;
     }
-    
+
     /**
      * Adds a DQL query part. Overrides Doctrine_Query_Abstract::_addDqlQueryPart().
      * This implementation for RawSql parses the new parts right away, generating the SQL.
@@ -104,11 +104,11 @@ class Doctrine_RawSql extends Doctrine_Query_Abstract
     {
         return $this->parseDqlQueryPart($queryPartName, $queryPart, $append);
     }
-    
+
     /**
      * Add select parts to fields.
      *
-     * @param $queryPart sting The name of the querypart
+     * @param string $queryPart The name of the querypart
      */
     private function _parseSelectFields($queryPart)
     {
@@ -116,7 +116,7 @@ class Doctrine_RawSql extends Doctrine_Query_Abstract
         $this->fields = $m[1];
         $this->_sqlParts['select'] = array();
     }
-    
+
     /**
      * parseDqlQuery
      * parses an sql query and adds the parts to internal array.
@@ -125,7 +125,7 @@ class Doctrine_RawSql extends Doctrine_Query_Abstract
      * as SQL parts right away.
      *
      * @param string $query     query to be parsed
-     * @return Doctrine_RawSql  this object
+     * @return $this  this object
      */
     public function parseDqlQuery($query)
     {
@@ -168,7 +168,7 @@ class Doctrine_RawSql extends Doctrine_Query_Abstract
                         $parts[$type][0] = $part;
                     } else {
                         // why does this add to index 0 and not append to the
-                        // array. If it had done that one could have used 
+                        // array. If it had done that one could have used
                         // parseQueryPart.
                         $parts[$type][0] .= ' '.$part;
                     }
@@ -188,7 +188,7 @@ class Doctrine_RawSql extends Doctrine_Query_Abstract
      * @return string       the built sql query
      */
     public function getSqlQuery($params = array())
-    {        
+    {
         // Assign building/execution specific params
         $this->_params['exec'] = $params;
 
@@ -199,7 +199,7 @@ class Doctrine_RawSql extends Doctrine_Query_Abstract
         $this->fixArrayParameterValues($this->_execParams);
 
         $select = array();
-        
+
         $formatter = $this->getConnection()->formatter;
 
         foreach ($this->fields as $field) {
@@ -217,7 +217,7 @@ class Doctrine_RawSql extends Doctrine_Query_Abstract
             }
 
             $componentAlias = $this->getComponentAlias($e[0]);
-            
+
             if ($e[1] == '*') {
                 foreach ($this->_queryComponents[$componentAlias]['table']->getColumnNames() as $name) {
                     $field = $formatter->quoteIdentifier($e[0]) . '.' . $formatter->quoteIdentifier($name);
@@ -254,7 +254,7 @@ class Doctrine_RawSql extends Doctrine_Query_Abstract
         // first add the fields of the root component
         reset($this->_queryComponents);
         $componentAlias = key($this->_queryComponents);
-        
+
         $this->_rootAlias = $componentAlias;
 
         $q .= implode(', ', $select[$componentAlias]);
@@ -377,7 +377,7 @@ class Doctrine_RawSql extends Doctrine_Query_Abstract
      * addComponent
      *
      * @param string $tableAlias
-     * @param string $componentName
+     * @param string $path
      * @return Doctrine_RawSql
      */
     public function addComponent($tableAlias, $path)
@@ -418,7 +418,7 @@ class Doctrine_RawSql extends Doctrine_Query_Abstract
             if ( ! isset($table)) {
                 $conn = Doctrine_Manager::getInstance()
                         ->getConnectionForComponent($component);
-                        
+
                 $table = $conn->getTable($component);
                 $this->_queryComponents[$componentAlias] = array('table' => $table);
             } else {

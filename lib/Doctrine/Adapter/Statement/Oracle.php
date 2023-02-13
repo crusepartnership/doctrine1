@@ -134,7 +134,7 @@ class Doctrine_Adapter_Statement_Oracle implements Doctrine_Adapter_Statement_In
      * of stored procedures that return data as output parameters, and some also as input/output
      * parameters that both send in data and are updated to receive it.
      *
-     * @param mixed $param          Parameter identifier. For a prepared statement using named placeholders,
+     * @param mixed $column         Parameter identifier. For a prepared statement using named placeholders,
      *                              this will be a parameter name of the form :name. For a prepared statement
      *                              using question mark placeholders, this will be the 1-indexed position of the parameter
      *
@@ -193,7 +193,7 @@ class Doctrine_Adapter_Statement_Oracle implements Doctrine_Adapter_Statement_In
     /**
      * Returns the number of columns in the result set
      *
-     * @return integer              Returns the number of columns in the result set represented
+     * @return integer|false        Returns the number of columns in the result set represented
      *                              by the Doctrine_Adapter_Statement_Interface object. If there is no result set,
      *                              this method should return 0.
      */
@@ -218,7 +218,7 @@ class Doctrine_Adapter_Statement_Oracle implements Doctrine_Adapter_Statement_In
      * Fetch extended error information associated with the last operation on the statement handle
      *
      * @see Doctrine_Adapter_Interface::errorInfo()
-     * @return array        error info array
+     * @return string
      */
     public function errorInfo()
     {
@@ -236,7 +236,7 @@ class Doctrine_Adapter_Statement_Oracle implements Doctrine_Adapter_Statement_In
 
         if ($oci_error) {
             //store the error
-            $this->oci_errors[] = $oci_error;
+            $this->ociErrors[] = $oci_error;
         } else if (count($this->ociErrors) > 0) {
             $oci_error = $this->ociErrors[count($this->ociErrors)-1];
         }
@@ -314,7 +314,7 @@ class Doctrine_Adapter_Statement_Oracle implements Doctrine_Adapter_Statement_In
                 return oci_fetch_array($this->statement, OCI_NUM + OCI_RETURN_NULLS + OCI_RETURN_LOBS);
             break;
             case Doctrine_Core::FETCH_OBJ:
-                return oci_fetch_object($this->statement, OCI_NUM + OCI_RETURN_NULLS + OCI_RETURN_LOBS);
+                return oci_fetch_object($this->statement);
             break;
             default:
                 throw new Doctrine_Adapter_Exception("This type of fetch is not supported: ".$fetchStyle);
@@ -347,7 +347,7 @@ class Doctrine_Adapter_Statement_Oracle implements Doctrine_Adapter_Statement_In
      *                                      This value must be one of the Doctrine_Core::FETCH_* constants,
      *                                      defaulting to Doctrine_Core::FETCH_BOTH
      *
-     * @param integer $columnIndex          Returns the indicated 0-indexed column when the value of $fetchStyle is
+     * @param integer $colnum               Returns the indicated 0-indexed column when the value of $fetchStyle is
      *                                      Doctrine_Core::FETCH_COLUMN. Defaults to 0.
      *
      * @return array
@@ -388,7 +388,7 @@ class Doctrine_Adapter_Statement_Oracle implements Doctrine_Adapter_Statement_In
      *                                      value is supplied, Doctrine_Adapter_Statement_Interface->fetchColumn()
      *                                      fetches the first column.
      *
-     * @return string                       returns a single column in the next row of a result set.
+     * @return mixed|false                       returns a single column in the next row of a result set.
      */
     public function fetchColumn($columnIndex = 0)
     {
@@ -419,6 +419,9 @@ class Doctrine_Adapter_Statement_Oracle implements Doctrine_Adapter_Statement_In
         if ($row === false) {
             return false;
         }
+
+        // gets overwritten by eval'd code
+        $object = new stdClass();
 
         $instantiation_code = "\$object = new $className(";
         $firstParam=true;
@@ -504,7 +507,7 @@ class Doctrine_Adapter_Statement_Oracle implements Doctrine_Adapter_Statement_In
      * this behaviour is not guaranteed for all databases and should not be
      * relied on for portable applications.
      *
-     * @return integer                      Returns the number of rows.
+     * @return integer|false                 Returns the number of rows.
      */
     public function rowCount()
     {
@@ -572,7 +575,7 @@ class Doctrine_Adapter_Statement_Oracle implements Doctrine_Adapter_Statement_In
 
     /**
      * Parse actual query from queryString and returns OCI statement handler
-     * @param  string       Query string to parse, if NULL, $this->queryString is used
+     * @param  string $query       Query string to parse, if NULL, $this->queryString is used
      *
      * @return resource     OCI statement handler
      */
@@ -589,12 +592,14 @@ class Doctrine_Adapter_Statement_Oracle implements Doctrine_Adapter_Statement_In
             $query
         );
 
-        $this->statement =  @oci_parse($this->connection, $query);
+        $statement = @oci_parse($this->connection, $query);
 
-        if ( $this->statement == false )
+        if ( $statement == false )
         {
             throw new Doctrine_Adapter_Exception($this->getOciError());
         }
+
+        $this->statement = $statement;
 
         return $this->statement;
     }

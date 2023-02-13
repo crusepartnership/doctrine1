@@ -36,7 +36,7 @@ class Doctrine_Sequence_Pgsql extends Doctrine_Sequence
      * Returns the next free id of a sequence
      *
      * @param string $seqName   name of the sequence
-     * @param bool onDemand     when true missing sequences are automatic created
+     * @param bool $onDemand     when true missing sequences are automatic created
      *
      * @return integer          next id in the given sequence
      */
@@ -70,8 +70,8 @@ class Doctrine_Sequence_Pgsql extends Doctrine_Sequence
      * Returns the autoincrement ID if supported or $id or fetches the current
      * ID in a sequence called: $table.(empty($field) ? '' : '_'.$field)
      *
-     * @param   string  name of the table into which a new row was inserted
-     * @param   string  name of the field into which a new row was inserted
+     * @param   string  $table name of the table into which a new row was inserted
+     * @param   string  $field name of the field into which a new row was inserted
      * @return integer      the autoincremented id
      */
     public function lastInsertId($table = null, $field = null)

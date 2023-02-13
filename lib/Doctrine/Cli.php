@@ -21,7 +21,7 @@
 
 /**
  * Command line interface class
- * 
+ *
  * Interface for easily executing Doctrine_Task classes from a command line interface
  *
  * @package     Doctrine
@@ -36,7 +36,7 @@ class Doctrine_Cli
 {
     /**
      * The name of the Doctrine Task base class
-     * 
+     *
      * @var string
      */
     const TASK_BASE_CLASS = 'Doctrine_Task';
@@ -52,27 +52,27 @@ class Doctrine_Cli
     private $_config;
 
     /**
-     * @var object Doctrine_Cli_Formatter
+     * @var Doctrine_Cli_Formatter
      */
     private $_formatter;
 
     /**
      * An array, keyed on class name, containing task instances
-     * 
+     *
      * @var array
      */
     private $_registeredTask = array();
 
     /**
-     * @var object Doctrine_Task
+     * @var Doctrine_Task
      */
     private $_taskInstance;
 
     /**
      * __construct
      *
-     * @param array [$config=array()]
-     * @param object|null [$formatter=null] Doctrine_Cli_Formatter
+     * @param array $config
+     * @param Doctrine_Cli_Formatter|null $formatter Doctrine_Cli_Formatter
      */
     public function __construct(array $config = array(), Doctrine_Cli_Formatter $formatter = null)
     {
@@ -98,7 +98,7 @@ class Doctrine_Cli
     }
 
     /**
-     * @param object $formatter Doctrine_Cli_Formatter
+     * @param Doctrine_Cli_Formatter $formatter Doctrine_Cli_Formatter
      */
     public function setFormatter(Doctrine_Cli_Formatter $formatter)
     {
@@ -106,7 +106,7 @@ class Doctrine_Cli
     }
 
     /**
-     * @return object Doctrine_Cli_Formatter
+     * @return Doctrine_Cli_Formatter
      */
     public function getFormatter()
     {
@@ -115,7 +115,7 @@ class Doctrine_Cli
 
     /**
      * Returns the specified value from the config, or the default value, if specified
-     * 
+     *
      * @param string $name
      * @return mixed
      * @throws OutOfBoundsException If the element does not exist in the config
@@ -135,15 +135,15 @@ class Doctrine_Cli
 
     /**
      * Returns TRUE if the element in the config has the specified value, or FALSE otherwise
-     * 
+     *
      * If $value is not passed, this method will return TRUE if the specified element has _any_ value, or FALSE if the
      * element is not set
-     * 
+     *
      * For strict checking, set $strict to TRUE - the default is FALSE
-     * 
+     *
      * @param string $name
-     * @param mixed [$value=null]
-     * @param bool [$strict=false]
+     * @param mixed $value
+     * @param bool $strict
      * @return bool
      */
     public function hasConfigValue($name, $value = null, $strict = false)
@@ -165,7 +165,7 @@ class Doctrine_Cli
 
     /**
      * Sets the array of registered tasks
-     * 
+     *
      * @param array $registeredTask
      */
     public function setRegisteredTasks(array $registeredTask)
@@ -175,7 +175,7 @@ class Doctrine_Cli
 
     /**
      * Returns an array containing the registered tasks
-     * 
+     *
      * @return array
      */
     public function getRegisteredTasks()
@@ -185,7 +185,7 @@ class Doctrine_Cli
 
     /**
      * Returns TRUE if the specified Task-class is registered, or FALSE otherwise
-     * 
+     *
      * @param string $className
      * @return bool
      */
@@ -196,11 +196,11 @@ class Doctrine_Cli
 
     /**
      * Returns TRUE if a task with the specified name is registered, or FALSE otherwise
-     * 
+     *
      * If a matching task is found, $className is set with the name of the implementing class
-     * 
+     *
      * @param string $taskName
-     * @param string|null [&$className=null]
+     * @param string|null $className
      * @return bool
      */
     public function taskNameIsRegistered($taskName, &$className = null)
@@ -216,7 +216,7 @@ class Doctrine_Cli
     }
 
     /**
-     * @param object $task Doctrine_Task
+     * @param Doctrine_Task $task Doctrine_Task
      */
     public function setTaskInstance(Doctrine_Task $task)
     {
@@ -224,7 +224,7 @@ class Doctrine_Cli
     }
 
     /**
-     * @return object Doctrine_Task
+     * @return Doctrine_Task
      */
     public function getTaskInstance()
     {
@@ -234,7 +234,7 @@ class Doctrine_Cli
     /**
      * Called by the constructor, this method includes and registers Doctrine core Tasks and then registers all other
      * loaded Task classes
-     * 
+     *
      * The second round of registering will pick-up loaded custom Tasks.  Methods are provided that will allow users to
      * register Tasks loaded after creating an instance of Doctrine_Cli.
      */
@@ -250,10 +250,10 @@ class Doctrine_Cli
 
     /**
      * Includes and registers Doctrine-style tasks from the specified directory / directories
-     * 
+     *
      * If no directory is given it looks in the default Doctrine/Task folder for the core tasks
-     * 
-     * @param mixed [$directories=null] Can be a string path or array of paths
+     *
+     * @param mixed $directories Can be a string path or array of paths
      */
     protected function includeAndRegisterDoctrineTaskClasses($directories = null)
     {
@@ -270,16 +270,16 @@ class Doctrine_Cli
 
     /**
      * Attempts to include Doctrine-style Task-classes from the specified directory - and nothing more besides
-     * 
+     *
      * Returns an array containing the names of Task classes included
-     * 
+     *
      * This method effectively makes two assumptions:
      * - The directory contains only _Task_ class-files
      * - The class files, and the class in each, follow the Doctrine naming conventions
-     * 
+     *
      * This means that a file called "Foo.php", say, will be expected to contain a Task class called
      * "Doctrine_Task_Foo".  Hence the method's name, "include*Doctrine*TaskClasses".
-     * 
+     *
      * @param string $directory
      * @return array $taskClassesIncluded
      * @throws InvalidArgumentException If the directory does not exist
@@ -327,7 +327,7 @@ class Doctrine_Cli
 
     /**
      * Registers the specified _included_ task-class
-     * 
+     *
      * @param string $className
      * @throws InvalidArgumentException If the class does not exist or the task-name is blank
      * @throws DomainException If the class is not a Doctrine Task
@@ -352,24 +352,24 @@ class Doctrine_Cli
 
     /**
      * Returns TRUE if the specified class is a Task, or FALSE otherwise
-     * 
+     *
      * @param string $className
      * @return bool
      */
     protected function classIsTask($className)
     {
         $reflectionClass = new ReflectionClass($className);
-        return (bool) $reflectionClass->isSubClassOf(self::TASK_BASE_CLASS);
+        return (bool) $reflectionClass->isSubclassOf(self::TASK_BASE_CLASS);
     }
 
     /**
      * Creates, and returns, a new instance of the specified Task class
-     * 
+     *
      * Displays a message, and returns FALSE, if there were problems instantiating the class
-     * 
+     *
      * @param string $className
-     * @param object $cli Doctrine_Cli
-     * @return object Doctrine_Task
+     * @param Doctrine_Cli $cli Doctrine_Cli
+     * @return Doctrine_Task
      */
     protected function createTaskInstance($className, Doctrine_Cli $cli)
     {
@@ -378,7 +378,7 @@ class Doctrine_Cli
 
     /**
      * Registers all loaded classes - by default - or the specified loaded Task classes
-     * 
+     *
      * This method will skip registered task classes, so it can be safely called many times over
      */
     public function registerIncludedTaskClasses()
@@ -426,7 +426,7 @@ class Doctrine_Cli
 
     /**
      * Notify the formatter of an exception
-     * 
+     *
      * N.B. This should really only be called by Doctrine_Cli::run().  Exceptions should be thrown when errors occur:
      * it's up to Doctrine_Cli::run() to determine how those exceptions are reported.
      *
@@ -474,16 +474,16 @@ class Doctrine_Cli
      * @todo Continue refactoring for testing
      */
     protected function _run(array $args)
-    {        
+    {
         $this->_scriptName = $args[0];
-        
+
         $requestedTaskName = isset($args[1]) ? $args[1] : null;
-        
+
         if ( ! $requestedTaskName || $requestedTaskName == 'help') {
             $this->printTasks(null, $requestedTaskName == 'help' ? true : false);
             return;
         }
-        
+
         if ($requestedTaskName && isset($args[2]) && $args[2] === 'help') {
             $this->printTasks($requestedTaskName, true);
             return;
@@ -500,8 +500,8 @@ class Doctrine_Cli
 
     /**
      * Executes the task with the specified _prepared_ arguments
-     * 
-     * @param object $task Doctrine_Task
+     *
+     * @param Doctrine_Task $task Doctrine_Task
      * @param array $preparedArguments
      * @throws Doctrine_Cli_Exception If required arguments are missing
      */
@@ -527,29 +527,29 @@ class Doctrine_Cli
     protected function prepareArgs(array $args)
     {
         $taskInstance = $this->getTaskInstance();
-        
+
         $args = array_values($args);
-        
+
         // First lets load populate an array with all the possible arguments. required and optional
         $prepared = array();
-        
+
         $requiredArguments = $taskInstance->getRequiredArguments();
         foreach ($requiredArguments as $key => $arg) {
             $prepared[$arg] = null;
         }
-        
+
         $optionalArguments = $taskInstance->getOptionalArguments();
         foreach ($optionalArguments as $key => $arg) {
             $prepared[$arg] = null;
         }
-        
+
         // If we have a config array then lets try and fill some of the arguments with the config values
         foreach ($this->getConfig() as $key => $value) {
             if (array_key_exists($key, $prepared)) {
                 $prepared[$key] = $value;
             }
         }
-        
+
         // Now lets fill in the entered arguments to the prepared array
         $copy = $args;
         foreach ($prepared as $key => $value) {
@@ -559,15 +559,15 @@ class Doctrine_Cli
                 $copy = array_values($copy);
             }
         }
-        
+
         return $prepared;
     }
 
     /**
      * Prints an index of all the available tasks in the CLI instance
-     * 
-     * @param string|null [$taskName=null]
-     * @param bool [$full=false]
+     *
+     * @param string|null $taskName
+     * @param bool $full
      * @todo Continue refactoring for testing
      */
     public function printTasks($taskName = null, $full = false)
@@ -595,7 +595,7 @@ class Doctrine_Cli
                     $taskIndex .= "\n" . $formatter->format('Arguments:', 'HEADER') . "\n" . $args;
                 }
             }
-            
+
             $taskIndex .= "\n";
         }
 
@@ -605,7 +605,7 @@ class Doctrine_Cli
     /**
      * @param array $argumentsDescriptions
      * @param array $config
-     * @param object $formatter Doctrine_Cli_Formatter
+     * @param Doctrine_Cli_Formatter $formatter Doctrine_Cli_Formatter
      * @return string
      */
     protected function assembleArgumentList(array $argumentsDescriptions, array $config, Doctrine_Cli_Formatter $formatter)
@@ -614,7 +614,7 @@ class Doctrine_Cli
 
         foreach ($argumentsDescriptions as $name => $description) {
             $argumentList .= $formatter->format($name, 'ERROR') . ' - ';
-            
+
             if (isset($config[$name])) {
                 $argumentList .= $formatter->format($config[$name], 'COMMENT');
             } else {
@@ -629,7 +629,7 @@ class Doctrine_Cli
 
     /**
      * Used by Doctrine_Cli::loadTasks() and Doctrine_Cli::getLoadedTasks() to re-create their pre-refactoring behaviour
-     * 
+     *
      * @ignore
      * @param array $registeredTask
      * @return array
@@ -648,7 +648,7 @@ class Doctrine_Cli
 
     /**
      * Old method retained for backwards compatibility
-     * 
+     *
      * @deprecated
      */
     public function loadTasks($directory = null)
@@ -659,7 +659,7 @@ class Doctrine_Cli
 
     /**
      * Old method retained for backwards compatibility
-     * 
+     *
      * @deprecated
      */
     protected function _getTaskClassFromArgs(array $args)
@@ -669,7 +669,7 @@ class Doctrine_Cli
 
     /**
      * Old method retained for backwards compatibility
-     * 
+     *
      * @deprecated
      */
     public function getLoadedTasks()

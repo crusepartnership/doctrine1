@@ -53,12 +53,14 @@ class Doctrine_Search_File extends Doctrine_Search
             $this->_options['fields'] = array('url', 'content');
         }
 
-        $this->initialize($table);
+        if (isset($table)) {
+            $this->initialize($table);
+        }
     }
 
     public function buildRelation()
     {
-    	
+
     }
 
     /**
@@ -71,7 +73,7 @@ class Doctrine_Search_File extends Doctrine_Search
     {
         $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir),
                                                 RecursiveIteratorIterator::LEAVES_ONLY);
-                                                
+
         foreach ($it as $file) {
             if (strpos($file, DIRECTORY_SEPARATOR . '.svn') !== false) {
                 continue;

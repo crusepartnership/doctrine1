@@ -261,6 +261,9 @@ class Doctrine_Search_Analyzer_Standard extends Doctrine_Search_Analyzer impleme
                             'yours'
                             );
 
+    /**
+     * @return array
+     */
     public function analyze($text, $encoding = null)
     {
         $text = preg_replace('/[\'`´"]/', '', $text);
@@ -269,7 +272,7 @@ class Doctrine_Search_Analyzer_Standard extends Doctrine_Search_Analyzer impleme
         $text = str_replace('  ', ' ', $text);
 
         $terms = explode(' ', $text);
-        
+
         $ret = array();
         if ( ! empty($terms)) {
             foreach ($terms as $i => $term) {

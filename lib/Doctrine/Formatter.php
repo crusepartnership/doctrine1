@@ -40,7 +40,7 @@ class Doctrine_Formatter extends Doctrine_Connection_Module
      * WARNING: this function is experimental and may change signature at
      * any time until labelled as non-experimental
      *
-     * @param   string  the input string to quote
+     * @param   string  $text the input string to quote
      *
      * @return  string  quoted string
      */
@@ -51,7 +51,7 @@ class Doctrine_Formatter extends Doctrine_Connection_Module
         }
         $tmp = $this->conn->string_quoting;
 
-        $text = str_replace($tmp['escape_pattern'], 
+        $text = str_replace($tmp['escape_pattern'],
             $tmp['escape_pattern'] .
             $tmp['escape_pattern'], $text);
 
@@ -68,8 +68,8 @@ class Doctrine_Formatter extends Doctrine_Connection_Module
      *
      * This method takes care of that conversion
      *
-     * @param array $item
-     * @return void
+     * @param array|bool $item
+     * @return array|int
      */
     public function convertBooleans($item)
     {
@@ -131,8 +131,8 @@ class Doctrine_Formatter extends Doctrine_Connection_Module
 
         return $tmp['start'] . $str . $tmp['end'];
     }
-    
-    
+
+
     /**
      * quoteMultipleIdentifier
      * Quotes multiple identifier strings
@@ -140,7 +140,7 @@ class Doctrine_Formatter extends Doctrine_Connection_Module
      * @param array $arr           identifiers array to be quoted
      * @param bool $checkOption     check the 'quote_identifier' option
      *
-     * @return string               quoted identifier string
+     * @return array
      */
     public function quoteMultipleIdentifier($arr, $checkOption = true)
     {
@@ -228,7 +228,7 @@ class Doctrine_Formatter extends Doctrine_Connection_Module
     /**
      * adds sequence name formatting to a sequence name
      *
-     * @param string    name of the sequence
+     * @param string $sqn   name of the sequence
      * @return string   formatted sequence name
      */
     public function getSequenceName($sqn)
@@ -240,7 +240,7 @@ class Doctrine_Formatter extends Doctrine_Connection_Module
     /**
      * adds index name formatting to a index name
      *
-     * @param string    name of the index
+     * @param string $idx   name of the index
      * @return string   formatted index name
      */
     public function getIndexName($idx)
@@ -248,11 +248,11 @@ class Doctrine_Formatter extends Doctrine_Connection_Module
         return sprintf($this->conn->getAttribute(Doctrine_Core::ATTR_IDXNAME_FORMAT),
             preg_replace('/[^a-z0-9_\$]/i', '_', $idx));
     }
-    
+
     /**
      * Formatting a foreign Key name
      *
-     * @param string    name of the foreign key
+     * @param string $fkey   name of the foreign key
      * @return string   formatted foreign key name
      */
     public function getForeignKeyName($fkey)
@@ -264,7 +264,7 @@ class Doctrine_Formatter extends Doctrine_Connection_Module
     /**
      * adds table name formatting to a table name
      *
-     * @param string    name of the table
+     * @param string  $table  name of the table
      * @return string   formatted table name
      */
     public function getTableName($table)

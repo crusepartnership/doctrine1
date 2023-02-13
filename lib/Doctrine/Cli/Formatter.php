@@ -47,7 +47,7 @@ class Doctrine_Cli_Formatter
     /**
      * __construct
      *
-     * @param string $maxLineSize 
+     * @param string $maxLineSize
      * @return void
      */
     function __construct($maxLineSize = 65)
@@ -58,9 +58,9 @@ class Doctrine_Cli_Formatter
     /**
      * Formats a text according to the given parameters.
      *
-     * @param  string The test to style
-     * @param  mixed  An array of parameters
-     * @param  stream A stream (default to STDOUT)
+     * @param  string $text The text to style
+     * @param  mixed  $parameters An array of parameters
+     * @param  resource $stream A stream (default to STDOUT)
      *
      * @return string The formatted text
      */
@@ -72,9 +72,9 @@ class Doctrine_Cli_Formatter
     /**
      * Formats a message within a section.
      *
-     * @param string  The section name
-     * @param string  The text message
-     * @param integer The maximum size allowed for a line (65 by default)
+     * @param string  $section The section name
+     * @param string  $text The text message
+     * @param integer $size The maximum size allowed for a line (65 by default)
      */
     public function formatSection($section, $text, $size = null)
     {
@@ -84,8 +84,8 @@ class Doctrine_Cli_Formatter
     /**
      * Truncates a line.
      *
-     * @param string  The text
-     * @param integer The maximum size of the returned string (65 by default)
+     * @param string  $text The text
+     * @param integer $size The maximum size of the returned string (65 by default)
      *
      * @return string The truncated string
      */
@@ -107,7 +107,7 @@ class Doctrine_Cli_Formatter
     /**
      * Sets the maximum line size.
      *
-     * @param integer The maximum line size for a message
+     * @param integer $size  The maximum line size for a message
      */
     public function setMaxLineSize($size)
     {

@@ -45,7 +45,7 @@ class Doctrine_Locator implements Countable, IteratorAggregate
      */
     protected $_classPrefix = 'Doctrine_';
 
-    /** 
+    /**
      * @var array $_instances       a pool of this object's instances
      */
     protected static $_instances = array();
@@ -53,7 +53,7 @@ class Doctrine_Locator implements Countable, IteratorAggregate
     /**
      * Constructor. Provide an array of resources to set initial contents.
      *
-     * @param array
+     * @param array $defaults
      * @return void
      */
     public function __construct(array $defaults = null)
@@ -69,10 +69,10 @@ class Doctrine_Locator implements Countable, IteratorAggregate
         self::$_instances[] = $this;
     }
 
-    /** 
+    /**
      * instance
      *
-     * @return Sensei_Locator
+     * @return Doctrine_Locator
      */
     public static function instance()
     {
@@ -87,7 +87,7 @@ class Doctrine_Locator implements Countable, IteratorAggregate
      *
      * @param string $prefix
      */
-    public function setClassPrefix($prefix) 
+    public function setClassPrefix($prefix)
     {
         $this->_classPrefix = $prefix;
     }
@@ -119,12 +119,12 @@ class Doctrine_Locator implements Countable, IteratorAggregate
      *
      * @param string $name      the name of the resource to bind
      * @param mixed $value      the value of the resource
-     * @return Sensei_Locator   this object
+     * @return $this   this object
      */
     public function bind($name, $value)
     {
         $this->_resources[$name] = $value;
-        
+
         return $this;
     }
 
@@ -149,9 +149,9 @@ class Doctrine_Locator implements Countable, IteratorAggregate
                 $name = array_map('strtolower', $name);
                 $name = array_map('ucfirst', $name);
                 $name = implode('_', $name);
-                
+
                 $className = $this->_classPrefix . $name;
-                
+
                 if ( ! class_exists($className)) {
                     throw new Doctrine_Locator_Exception("Couldn't locate resource " . $className);
                 }
@@ -184,10 +184,10 @@ class Doctrine_Locator implements Countable, IteratorAggregate
 
     /**
      * getIterator
-     * returns an ArrayIterator that iterates through all 
+     * returns an ArrayIterator that iterates through all
      * bound resources
      *
-     * @return ArrayIterator    an iterator for iterating through 
+     * @return ArrayIterator    an iterator for iterating through
      *                          all bound resources
      */
     public function getIterator()

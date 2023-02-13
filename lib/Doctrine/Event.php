@@ -29,6 +29,12 @@
  * @link        www.doctrine-project.org
  * @since       1.0
  * @version     $Revision$
+ * @property bool $skipOperation
+ * @property int $fetchMode
+ * @property int $cursorOrientation
+ * @property int $cursorOffset
+ * @property int $columnIndex
+ * @property mixed $data
  */
 class Doctrine_Event
 {
@@ -85,12 +91,12 @@ class Doctrine_Event
     protected $_invoker;
 
     /**
-     * @var string $_query              the sql query associated with this event (if any)
+     * @var string|Doctrine_Query_Abstract|null $_query              the sql query associated with this event (if any)
      */
     protected $_query;
 
     /**
-     * @var string $_params             the parameters associated with the query (if any)
+     * @var array $_params             the parameters associated with the query (if any)
      */
     protected $_params;
 
@@ -106,7 +112,7 @@ class Doctrine_Event
     protected $_startedMicrotime;
 
     /**
-     * @var integer $_endedMicrotime    the time point in which this event was ended
+     * @var integer|null $_endedMicrotime    the time point in which this event was ended
      */
     protected $_endedMicrotime;
 
@@ -118,10 +124,9 @@ class Doctrine_Event
     /**
      * constructor
      *
-     * @param Doctrine_Connection|Doctrine_Connection_Statement|
-              Doctrine_Connection_UnitOfWork|Doctrine_Transaction $invoker   the handler which invoked this event
+     * @param Doctrine_Connection|Doctrine_Connection_Statement|Doctrine_Connection_UnitOfWork|Doctrine_Transaction|Doctrine_Record $invoker   the handler which invoked this event
      * @param integer $code                                                  the event code
-     * @param string $query                                                  the sql query associated with this event (if any)
+     * @param string|Doctrine_Query_Abstract $query                                                  the sql query associated with this event (if any)
      */
     public function __construct($invoker, $code, $query = null, $params = array())
     {
@@ -135,7 +140,7 @@ class Doctrine_Event
     /**
      * getQuery
      *
-     * @return Doctrine_Query       returns the query associated with this event (if any)
+     * @return string|Doctrine_Query_Abstract|null       returns the query associated with this event (if any)
      */
     public function getQuery()
     {
@@ -239,7 +244,7 @@ class Doctrine_Event
      * skips the next operation
      * an alias for __set('skipOperation', true)
      *
-     * @return Doctrine_Event   this object
+     * @return $this   this object
      */
     public function skipOperation()
     {
@@ -254,7 +259,7 @@ class Doctrine_Event
      *
      * @param string $option    the name of the option
      * @param mixed $value      the value of the given option
-     * @return Doctrine_Event   this object
+     * @return $this   this object
      */
     public function __set($option, $value)
     {
@@ -328,8 +333,7 @@ class Doctrine_Event
      * getInvoker
      * returns the handler that invoked this event
      *
-     * @return Doctrine_Connection|Doctrine_Connection_Statement|
-     *         Doctrine_Connection_UnitOfWork|Doctrine_Transaction   the handler that invoked this event
+     * @return mixed   the handler that invoked this event
      */
     public function getInvoker()
     {
@@ -363,7 +367,7 @@ class Doctrine_Event
      * Get the elapsed time (in microseconds) that the event ran.  If the event has
      * not yet ended, return false.
      *
-     * @return integer
+     * @return integer|false
      */
     public function getElapsedSecs()
     {

@@ -102,7 +102,7 @@ class Doctrine_Adapter_Statement_Mock implements Doctrine_Adapter_Statement_Inte
      * of stored procedures that return data as output parameters, and some also as input/output
      * parameters that both send in data and are updated to receive it.
      *
-     * @param mixed $param          Parameter identifier. For a prepared statement using named placeholders,
+     * @param mixed $column          Parameter identifier. For a prepared statement using named placeholders,
      *                              this will be a parameter name of the form :name. For a prepared statement
      *                              using question mark placeholders, this will be the 1-indexed position of the parameter
      *
@@ -154,7 +154,7 @@ class Doctrine_Adapter_Statement_Mock implements Doctrine_Adapter_Statement_Inte
      * Fetch the SQLSTATE associated with the last operation on the statement handle
      *
      * @see Doctrine_Adapter_Interface::errorCode()
-     * @return string       error code string
+     * @return array
      */
     public function errorCode()
     {
@@ -213,12 +213,9 @@ class Doctrine_Adapter_Statement_Mock implements Doctrine_Adapter_Statement_Inte
      *
      * Returns an array containing all of the result set rows
      *
-     * @param integer $fetchStyle           Controls how the next row will be returned to the caller.
+     * @param integer $fetchMode           Controls how the next row will be returned to the caller.
      *                                      This value must be one of the Doctrine_Core::FETCH_* constants,
      *                                      defaulting to Doctrine_Core::FETCH_BOTH
-     *
-     * @param integer $columnIndex          Returns the indicated 0-indexed column when the value of $fetchStyle is
-     *                                      Doctrine_Core::FETCH_COLUMN. Defaults to 0.
      *
      * @return array
      */
@@ -261,7 +258,7 @@ class Doctrine_Adapter_Statement_Mock implements Doctrine_Adapter_Statement_Inte
      *                                      value is supplied, Doctrine_Adapter_Statement_Interface->fetchColumn()
      *                                      fetches the first column.
      *
-     * @return string                       returns a single column in the next row of a result set.
+     * @return int                       returns a single column in the next row of a result set.
      */
     public function fetchColumn($columnIndex = 0)
     {

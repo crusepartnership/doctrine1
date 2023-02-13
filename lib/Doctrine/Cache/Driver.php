@@ -41,7 +41,7 @@ abstract class Doctrine_Cache_Driver implements Doctrine_Cache_Interface
     /**
      * Configure cache driver with an array of options
      *
-     * @param array $_options      an array of options
+     * @param array $options      an array of options
      */
     public function __construct($options = array())
     {
@@ -124,7 +124,7 @@ abstract class Doctrine_Cache_Driver implements Doctrine_Cache_Interface
      * Note: This method accepts wildcards with the * character
      *
      * @param string $id cache id
-     * @return boolean true if no problem
+     * @return int|bool
      */
     public function delete($id)
     {
@@ -202,10 +202,10 @@ abstract class Doctrine_Cache_Driver implements Doctrine_Cache_Interface
 
     /**
      * Delete all cache entries from the cache driver
-     * 
+     *
      * @return integer $count The number of deleted cache entries
      */
-    public function deleteAll() 
+    public function deleteAll()
     {
         $count = 0;
         if (is_array($keys = $this->_getCacheKeys())) {

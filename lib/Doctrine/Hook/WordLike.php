@@ -42,19 +42,21 @@ class Doctrine_Hook_WordLike extends Doctrine_Hook_Parser_Complex
      * @param string $alias     component alias
      * @param string $field     the field name
      * @param mixed $value      the value of the field
-     * @return void
+     * @return string
      */
     public function parseSingle($alias, $field, $value)
     {
+        $a = array();
+
         if (strpos($value, "'") !== false) {
             $value = $this->_tokenizer->bracketTrim($value, "'", "'");
-        
+
             $a[]   = $alias . '.' . $field . ' LIKE ?';
             $this->params[] = '%' . $value . '%';
 
         } else {
             $e2 = explode(' ',$value);
-    
+
             foreach ($e2 as $v) {
                 $v = trim($v);
                 $a[] = $alias . '.' . $field . ' LIKE ?';

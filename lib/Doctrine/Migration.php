@@ -172,7 +172,7 @@ class Doctrine_Migration
      * to be loaded.
      *
      * @param string $name
-     * @return void
+     * @return false
      */
     public function loadMigrationClass($name, $path = null)
     {
@@ -307,7 +307,7 @@ class Doctrine_Migration
      *
      * @param  integer $to       Version to migrate to
      * @param  boolean $dryRun   Whether or not to run the migrate process as a dry run
-     * @return integer $to       Version number migrated to
+     * @return integer|false $to       Version number migrated to
      * @throws Doctrine_Exception
      */
     public function migrate($to = null, $dryRun = false)
@@ -359,8 +359,8 @@ class Doctrine_Migration
      * Run the migration process but rollback at the very end. Returns true or
      * false for whether or not the migration can be ran
      *
-     * @param  string  $to
-     * @return boolean $success
+     * @param  int  $to
+     * @return boolean|int $success
      */
     public function migrateDryRun($to = null)
     {

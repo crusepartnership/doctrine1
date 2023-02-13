@@ -50,7 +50,7 @@ class Doctrine_Import_Mssql extends Doctrine_Import
     /**
      * lists table relations
      *
-     * Expects an array of this format to be returned with all the relationships in it where the key is 
+     * Expects an array of this format to be returned with all the relationships in it where the key is
      * the name of the foreign table, and the value is an array containing the local and foreign column
      * name
      *
@@ -63,7 +63,7 @@ class Doctrine_Import_Mssql extends Doctrine_Import
      *     )
      * )
      *
-     * @param string $table     database table name
+     * @param string $tableName     database table name
      * @return array
      */
     public function listTableRelations($tableName)
@@ -118,8 +118,8 @@ class Doctrine_Import_Mssql extends Doctrine_Import
             $val['identity'] = $identity;
             $decl = $this->conn->dataDict->getPortableDeclaration($val);
 
-            $isIdentity = (bool) (strtoupper(trim($identity)) == 'IDENTITY');
-            $isNullable = (bool) (strtoupper(trim($val['is_nullable'])) == 'NO');
+            $isIdentity = (strtoupper(trim($identity)) == 'IDENTITY');
+            $isNullable = (strtoupper(trim($val['is_nullable'])) == 'NO');
             $isPrimary = in_array($val['column_name'], $primary);
 
             $description  = array(

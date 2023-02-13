@@ -31,7 +31,7 @@
  * @author      Konsta Vesterinen <kvesteri@cc.hut.fi>
  */
 class Doctrine_Exception extends Exception
-{ 
+{
     /**
      * @var array $_errorMessages       an array of error messages
      */
@@ -73,11 +73,11 @@ class Doctrine_Exception extends Exception
     /**
      * Return a textual error message for a Doctrine error code
      *
-     * @param   int|array   integer error code,
+     * @param   int $value integer error code,
      *                           null to get the current error code-message map,
      *                           or an array with a new error code-message map
      *
-     * @return  string  error message
+     * @return  string|array  error message
      */
     public function errorMessage($value = null)
     {

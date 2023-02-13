@@ -48,7 +48,7 @@ class Doctrine_Expression_Sqlite extends Doctrine_Expression_Driver
      *
      * @param integer $dividend
      * @param integer $divisor
-     * @return string
+     * @return int
      */
     public static function modImpl($dividend, $divisor)
     {

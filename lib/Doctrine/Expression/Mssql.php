@@ -69,14 +69,11 @@ class Doctrine_Expression_Mssql extends Doctrine_Expression_Driver
     /**
      * Returns string to concatenate two or more string parameters
      *
-     * @param string $arg1
-     * @param string $arg2
-     * @param string $values...
+     * @param string ...$args
      * @return string to concatenate two strings
      */
-    public function concat()
+    public function concat(...$args)
     {
-        $args = func_get_args();
         return '(' . implode(' + ', $args) . ')';
     }
 

@@ -150,7 +150,7 @@ class Doctrine_Import_Sqlite extends Doctrine_Import
                     'scale'         => null,
                     'precision'     => null,
                     'unsigned'      => null,
-                    'autoincrement' => (bool) ($val['pk'] == 1 && $decl['type'][0] == 'integer'),
+                    'autoincrement' => ($val['pk'] == 1 && $decl['type'][0] == 'integer'),
                     );
             $columns[$val['name']] = $description;
         }
@@ -203,7 +203,7 @@ class Doctrine_Import_Sqlite extends Doctrine_Import
     public function listTableViews($table)
     {
         $query = "SELECT name, sql FROM sqlite_master WHERE type='view' AND sql NOT NULL";
-        $views = $db->fetchAll($query);
+        $views = $this->conn->fetchAll($query);
 
         $result = array();
         foreach ($views as $row) {

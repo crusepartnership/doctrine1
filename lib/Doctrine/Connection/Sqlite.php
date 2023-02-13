@@ -39,10 +39,15 @@ class Doctrine_Connection_Sqlite extends Doctrine_Connection_Common
     protected $driverName = 'Sqlite';
 
     /**
+     * @var PDO  $dbh                                the database handler
+     */
+    protected $dbh;
+
+    /**
      * the constructor
      *
      * @param Doctrine_Manager $manager
-     * @param PDO $pdo                          database handle
+     * @param PDO|Doctrine_Adapter_Interface $adapter                          database handle
      */
     public function __construct(Doctrine_Manager $manager, $adapter)
     {
@@ -79,9 +84,9 @@ class Doctrine_Connection_Sqlite extends Doctrine_Connection_Common
      * initializes database functions missing in sqlite
      *
      * @see Doctrine_Expression
-     * @return void
+     * @return void|false
      */
-    public function connect() 
+    public function connect()
     {
         if ($this->isConnected) {
             return false;
@@ -121,7 +126,7 @@ class Doctrine_Connection_Sqlite extends Doctrine_Connection_Common
         if ( ! $dsn = $this->getOption('dsn')) {
             throw new Doctrine_Connection_Exception('You must create your Doctrine_Connection by using a valid Doctrine style dsn in order to use the create/drop database functionality');
         }
-        
+
         $info = $this->getManager()->parseDsn($dsn);
 
         $this->export->dropDatabase($info['database']);

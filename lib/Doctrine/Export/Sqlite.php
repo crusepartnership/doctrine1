@@ -62,7 +62,7 @@ class Doctrine_Export_Sqlite extends Doctrine_Export
      * Create sqlite database file
      *
      * @param string $databaseFile  Path of the database that should be dropped
-     * @return void
+     * @return PDO
      */
     public function createDatabase($databaseFile)
     {
@@ -98,7 +98,7 @@ class Doctrine_Export_Sqlite extends Doctrine_Export
      *                                        )
      *                                    )
      * @throws PDOException
-     * @return void
+     * @return string
      */
     public function createIndexSql($table, $name, array $definition)
     {
@@ -129,7 +129,7 @@ class Doctrine_Export_Sqlite extends Doctrine_Export
      * Obtain DBMS specific SQL code portion needed to set an index
      * declaration to be used in statements like CREATE TABLE.
      *
-     * @return string   
+     * @return string
      */
     public function getIndexFieldDeclarationList(array $fields)
     {
@@ -184,22 +184,22 @@ class Doctrine_Export_Sqlite extends Doctrine_Export
      *                          );
      * @param array $options  An associative array of table options:
      *
-     * @return void
+     * @return array
      */
     public function createTableSql($name, array $fields, array $options = array())
     {
         if ( ! $name) {
             throw new Doctrine_Export_Exception('no valid table name specified');
         }
-        
+
         if (empty($fields)) {
             throw new Doctrine_Export_Exception('no fields specified for table '.$name);
         }
         $queryFields = $this->getFieldDeclarationList($fields);
-        
+
         $autoinc = false;
         foreach($fields as $field) {
-            if (isset($field['autoincrement']) && $field['autoincrement'] || 
+            if (isset($field['autoincrement']) && $field['autoincrement'] ||
               (isset($field['autoinc']) && $field['autoinc'])) {
                 $autoinc = true;
                 break;
@@ -299,10 +299,10 @@ class Doctrine_Export_Sqlite extends Doctrine_Export
             $this->conn->exec('INSERT INTO ' . $sequenceName . ' (' . $seqcolName . ') VALUES (' . ($start-1) . ')');
             return true;
         } catch(Doctrine_Connection_Exception $e) {
-            // Handle error    
+            // Handle error
 
             try {
-                $result = $db->exec('DROP TABLE ' . $sequenceName);
+                $result = $this->conn->exec('DROP TABLE ' . $sequenceName);
             } catch(Doctrine_Connection_Exception $e) {
                 throw new Doctrine_Export_Exception('could not drop inconsistent sequence table');
             }
@@ -322,7 +322,7 @@ class Doctrine_Export_Sqlite extends Doctrine_Export
 
         return 'DROP TABLE ' . $sequenceName;
     }
-    
+
     public function alterTableSql($name, array $changes, $check = false)
     {
         if ( ! $name) {
@@ -378,7 +378,7 @@ class Doctrine_Export_Sqlite extends Doctrine_Export
                     $oldFieldName = $fieldName;
                 }
                 $oldFieldName = $this->conn->quoteIdentifier($oldFieldName, true);
-                $query .= 'CHANGE ' . $oldFieldName . ' ' 
+                $query .= 'CHANGE ' . $oldFieldName . ' '
                         . $this->getDeclaration($fieldName, $field['definition']);
             }
         }
@@ -400,7 +400,7 @@ class Doctrine_Export_Sqlite extends Doctrine_Export
         }
 
         $name = $this->conn->quoteIdentifier($name, true);
-        
+
         return 'ALTER TABLE ' . $name . ' ' . $query;
     }
 
@@ -412,7 +412,7 @@ class Doctrine_Export_Sqlite extends Doctrine_Export
      *
      * @param string    $table         name of the table on which the foreign key is to be created
      * @param array     $definition    associative array that defines properties of the foreign key to be created.
-     * @return string
+     * @return false
      */
     public function createForeignKey($table, array $definition)
     {

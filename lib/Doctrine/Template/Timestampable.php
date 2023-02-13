@@ -38,7 +38,7 @@ class Doctrine_Template_Timestampable extends Doctrine_Template
     /**
      * Array of Timestampable options
      *
-     * @var string
+     * @var array
      */
     protected $_options = array('created' =>  array('name'          =>  'created_at',
                                                     'alias'         =>  null,

@@ -18,7 +18,7 @@
  * and is licensed under the LGPL. For more information, see
  * <http://www.doctrine-project.org>.
  */
-                 
+
 /**
  * Doctrine_Tree
  *
@@ -41,13 +41,13 @@ class Doctrine_Tree
      * @param array $options
      */
     protected $options = array();
-    
+
     protected $_baseComponent;
 
     /**
      * constructor, creates tree with reference to table and any options
      *
-     * @param object $table                     instance of Doctrine_Table
+     * @param Doctrine_Table $table                     instance of Doctrine_Table
      * @param array $options                    options
      */
     public function __construct(Doctrine_Table $table, $options)
@@ -87,11 +87,11 @@ class Doctrine_Tree
     /**
      * Factory method to create a Tree.
      *
-     * This is a factory method that returns a tree instance based upon 
+     * This is a factory method that returns a tree instance based upon
      * chosen implementation.
      *
-     * @param object $table                     instance of Doctrine_Table
-     * @param string $impName                   implementation (NestedSet, AdjacencyList, MaterializedPath)
+     * @param Doctrine_Table $table                     instance of Doctrine_Table
+     * @param string $implName                   implementation (NestedSet, AdjacencyList, MaterializedPath)
      * @param array $options                    options
      * @return Doctrine_Tree
      * @throws Doctrine_Exception               if class $implName does not extend Doctrine_Tree
@@ -107,8 +107,8 @@ class Doctrine_Tree
 
     /**
      * gets tree attribute value
-     *        
-     */     
+     *
+     */
     public function getAttribute($name)
     {
       return isset($this->options[$name]) ? $this->options[$name] : null;
@@ -117,7 +117,7 @@ class Doctrine_Tree
     /**
      * sets tree attribute value
      *
-     * @param mixed            
+     * @param mixed $value
      */
     public function setAttribute($name, $value)
     {

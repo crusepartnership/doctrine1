@@ -49,7 +49,7 @@ abstract class Doctrine_Configurable extends Doctrine_Locator_Injectable
      *                                      implementation classes
      */
     protected $_impl = array();
-    
+
     /**
      * @var array $_params                  an array of user defined parameters
      */
@@ -121,43 +121,43 @@ abstract class Doctrine_Configurable extends Doctrine_Locator_Injectable
     	if ($namespace == null) {
     	    $namespace = $this->getAttribute(Doctrine_Core::ATTR_DEFAULT_PARAM_NAMESPACE);
     	}
-    	
+
     	if ( ! isset($this->_params[$namespace])) {
     	    return null;
     	}
 
         return $this->_params[$namespace];
     }
-    
+
     public function getParamNamespaces()
     {
         return array_keys($this->_params);
     }
 
-    public function setParam($name, $value, $namespace = null) 
+    public function setParam($name, $value, $namespace = null)
     {
     	if ($namespace == null) {
     	    $namespace = $this->getAttribute(Doctrine_Core::ATTR_DEFAULT_PARAM_NAMESPACE);
     	}
-    	
+
     	$this->_params[$namespace][$name] = $value;
-    	
+
     	return $this;
     }
-    
-    public function getParam($name, $namespace = null) 
+
+    public function getParam($name, $namespace = null)
     {
     	if ($namespace == null) {
     	    $namespace = $this->getAttribute(Doctrine_Core::ATTR_DEFAULT_PARAM_NAMESPACE);
     	}
-    	
+
         if ( ! isset($this->_params[$namespace][$name])) {
             if (isset($this->parent)) {
                 return $this->parent->getParam($name, $namespace);
             }
             return null;
         }
-        
+
         return $this->_params[$namespace][$name];
     }
 
@@ -182,7 +182,7 @@ abstract class Doctrine_Configurable extends Doctrine_Locator_Injectable
      * getImpl
      * returns the implementation for given class
      *
-     * @return string   name of the concrete implementation
+     * @return string|null   name of the concrete implementation
      */
     public function getImpl($template)
     {
@@ -194,8 +194,8 @@ abstract class Doctrine_Configurable extends Doctrine_Locator_Injectable
         }
         return $this->_impl[$template];
     }
-    
-    
+
+
     public function hasImpl($template)
     {
         if ( ! isset($this->_impl[$template])) {
@@ -209,7 +209,7 @@ abstract class Doctrine_Configurable extends Doctrine_Locator_Injectable
 
     /**
      * @param Doctrine_EventListener $listener
-     * @return void
+     * @return $this
      */
     public function setEventListener($listener)
     {
@@ -220,7 +220,7 @@ abstract class Doctrine_Configurable extends Doctrine_Locator_Injectable
      * addRecordListener
      *
      * @param Doctrine_EventListener_Interface|Doctrine_Overloadable $listener
-     * @return Doctrine_Configurable        this object
+     * @return $this        this object
      */
     public function addRecordListener($listener, $name = null)
     {
@@ -237,7 +237,7 @@ abstract class Doctrine_Configurable extends Doctrine_Locator_Injectable
     /**
      * getListener
      *
-     * @return Doctrine_EventListener_Interface|Doctrine_Overloadable
+     * @return Doctrine_EventListener_Interface|Doctrine_Overloadable|null
      */
     public function getRecordListener()
     {
@@ -254,7 +254,7 @@ abstract class Doctrine_Configurable extends Doctrine_Locator_Injectable
      * setListener
      *
      * @param Doctrine_EventListener_Interface|Doctrine_Overloadable $listener
-     * @return Doctrine_Configurable        this object
+     * @return $this        this object
      */
     public function setRecordListener($listener)
     {
@@ -272,7 +272,7 @@ abstract class Doctrine_Configurable extends Doctrine_Locator_Injectable
      * addListener
      *
      * @param Doctrine_EventListener_Interface|Doctrine_Overloadable $listener
-     * @return Doctrine_Configurable    this object
+     * @return $this    this object
      */
     public function addListener($listener, $name = null)
     {
@@ -289,7 +289,7 @@ abstract class Doctrine_Configurable extends Doctrine_Locator_Injectable
     /**
      * getListener
      *
-     * @return Doctrine_EventListener_Interface|Doctrine_Overloadable
+     * @return Doctrine_EventListener_Interface|Doctrine_Overloadable|null
      */
     public function getListener()
     {
@@ -306,7 +306,7 @@ abstract class Doctrine_Configurable extends Doctrine_Locator_Injectable
      * setListener
      *
      * @param Doctrine_EventListener_Interface|Doctrine_Overloadable $listener
-     * @return Doctrine_Configurable        this object
+     * @return $this        this object
      */
     public function setListener($listener)
     {
@@ -324,14 +324,14 @@ abstract class Doctrine_Configurable extends Doctrine_Locator_Injectable
      * returns the value of an attribute
      *
      * @param integer $attribute
-     * @return mixed
+     * @return mixed|null
      */
     public function getAttribute($attribute)
     {
         if (isset($this->attributes[$attribute])) {
             return $this->attributes[$attribute];
         }
-        
+
         if (isset($this->parent)) {
             return $this->parent->getAttribute($attribute);
         }
@@ -418,7 +418,7 @@ abstract class Doctrine_Configurable extends Doctrine_Locator_Injectable
      * getParent
      * returns the parent of this component
      *
-     * @return Doctrine_Configurable
+     * @return mixed
      */
     public function getParent()
     {

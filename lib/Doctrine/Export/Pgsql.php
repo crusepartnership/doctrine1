@@ -36,15 +36,21 @@ class Doctrine_Export_Pgsql extends Doctrine_Export
     public $tmpConnectionDatabase = 'postgres';
 
     /**
+     * @var Doctrine_Connection_Pgsql $conn       Doctrine_Connection object, every connection
+     *                                            module holds an instance of Doctrine_Connection
+     */
+    protected $conn;
+
+    /**
      * createDatabaseSql
      *
-     * @param string $name 
-     * @return void
+     * @param string $name
+     * @return string
      */
     public function createDatabaseSql($name)
     {
         $query  = 'CREATE DATABASE ' . $this->conn->quoteIdentifier($name);
-        
+
         return $query;
     }
 
@@ -54,11 +60,12 @@ class Doctrine_Export_Pgsql extends Doctrine_Export
      * @param string $name name of the database that should be dropped
      * @throws PDOException
      * @access public
+     * @return string
      */
     public function dropDatabaseSql($name)
     {
         $query  = 'DROP DATABASE ' . $this->conn->quoteIdentifier($name);
-        
+
         return $query;
     }
 
@@ -105,7 +112,7 @@ class Doctrine_Export_Pgsql extends Doctrine_Export
      *                              can perform the requested table alterations if the value is true or
      *                              actually perform them otherwise.
      * @see Doctrine_Export::alterTable()
-     * @return array
+     * @return array|true
      */
     public function alterTableSql($name, array $changes, $check = false)
     {
@@ -125,7 +132,7 @@ class Doctrine_Export_Pgsql extends Doctrine_Export
         if ($check) {
             return true;
         }
-        
+
         $sql = array();
 
         if (isset($changes['add']) && is_array($changes['add'])) {
@@ -178,10 +185,10 @@ class Doctrine_Export_Pgsql extends Doctrine_Export
             $changeName = $this->conn->quoteIdentifier($changes['name'], true);
             $sql[] = 'ALTER TABLE ' . $this->conn->quoteIdentifier($name, true) . ' RENAME TO ' . $changeName;
         }
-        
+
         return $sql;
     }
-    
+
     /**
      * alter an existing table
      *
@@ -277,16 +284,16 @@ class Doctrine_Export_Pgsql extends Doctrine_Export
         foreach ($sql as $query) {
             $this->conn->exec($query);
         }
-        return true;    
+        return true;
     }
 
     /**
      * return RDBMS specific create sequence statement
      *
      * @throws Doctrine_Connection_Exception     if something fails at database level
-     * @param string    $seqName        name of the sequence to be created
-     * @param string    $start          start value of the sequence; default is 1
-     * @param array     $options  An associative array of table options:
+     * @param string     $sequenceName        name of the sequence to be created
+     * @param string|int $start          start value of the sequence; default is 1
+     * @param array      $options  An associative array of table options:
      *                          array(
      *                              'comment' => 'Foo',
      *                              'charset' => 'utf8',
@@ -305,6 +312,7 @@ class Doctrine_Export_Pgsql extends Doctrine_Export
      * drop existing sequence
      *
      * @param string $sequenceName name of the sequence to be dropped
+     * @return string
      */
     public function dropSequenceSql($sequenceName)
     {
@@ -315,17 +323,17 @@ class Doctrine_Export_Pgsql extends Doctrine_Export
     /**
      * Creates a table.
      *
-     * @param unknown_type $name
+     * @param string $name
      * @param array $fields
      * @param array $options
-     * @return unknown
+     * @return array
      */
     public function createTableSql($name, array $fields, array $options = array())
     {
         if ( ! $name) {
             throw new Doctrine_Export_Exception('no valid table name specified');
         }
-        
+
         if (empty($fields)) {
             throw new Doctrine_Export_Exception('no fields specified for table ' . $name);
         }
@@ -358,7 +366,7 @@ class Doctrine_Export_Pgsql extends Doctrine_Export
                 $sql[] = $this->createIndexSql($name, $index, $definition);
             }
         }
-        
+
         if (isset($options['foreignKeys'])) {
 
             foreach ((array) $options['foreignKeys'] as $k => $definition) {
@@ -375,7 +383,7 @@ class Doctrine_Export_Pgsql extends Doctrine_Export
 
      /**
      * Get the stucture of a field into an array.
-     * 
+     *
      * @param string    $table         name of the table on which the index is to be created
      * @param string    $name          name of the index to be created
      * @param array     $definition    associative array that defines properties of the index to be created.

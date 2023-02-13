@@ -48,7 +48,7 @@ class Doctrine_Migration_Process
     /**
      * Process a created table change
      *
-     * @param string $table Table definition
+     * @param array $table Table definition
      * @return void
      */
     public function processCreatedTable(array $table)
@@ -125,7 +125,7 @@ class Doctrine_Migration_Process
         $options = array();
         $options = $column['options'];
         $options['type'] = $column['type'];
-    
+
         $this->getConnection()->export->alterTable($column['tableName'], array('change' => array($column['columnName'] => array('definition' => $options))));
     }
 

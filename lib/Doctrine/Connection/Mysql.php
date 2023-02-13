@@ -30,6 +30,8 @@
  * @version     $Revision: 7490 $
  * @link        www.doctrine-project.org
  * @since       1.0
+ *
+ * @property Doctrine_DataDict_Mysql $dataDict
  */
 class Doctrine_Connection_Mysql extends Doctrine_Connection_Common
 {
@@ -42,7 +44,7 @@ class Doctrine_Connection_Mysql extends Doctrine_Connection_Common
      * the constructor
      *
      * @param Doctrine_Manager $manager
-     * @param PDO|Doctrine_Adapter $adapter     database handler
+     * @param PDO|Doctrine_Adapter_Interface $adapter     database handler
      */
     public function __construct(Doctrine_Manager $manager, $adapter)
     {
@@ -103,8 +105,8 @@ class Doctrine_Connection_Mysql extends Doctrine_Connection_Common
 
          return $connected;
      }
-    
-    
+
+
     /**
      * returns the name of the connected database
      *
@@ -118,7 +120,7 @@ class Doctrine_Connection_Mysql extends Doctrine_Connection_Common
     /**
      * Set the charset on the current connection
      *
-     * @param string    charset
+     * @param string    $charset
      */
     public function setCharset($charset)
     {
@@ -140,7 +142,7 @@ class Doctrine_Connection_Mysql extends Doctrine_Connection_Common
      *
      * @access public
      *
-     * @param string $table name of the table on which the REPLACE query will
+     * @param Doctrine_Table $table name of the table on which the REPLACE query will
      *  be executed.
      * @param array $fields associative array that describes the fields and the
      *  values that will be inserted or updated in the specified table. The

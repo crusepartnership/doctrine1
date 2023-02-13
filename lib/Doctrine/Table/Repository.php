@@ -35,7 +35,7 @@
 class Doctrine_Table_Repository implements Countable, IteratorAggregate
 {
     /**
-     * @var object Doctrine_Table $table
+     * @var Doctrine_Table $table
      */
     private $table;
 
@@ -74,7 +74,7 @@ class Doctrine_Table_Repository implements Countable, IteratorAggregate
      */
     public function add(Doctrine_Record $record)
     {
-        $oid = $record->getOID();
+        $oid = $record->getOid();
 
         if (isset($this->registry[$oid])) {
             return false;

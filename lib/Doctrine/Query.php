@@ -223,7 +223,7 @@ class Doctrine_Query extends Doctrine_Query_Abstract implements Countable
      * createSubquery
      * creates a subquery
      *
-     * @return Doctrine_Hydrate
+     * @return Doctrine_Query
      */
     public function createSubquery()
     {
@@ -259,7 +259,7 @@ class Doctrine_Query extends Doctrine_Query_Abstract implements Countable
      * fetchArray
      * Convenience method to execute using array fetching as hydration mode.
      *
-     * @param string $params
+     * @param array $params
      * @return array
      */
     public function fetchArray($params = array())
@@ -272,7 +272,7 @@ class Doctrine_Query extends Doctrine_Query_Abstract implements Countable
      * Convenience method to execute the query and return the first item
      * of the collection.
      *
-     * @param string $params        Query parameters
+     * @param array $params        Query parameters
      * @param int $hydrationMode    Hydration mode: see Doctrine_Core::HYDRATE_* constants
      * @return mixed                Array or Doctrine_Collection, depending on hydration mode. False if no result.
      */
@@ -307,7 +307,7 @@ class Doctrine_Query extends Doctrine_Query_Abstract implements Countable
      * If null is given as the first parameter this method retrieves the current
      * value of Doctrine_Query::$isSubquery.
      *
-     * @param boolean $bool     whether or not this query acts as a subquery
+     * @param boolean|null $bool     whether or not this query acts as a subquery
      * @return Doctrine_Query|bool
      */
     public function isSubquery($bool = null)
@@ -433,7 +433,7 @@ class Doctrine_Query extends Doctrine_Query_Abstract implements Countable
      *
      * @throws Doctrine_Query_Exception     if unknown component alias has been given
      * @param string $componentAlias        the alias of the component
-     * @return string SQL code
+     * @return string|null SQL code
      * @todo Description: What is a 'pending field' (and are there non-pending fields, too)?
      *       What is 'processed'? (Meaning: What information is gathered & stored away)
      */
@@ -449,7 +449,7 @@ class Doctrine_Query extends Doctrine_Query_Abstract implements Countable
                             . " must have at least one field selected.");
                 }
             }
-            return;
+            return null;
         }
 
         // At this point we know the component is FETCHED (either it's the base class of
@@ -696,7 +696,7 @@ class Doctrine_Query extends Doctrine_Query_Abstract implements Countable
      * 4. Quotes all identifiers
      * 5. Parses nested clauses and subqueries recursively
      *
-     * @return string   SQL string
+     * @return string|int   SQL string
      * @todo Description: What is a 'dql clause' (and what not)?
      *       Refactor: Too long & nesting level
      */
@@ -1014,6 +1014,9 @@ class Doctrine_Query extends Doctrine_Query_Abstract implements Countable
                 $distinct = ($this->_sqlParts['distinct']) ? 'DISTINCT ' : '';
                 $q = 'SELECT ' . $distinct . implode(', ', $this->_sqlParts['select']) . ' FROM ';
             break;
+            default:
+                $q = '';
+            break;
         }
         return $q;
     }
@@ -1103,7 +1106,7 @@ class Doctrine_Query extends Doctrine_Query_Abstract implements Countable
      * handling.
      *
      * @param string $alias Component Alias
-     * @return Processed pending conditions
+     * @return string Processed pending conditions
      */
     protected function _processPendingJoinConditions($alias)
     {
@@ -1130,7 +1133,7 @@ class Doctrine_Query extends Doctrine_Query_Abstract implements Countable
      * @param array $params             an array of prepared statement params (needed only in mysql driver
      *                                  when limit subquery algorithm is used)
      * @param bool $limitSubquery Whether or not to try and apply the limit subquery algorithm
-     * @return string                   the built sql query
+     * @return string|false                   the built sql query
      */
     public function getSqlQuery($params = array(), $limitSubquery = true)
     {
@@ -1153,7 +1156,7 @@ class Doctrine_Query extends Doctrine_Query_Abstract implements Countable
      * Build the SQL query from the DQL
      *
      * @param bool $limitSubquery Whether or not to try and apply the limit subquery algorithm
-     * @return string $sql The generated SQL string
+     * @return string|false $sql The generated SQL string
      */
     public function buildSqlQuery($limitSubquery = true)
     {
@@ -1512,7 +1515,7 @@ class Doctrine_Query extends Doctrine_Query_Abstract implements Countable
         // add driver specific limit clause
         $subquery = $this->_conn->modifyLimitSubquery($table, $subquery, $this->_sqlParts['limit'], $this->_sqlParts['offset']);
 
-        $parts = $this->_tokenizer->quoteExplode($subquery, ' ', "'", "'");
+        $parts = $this->_tokenizer->quoteExplode($subquery, ' ');
 
         foreach ($parts as $k => $part) {
             if (strpos($part, ' ') !== false) {
@@ -1621,7 +1624,7 @@ class Doctrine_Query extends Doctrine_Query_Abstract implements Countable
      * @param string $query                 DQL query
      * @param boolean $clear                whether or not to clear the aliases
      * @throws Doctrine_Query_Exception     if some generic parsing error occurs
-     * @return Doctrine_Query
+     * @return $this
      */
     public function parseDqlQuery($query, $clear = true)
     {
@@ -1912,7 +1915,9 @@ class Doctrine_Query extends Doctrine_Query_Abstract implements Countable
         return $this->_queryComponents[$componentAlias];
     }
 
-
+    /**
+     * @param Doctrine_Relation_Association $relation
+     */
     protected function buildAssociativeRelationSql(Doctrine_Relation $relation, $assocAlias, $foreignAlias, $localAlias)
     {
         $table = $relation->getTable();

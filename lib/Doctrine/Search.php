@@ -51,15 +51,15 @@ class Doctrine_Search extends Doctrine_Record_Generator
                                 'cascadeDelete'    => true,
                                 'appLevelDelete'   => false);
     /**
-     * __construct 
-     * 
-     * @param array $options 
+     * __construct
+     *
+     * @param array $options
      * @return void
      */
     public function __construct(array $options)
     {
         $this->_options = Doctrine_Lib::arrayDeepMerge($this->_options, $options);
-        
+
         if ( ! isset($this->_options['analyzer'])) {
             $this->_options['analyzer'] = 'Doctrine_Search_Analyzer_Standard';
         }
@@ -71,25 +71,26 @@ class Doctrine_Search extends Doctrine_Record_Generator
         $this->_options['analyzer'] = new $this->_options['analyzer']($this->_options['analyzer_options']);
     }
 
+    /**
+     * @return void
+     */
     public function buildTable()
     {
-        $result = parent::buildTable();
+        parent::buildTable();
 
         if ( ! isset($this->_options['connection'])) {
             $manager = Doctrine_Manager::getInstance();
             $this->_options['connection'] = $manager->getConnectionForComponent($this->_options['table']->getComponentName());
             $manager->bindComponent($this->_options['className'], $this->_options['connection']->getName());
         }
-
-        return $result;
     }
 
     /**
      * Searchable keyword search
-     * 
+     *
      * @param string $string Keyword string to search for
      * @param Doctrine_Query $query Query object to alter. Adds where condition to limit the results using the search index
-     * @return array    ids and relevancy
+     * @return array|Doctrine_Query    ids and relevancy
      */
     public function search($string, $query = null)
     {
@@ -112,13 +113,13 @@ class Doctrine_Search extends Doctrine_Record_Generator
             return $this->_options['connection']->fetchAll($q->getSqlQuery(), $q->getParams());
         }
     }
-    
+
     /**
      * analyze a text in the encoding format
-     * 
-     * @param string $text 
+     *
+     * @param string $text
      * @param string $encoding
-     * @return void
+     * @return array
      */
     public function analyze($text, $encoding = null)
     {
@@ -129,7 +130,7 @@ class Doctrine_Search extends Doctrine_Record_Generator
      * updateIndex
      * updates the index
      *
-     * @param Doctrine_Record $record
+     * @param array $data
      * @return integer
      */
     public function updateIndex(array $data, $encoding = null)
@@ -151,7 +152,7 @@ class Doctrine_Search extends Doctrine_Record_Generator
         $q->execute();
 
         if ($this->_options['batchUpdates'] === true) {
-            $index = new $class(); 
+            $index = new $class();
 
             foreach ((array) $this->_options['table']->getIdentifier() as $id) {
                 $index->$id = $data[$id];
@@ -183,10 +184,10 @@ class Doctrine_Search extends Doctrine_Record_Generator
     }
 
     /**
-     * readTableData 
-     * 
-     * @param mixed $limit 
-     * @param mixed $offset 
+     * readTableData
+     *
+     * @param mixed $limit
+     * @param mixed $offset
      * @return Doctrine_Collection The collection of results
      */
     public function readTableData($limit = null, $offset = null)
@@ -212,10 +213,10 @@ class Doctrine_Search extends Doctrine_Record_Generator
     }
 
     /**
-     * batchUpdateIndex 
-     * 
-     * @param mixed $limit 
-     * @param mixed $offset 
+     * batchUpdateIndex
+     *
+     * @param mixed $limit
+     * @param mixed $offset
      * @return void
      */
     public function batchUpdateIndex($limit = null, $offset = null, $encoding = null)
@@ -228,7 +229,7 @@ class Doctrine_Search extends Doctrine_Record_Generator
         $class     = $this->_options['className'];
         $fields    = $this->_options['fields'];
         $conn      = $this->_options['table']->getConnection();
-        
+
         for ($i = 0; $i < count($fields); $i++) {
             $fields[$i] = $table->getColumnName($fields[$i], $fields[$i]);
         }
@@ -270,20 +271,20 @@ class Doctrine_Search extends Doctrine_Record_Generator
             try {
                 foreach ($fields as $field) {
                     $data  = $row[$field];
-        
+
                     $terms = $this->analyze($data, $encoding);
-        
+
                     foreach ($terms as $pos => $term) {
                         $index = new $class();
-        
+
                         $index->keyword = $term;
                         $index->position = $pos;
                         $index->field = $field;
-                        
+
                         foreach ((array) $table->getIdentifier() as $identifier) {
                             $index->$identifier = $row[$table->getColumnName($identifier, $identifier)];
                         }
-    
+
                         $index->save();
                         $index->free(true);
                     }
@@ -297,9 +298,9 @@ class Doctrine_Search extends Doctrine_Record_Generator
     }
 
     /**
-     * buildDefinition 
-     * 
-     * @return void
+     * buildDefinition
+     *
+     * @return void|false
      */
     public function setTableDefinition()
     {

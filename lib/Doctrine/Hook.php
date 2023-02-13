@@ -74,7 +74,7 @@ class Doctrine_Hook
                               );
 
     /**
-     * @param Doctrine_Query $query         the base query
+     * @param Doctrine_Query|string $query         the base query
      */
     public function __construct($query)
     {
@@ -84,9 +84,9 @@ class Doctrine_Hook
         } elseif ($query instanceof Doctrine_Query) {
             $this->query = $query;
         } else {
-            throw new Doctrine_Exception('Constructor argument should be either Doctrine_Query object or valid DQL query');          
+            throw new Doctrine_Exception('Constructor argument should be either Doctrine_Query object or valid DQL query');
         }
-        
+
         $this->query->getSqlQuery();
     }
 
@@ -106,7 +106,7 @@ class Doctrine_Hook
      * @param string $type              type name
      * @param string|object $parser     parser name or custom parser object
      */
-    public function setTypeParser($type, $parser) 
+    public function setTypeParser($type, $parser)
     {
         $this->typeParsers[$type] = $parser;
     }
@@ -157,11 +157,11 @@ class Doctrine_Hook
                     if (isset($this->typeParsers[$def[0]])) {
                         $name   = $this->typeParsers[$def[0]];
                         $parser = new $name;
+
+                        $parser->parse($alias, $column, $value);
+
+                        $this->query->addWhere($parser->getCondition(), $parser->getParams());
                     }
-
-                    $parser->parse($alias, $column, $value);
-
-                    $this->query->addWhere($parser->getCondition(), $parser->getParams());
                 }
             }
         }
@@ -199,7 +199,7 @@ class Doctrine_Hook
                 $map   = $this->query->getQueryComponent($alias);
                 $table = $map['table'];
 
-                if ($def = $table->getDefinitionOf($column)) {   
+                if ($def = $table->getDefinitionOf($column)) {
                     $this->query->addOrderBy($alias . '.' . $column . ' ' . $order);
                 }
             }
@@ -208,9 +208,9 @@ class Doctrine_Hook
     }
 
     /**
-     * set the hook limit 
-     * 
-     * @param integer $limit 
+     * set the hook limit
+     *
+     * @param integer $limit
      * @return void
      */
     public function hookLimit($limit)

@@ -101,7 +101,7 @@ class Doctrine_Pager
      *
      * Initialize Pager object calculating number of results
      *
-     * @param $params  Optional parameters to Doctrine_Query::execute
+     * @param array $params  Optional parameters to Doctrine_Query::execute
      * @return void
      */
     protected function _initialize($params = array())
@@ -142,7 +142,7 @@ class Doctrine_Pager
      *
      * Returns the check if Pager was already executed at least once
      *
-     * @return boolen        Pager was executed
+     * @return bool        Pager was executed
      */
     public function getExecuted()
     {
@@ -159,7 +159,7 @@ class Doctrine_Pager
      *
      * Defines if Pager was already executed
      *
-     * @param $executed       Pager was executed
+     * @param bool $executed       Pager was executed
      * @return void
      */
     protected function _setExecuted($executed)
@@ -212,7 +212,7 @@ class Doctrine_Pager
      *
      * Defines the number of total results on initial query
      *
-     * @param $nb       Number of results found on initial query fetch
+     * @param int $nb       Number of results found on initial query fetch
      * @return void
      */
     protected function _setNumResults($nb)
@@ -255,7 +255,7 @@ class Doctrine_Pager
      *
      * Defines the last page (total of pages)
      *
-     * @param $page       last page (total of pages)
+     * @param int $page       last page (total of pages)
      * @return void
      */
     protected function _setLastPage($page)
@@ -362,7 +362,7 @@ class Doctrine_Pager
      *
      * Defines the current page and automatically adjust offset and limits
      *
-     * @param $page       current page
+     * @param int $page       current page
      * @return void
      */
     public function setPage($page)
@@ -376,7 +376,7 @@ class Doctrine_Pager
      *
      * Defines the current page
      *
-     * @param $page       current page
+     * @param int $page       current page
      * @return void
      */
     protected function _setPage($page)
@@ -402,7 +402,7 @@ class Doctrine_Pager
      *
      * Defines the maximum number of itens per page and automatically adjust offset and limits
      *
-     * @param $max       maximum number of itens per page
+     * @param int $max       maximum number of itens per page
      * @return void
      */
     public function setMaxPerPage($max)
@@ -455,7 +455,7 @@ class Doctrine_Pager
      *
      * Defines the collector query to be used by pager
      *
-     * @param Doctrine_Query     Accepts either a Doctrine_Query object or a string
+     * @param Doctrine_Query|string $query     Accepts either a Doctrine_Query object or a string
      *                           (which does the Doctrine_Query class creation).
      * @return void
      */
@@ -486,9 +486,9 @@ class Doctrine_Pager
      *
      * Defines the counter query to be used by pager
      *
-     * @param Doctrine_Query  Accepts either a Doctrine_Query object or a string
+     * @param Doctrine_Query|string $query  Accepts either a Doctrine_Query object or a string
      *                        (which does the Doctrine_Query class creation).
-     * @param array           Optional params to be used by counter Doctrine_Query.
+     * @param array  $params         Optional params to be used by counter Doctrine_Query.
      *                        If not defined, the params passed to execute method will be used.
      * @return void
      */
@@ -524,9 +524,9 @@ class Doctrine_Pager
      *
      * Defines the params to be used by counter Doctrine_Query
      *
-     * @param array       Optional params to be used by counter Doctrine_Query.
+     * @param array   $params    Optional params to be used by counter Doctrine_Query.
      *                    If not defined, the params passed to execute method will be used.
-     * @param boolean     Optional argument that append the query param instead of overriding the existent ones.
+     * @param boolean  $append   Optional argument that append the query param instead of overriding the existent ones.
      * @return void
      */
     public function setCountQueryParams($params = array(), $append = false)
@@ -550,9 +550,9 @@ class Doctrine_Pager
      *
      * Executes the query, populates the collection and then return it
      *
-     * @param $params               Optional parameters to Doctrine_Query::execute
-     * @param $hydrationMode        Hydration Mode of Doctrine_Query::execute returned ResultSet.
-     * @return Doctrine_Collection  The root collection
+     * @param array $params               Optional parameters to Doctrine_Query::execute
+     * @param int $hydrationMode        Hydration Mode of Doctrine_Query::execute returned ResultSet.
+     * @return Doctrine_Collection|array  The root collection
      */
     public function execute($params = array(), $hydrationMode = null)
     {

@@ -78,7 +78,7 @@ class Doctrine_Query_Tokenizer
                     //$parts[$token] = array();
                     $parts[$token] = '';
                 break;
-            
+
                 case 'order':
                 case 'group':
                     $i = ($index + 1);
@@ -91,10 +91,10 @@ class Doctrine_Query_Tokenizer
                         //$parts[$p][] = $token;
                     }
                 break;
-            
+
                 case 'by':
                     continue;
-            
+
                 default:
                     if ( ! isset($p)) {
                         throw new Doctrine_Query_Tokenizer_Exception(
@@ -276,7 +276,7 @@ class Doctrine_Query_Tokenizer
      *     );
      *
      * @param string $str String to be clause exploded
-     * @param string $d   Delimeter which explodes the string
+     * @param array  $d   Delimeter which explodes the string
      * @param string $e1  First bracket, usually '('
      * @param string $e2  Second bracket, usually ')'
      *
@@ -293,7 +293,7 @@ class Doctrine_Query_Tokenizer
      * Builds regular expression for split from array. Return regular
      * expression to be applied
      *
-     * @param $d
+     * @param array $d
      *
      * @return string
      */
@@ -317,10 +317,10 @@ class Doctrine_Query_Tokenizer
     /**
      * Same as clauseExplode, but you give a regexp, which splits the string
      *
-     * @param $str
-     * @param $regexp
-     * @param $e1
-     * @param $e2
+     * @param string $str
+     * @param string $regexp
+     * @param string $e1
+     * @param string $e2
      *
      * @return array
      */
@@ -340,12 +340,12 @@ class Doctrine_Query_Tokenizer
     /**
      * this function is like clauseExplode, but it doesn't merge bracket terms
      *
-     * @param $str
-     * @param $d
-     * @param $e1
-     * @param $e2
+     * @param string $str
+     * @param string $regexp
+     * @param string $e1
+     * @param string $e2
      *
-     * @return unknown_type
+     * @return array
      */
     private function clauseExplodeCountBrackets($str, $regexp, $e1 = '(', $e2 = ')')
     {
@@ -387,7 +387,7 @@ class Doctrine_Query_Tokenizer
                 $i += sizeof($subterms);
             }
         }
-        
+
         return $terms;
     }
 
@@ -415,10 +415,8 @@ class Doctrine_Query_Tokenizer
      *        array("d))'", '', -2)
      *     );
      *
-     * @param $str
-     * @param $d
-     * @param $e1
-     * @param $e2
+     * @param string $str
+     * @param string $regexp
      *
      * @return array
      */
@@ -442,9 +440,9 @@ class Doctrine_Query_Tokenizer
 
     /**
      * This expects input from clauseExplodeNonQuoted.
-     * It will go through the result and merges any bracket terms with 
+     * It will go through the result and merges any bracket terms with
      * unbalanced bracket count.
-     * Note that only the third parameter in each term is used to get the 
+     * Note that only the third parameter in each term is used to get the
      * bracket overhang. This is needed to be able to handle quoted strings
      * wich contain brackets
      *
@@ -465,7 +463,7 @@ class Doctrine_Query_Tokenizer
      *         array('5'    , '' , 0)
      *     );
      *
-     * @param $terms array
+     * @param array $terms
      *
      * @return array
      */
@@ -478,7 +476,7 @@ class Doctrine_Query_Tokenizer
             if ( ! isset($res[$i])) {
                 $res[$i] = array($val[0], $val[1], $val[2]);
             } else {
-                $res[$i][0] .= $res[$i][1] . $val[0]; 
+                $res[$i][0] .= $res[$i][1] . $val[0];
                 $res[$i][1] = $val[1];
                 $res[$i][2] += $val[2];
             }
@@ -506,7 +504,7 @@ class Doctrine_Query_Tokenizer
      *
      * Note the trailing empty string. In the result, all even elements are quoted strings.
      *
-     * @param $str the string to split
+     * @param string $str the string to split
      *
      * @return array
      */

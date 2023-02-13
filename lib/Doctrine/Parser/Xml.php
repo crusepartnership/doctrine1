@@ -34,34 +34,33 @@ class Doctrine_Parser_Xml extends Doctrine_Parser
 {
     /**
      * dumpData
-     * 
+     *
      * Convert array to xml and dump to specified path or return the xml
      *
-     * @param  string $array Array of data to convert to xml
+     * @param  array $array Array of data to convert to xml
      * @param  string $path  Path to write xml data to
      * @param string $charset The charset of the data being dumped
-     * @return string $xml
-     * @return void
+     * @return int|false|string
      */
     public function dumpData($array, $path = null, $charset = null)
     {
         $data = self::arrayToXml($array, 'data', null, $charset);
-        
+
         return $this->doDump($data, $path);
     }
 
     /**
      * arrayToXml
      *
-     * @param  string $array        Array to convert to xml    
+     * @param  array $array        Array to convert to xml
      * @param  string $rootNodeName Name of the root node
-     * @param  string $xml          SimpleXmlElement
+     * @param  SimpleXMLElement|null $xml          SimpleXmlElement, if null SimpleXMLElement will be created
      * @return string $asXml        String of xml built from array
      */
     public static function arrayToXml($array, $rootNodeName = 'data', $xml = null, $charset = null)
     {
         if ($xml === null) {
-            $xml = new SimpleXmlElement("<?xml version=\"1.0\" encoding=\"utf-8\"?><$rootNodeName/>");
+            $xml = new SimpleXMLElement("<?xml version=\"1.0\" encoding=\"utf-8\"?><$rootNodeName/>");
         }
 
         foreach($array as $key => $value)
@@ -79,7 +78,7 @@ class Doctrine_Parser_Xml extends Doctrine_Parser
                 }
 
                 self::arrayToXml($value, $rootNodeName, $node, $charset);
-            } else if (is_int($key)) {               
+            } else if (is_int($key)) {
                 $xml->addChild($value, 'true');
             } else {
                 $charset = $charset ? $charset : 'utf-8';
@@ -105,9 +104,9 @@ class Doctrine_Parser_Xml extends Doctrine_Parser
     public function loadData($path)
     {
         $contents = $this->doLoad($path);
-        
+
         $simpleXml = simplexml_load_string($contents);
-        
+
         return $this->prepareData($simpleXml);
     }
 
@@ -116,14 +115,16 @@ class Doctrine_Parser_Xml extends Doctrine_Parser
      *
      * Prepare simple xml to array for return
      *
-     * @param  string $simpleXml 
+     * @param  string|SimpleXMLElement $simpleXml
      * @return array  $return
      */
     public function prepareData($simpleXml)
     {
+        $children = array();
+        $return = array();
+
         if ($simpleXml instanceof SimpleXMLElement) {
             $children = $simpleXml->children();
-            $return = null;
         }
 
         foreach ($children as $element => $value) {

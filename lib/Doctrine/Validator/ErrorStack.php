@@ -67,7 +67,7 @@ class Doctrine_Validator_ErrorStack extends Doctrine_Access implements Countable
      * Adds an error to the stack.
      *
      * @param string $invalidFieldName
-     * @param string $errorType
+     * @param string|Doctrine_Validator_Driver $errorCode
      */
     public function add($invalidFieldName, $errorCode = 'general')
     {
@@ -87,6 +87,7 @@ class Doctrine_Validator_ErrorStack extends Doctrine_Access implements Countable
      * Removes all existing errors for the specified field from the stack.
      *
      * @param string $fieldName
+     * @return void
      */
     public function remove($fieldName)
     {
@@ -146,7 +147,7 @@ class Doctrine_Validator_ErrorStack extends Doctrine_Access implements Countable
     /**
      * Enter description here...
      *
-     * @return unknown
+     * @return ArrayIterator
      */
     public function getIterator()
     {

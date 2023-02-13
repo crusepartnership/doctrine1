@@ -55,7 +55,7 @@ class Doctrine_Manager extends Doctrine_Configurable implements Countable, Itera
     protected $_currIndex     = 0;
 
     /**
-     * @var Doctrine_Query_Registry     the query registry
+     * @var Doctrine_Query_Registry|null     the query registry
      */
     protected $_queryRegistry;
 
@@ -90,7 +90,7 @@ class Doctrine_Manager extends Doctrine_Configurable implements Countable, Itera
         'oracle'   => 'Doctrine_Connection_Oracle',
         'mssql'    => 'Doctrine_Connection_Mssql',
         'dblib'    => 'Doctrine_Connection_Mssql',
-        'odbc'     => 'Doctrine_Connection_Mssql', 
+        'odbc'     => 'Doctrine_Connection_Mssql',
         'mock'     => 'Doctrine_Connection_Mock'
     );
 
@@ -120,8 +120,8 @@ class Doctrine_Manager extends Doctrine_Configurable implements Countable, Itera
     /**
      * Sets default attributes values.
      *
-     * This method sets default values for all null attributes of this 
-     * instance. It is idempotent and can only be called one time. Subsequent 
+     * This method sets default values for all null attributes of this
+     * instance. It is idempotent and can only be called one time. Subsequent
      * calls does not alter the attribute values.
      *
      * @return boolean      true if inizialization was executed
@@ -162,7 +162,7 @@ class Doctrine_Manager extends Doctrine_Configurable implements Countable, Itera
                         Doctrine_Core::ATTR_TABLE_CLASS                  => 'Doctrine_Table',
                         Doctrine_Core::ATTR_CASCADE_SAVES                => true,
                         Doctrine_Core::ATTR_TABLE_CLASS_FORMAT           => '%sTable'
-                        ); 
+                        );
             foreach ($attributes as $attribute => $value) {
                 $old = $this->getAttribute($attribute);
                 if ($old === null) {
@@ -243,7 +243,7 @@ class Doctrine_Manager extends Doctrine_Configurable implements Countable, Itera
     public function setQueryRegistry(Doctrine_Query_Registry $registry)
     {
         $this->_queryRegistry = $registry;
-        
+
         return $this;
     }
 
@@ -251,17 +251,17 @@ class Doctrine_Manager extends Doctrine_Configurable implements Countable, Itera
      * Open a new connection. If the adapter parameter is set this method acts as
      * a short cut for Doctrine_Manager::getInstance()->openConnection($adapter, $name);
      *
-     * if the adapter paramater is not set this method acts as
+     * if the adapter parameter is not set this method acts as
      * a short cut for Doctrine_Manager::getInstance()->getCurrentConnection()
      *
-     * @param PDO|Doctrine_Adapter_Interface $adapter   database driver
-     * @param string $name                              name of the connection, if empty numeric key is used
-     * @throws Doctrine_Manager_Exception               if trying to bind a connection with an existing name
+     * @param PDO|Doctrine_Adapter_Interface|array|string|null $adapter database driver, DSN or array of connection options
+     * @param string $name                                         name of the connection, if empty numeric key is used
+     * @throws Doctrine_Manager_Exception                          if trying to bind a connection with an existing name
      * @return Doctrine_Connection
      */
     public static function connection($adapter = null, $name = null)
     {
-        if ($adapter == null) {
+        if ($adapter === null) {
             return Doctrine_Manager::getInstance()->getCurrentConnection();
         } else {
             return Doctrine_Manager::getInstance()->openConnection($adapter, $name);
@@ -271,10 +271,10 @@ class Doctrine_Manager extends Doctrine_Configurable implements Countable, Itera
     /**
      * Opens a new connection and saves it to Doctrine_Manager->connections
      *
-     * @param PDO|Doctrine_Adapter_Interface $adapter   database driver
-     * @param string $name                              name of the connection, if empty numeric key is used
-     * @throws Doctrine_Manager_Exception               if trying to bind a connection with an existing name
-     * @throws Doctrine_Manager_Exception               if trying to open connection for unknown driver
+     * @param PDO|Doctrine_Adapter_Interface|array|string $adapter database driver, DSN or array of connection options
+     * @param string $name                                         name of the connection, if empty numeric key is used
+     * @throws Doctrine_Manager_Exception                          if trying to bind a connection with an existing name
+     * @throws Doctrine_Manager_Exception                          if trying to open connection for unknown driver
      * @return Doctrine_Connection
      */
     public function openConnection($adapter, $name = null, $setCurrent = true)
@@ -345,7 +345,7 @@ class Doctrine_Manager extends Doctrine_Configurable implements Countable, Itera
         }
         return $this->_connections[$name];
     }
-    
+
     /**
      * Parse a pdo style dsn in to an array of parts
      *
@@ -395,7 +395,7 @@ class Doctrine_Manager extends Doctrine_Configurable implements Countable, Itera
      * Build the blank dsn parts array used with parseDsn()
      *
      * @see parseDsn()
-     * @param string $dsn 
+     * @param string $dsn
      * @return array $parts
      */
     protected function _buildDsnPartsArray($dsn)
@@ -691,7 +691,7 @@ class Doctrine_Manager extends Doctrine_Configurable implements Countable, Itera
     /**
      * Creates databases for all existing connections
      *
-     * @param string $specifiedConnections Array of connections you wish to create the database for
+     * @param string|array $specifiedConnections Array of connections you wish to create the database for
      * @return void
      * @todo package:dbal
      */
@@ -713,7 +713,7 @@ class Doctrine_Manager extends Doctrine_Configurable implements Countable, Itera
     /**
      * Drops databases for all existing connections
      *
-     * @param string $specifiedConnections Array of connections you wish to drop the database for
+     * @param string|array $specifiedConnections Array of connections you wish to drop the database for
      * @return void
      * @todo package:dbal
      */
@@ -830,14 +830,14 @@ class Doctrine_Manager extends Doctrine_Configurable implements Countable, Itera
      */
     public function getConnectionDrivers()
     {
-        return $this->_connectionsDrivers;
+        return $this->_connectionDrivers;
     }
 
     /**
      * Register a Doctrine extension for extensionsAutoload() method
      *
-     * @param string $name 
-     * @param string $path 
+     * @param string $name
+     * @param string $path
      * @return void
      */
     public function registerExtension($name, $path = null)
@@ -851,7 +851,7 @@ class Doctrine_Manager extends Doctrine_Configurable implements Countable, Itera
     /**
      * Get all registered Doctrine extensions
      *
-     * @return $extensions
+     * @return array
      */
     public function getExtensions()
     {

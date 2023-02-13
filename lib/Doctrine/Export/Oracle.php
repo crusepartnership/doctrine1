@@ -36,7 +36,6 @@ class Doctrine_Export_Oracle extends Doctrine_Export
     /**
      * create a new database
      *
-     * @param object $db database object that is extended by this class
      * @param string $name name of the database that should be created
      * @return boolean      success of operation
      */
@@ -46,8 +45,8 @@ class Doctrine_Export_Oracle extends Doctrine_Export
             $username   = $name;
             $password   = $this->conn->dsn['password'] ? $this->conn->dsn['password'] : $name;
 
-            $tablespace = $this->conn->options['default_tablespace']
-                        ? ' DEFAULT TABLESPACE '.$this->conn->options['default_tablespace'] : '';
+            $tablespace = $this->conn->getOption('default_tablespace')
+                        ? ' DEFAULT TABLESPACE '.$this->conn->getOption('default_tablespace') : '';
 
             $query  = 'CREATE USER ' . $username . ' IDENTIFIED BY ' . $password . $tablespace;
             $result = $this->conn->exec($query);
@@ -65,7 +64,6 @@ class Doctrine_Export_Oracle extends Doctrine_Export
     /**
      * drop an existing database
      *
-     * @param object $this->conn database object that is extended by this class
      * @param string $name name of the database that should be dropped
      * @return boolean      success of operation
      * @access public
@@ -76,10 +74,10 @@ class Doctrine_Export_Oracle extends Doctrine_Export
 BEGIN
   -- user_tables contains also materialized views
   FOR I IN (SELECT table_name FROM user_tables WHERE table_name NOT IN (SELECT mview_name FROM user_mviews))
-  LOOP 
+  LOOP
     EXECUTE IMMEDIATE 'DROP TABLE "'||I.table_name||'" CASCADE CONSTRAINTS';
   END LOOP;
-  
+
   FOR I IN (SELECT SEQUENCE_NAME FROM USER_SEQUENCES)
   LOOP
     EXECUTE IMMEDIATE 'DROP SEQUENCE "'||I.SEQUENCE_NAME||'"';
@@ -102,8 +100,7 @@ SQL;
      * @param string $name  name of the PK field
      * @param string $table name of the table
      * @param string $start start value for the sequence
-     * @return string        Sql code
-     * @access private
+     * @return array        Sql code
      */
     public function _makeAutoincrement($name, $table, $start = 1)
     {
@@ -117,7 +114,7 @@ SQL;
             'primary' => true,
             'fields' => array($name => true),
         );
-		
+
         $sql[] = 'DECLARE
   constraints_Count NUMBER;
 BEGIN
@@ -125,8 +122,8 @@ BEGIN
   IF constraints_Count = 0 THEN
     EXECUTE IMMEDIATE \''.$this->createConstraintSql($table, $indexName, $definition).'\';
   END IF;
-END;';   
-		
+END;';
+
         if (is_null($start)) {
             $query = 'SELECT MAX(' . $this->conn->quoteIdentifier($name, true) . ') FROM ' . $this->conn->quoteIdentifier($table, true);
             $start = $this->conn->fetchOne($query);
@@ -305,7 +302,7 @@ END;';
      *                        );
      * @param array $options  An associative array of table options:
      *
-     * @return void
+     * @return array
      */
     public function createTableSql($name, array $fields, array $options = array())
     {
@@ -321,25 +318,25 @@ END;';
             }
 
             if (isset($field['autoincrement']) && $field['autoincrement'] ||
-               (isset($field['autoinc']) && $fields['autoinc'])) {           
+               (isset($field['autoinc']) && $fields['autoinc'])) {
                 $sql = array_merge($sql, $this->_makeAutoincrement($fieldName, $name));
             }
 
             if (isset($field['comment']) && ! empty($field['comment'])){
-                $sql[] = $this->_createColumnCommentSql($name,$fieldName,$field['comment']); 
+                $sql[] = $this->_createColumnCommentSql($name,$fieldName,$field['comment']);
             }
         }
-        
+
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
             foreach ($options['indexes'] as $indexName => $definition) {
                 // create nonunique indexes, as they are a part od CREATE TABLE DDL
-                if ( ! isset($definition['type']) || 
+                if ( ! isset($definition['type']) ||
                     (isset($definition['type']) && strtolower($definition['type']) != 'unique')) {
                     $sql[] = $this->createIndexSql($name, $indexName, $definition);
                 }
             }
         }
-        
+
         return $sql;
     }
 
@@ -379,10 +376,9 @@ END;';
     public function dropTable($name)
     {
         //$this->conn->beginNestedTransaction();
-        $result = $this->dropAutoincrement($name);
-        $result = parent::dropTable($name);
+        $this->dropAutoincrement($name);
+        parent::dropTable($name);
         //$this->conn->completeNestedTransaction();
-        return $result;
     }
 
     /**
@@ -471,7 +467,7 @@ END;';
      * @param boolean $check     indicates whether the function should just check if the DBMS driver
      *                             can perform the requested table alterations if the value is true or
      *                             actually perform them otherwise.
-     * @return void
+     * @return false|void
      */
     public function alterTable($name, array $changes, $check = false)
     {
@@ -498,7 +494,7 @@ END;';
         if ( ! empty($changes['add']) && is_array($changes['add'])) {
             $fields = array();
             foreach ($changes['add'] as $fieldName => $field) {
-                $fields[] = $this->getDeclaration($fieldName, $field); 
+                $fields[] = $this->getDeclaration($fieldName, $field);
             }
             $result = $this->conn->exec('ALTER TABLE ' . $name . ' ADD (' . implode(', ', $fields) . ')');
         }
@@ -538,7 +534,7 @@ END;';
      * create sequence
      *
      * @param string $seqName name of the sequence to be created
-     * @param string $start start value of the sequence; default is 1
+     * @param string|int $start start value of the sequence; default is 1
      * @param array     $options  An associative array of table options:
      *                          array(
      *                              'comment' => 'Foo',
@@ -558,7 +554,6 @@ END;';
     /**
      * drop existing sequence
      *
-     * @param object $this->conn database object that is extended by this class
      * @param string $seqName name of the sequence to be dropped
      * @return string
      */
@@ -571,16 +566,16 @@ END;';
     /**
      * return Oracle's SQL code portion needed to set an index
      * declaration to be unsed in statements like CREATE TABLE.
-     * 
+     *
      * @param string $name      name of the index
      * @param array $definition index definition
-     * @return string           Oracle's SQL code portion needed to set an index  
-     */    
+     * @return string|null           Oracle's SQL code portion needed to set an index
+     */
     public function getIndexDeclaration($name, array $definition)
     {
         $name = $this->conn->quoteIdentifier($name);
         $type = '';
-        
+
         if ( isset($definition['type']))
         {
             if (strtolower($definition['type']) == 'unique') {
@@ -594,13 +589,13 @@ END;';
             // only unique indexes should be defined in create table statement
             return null;
         }
-        
+
         if ( !isset($definition['fields']) || !is_array($definition['fields'])) {
             throw new Doctrine_Export_Exception('No columns given for index '.$name);
         }
-        
+
         $query = 'CONSTRAINT '.$name.' '.$type.' ('.$this->getIndexFieldDeclarationList($definition['fields']).')';
-        
+
         return $query;
     }
 }

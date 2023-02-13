@@ -105,7 +105,7 @@ abstract class Doctrine_Query_Condition extends Doctrine_Query_Part
      * components are parsed to associated table aliases
      *
      * @param string $value         literal value to be parsed
-     * @return string
+     * @return string|int
      */
     public function parseLiteralValue($value)
     {

@@ -38,7 +38,7 @@ class Doctrine_Export_Mssql extends Doctrine_Export
      * create a new database
      *
      * @param string $name name of the database that should be created
-     * @return void
+     * @return PDOStatement|Doctrine_Adapter_Statement_Interface
      */
     public function createDatabase($name)
     {
@@ -46,23 +46,23 @@ class Doctrine_Export_Mssql extends Doctrine_Export
         $query = "CREATE DATABASE $name";
         $options = $this->conn->getOptions();
         if (isset($options['database_device']) && $options['database_device']) {
-            $query.= ' ON '.$this->conn->options['database_device'];
-            $query.= $this->conn->options['database_size'] ? '=' .
-                     $this->conn->options['database_size'] : '';
+            $query.= ' ON '.$this->conn->getOption('database_device');
+            $query.= $this->conn->getOption('database_size') ? '=' .
+                     $this->conn->getOption('database_size') : '';
         }
-        return $this->conn->standaloneQuery($query, array(), true);
+        return $this->conn->standaloneQuery($query, array());
     }
 
     /**
      * drop an existing database
      *
      * @param string $name name of the database that should be dropped
-     * @return void
+     * @return PDOStatement|Doctrine_Adapter_Statement_Interface
      */
     public function dropDatabase($name)
     {
         $name = $this->conn->quoteIdentifier($name, true);
-        return $this->conn->standaloneQuery('DROP DATABASE ' . $name, array(), true);
+        return $this->conn->standaloneQuery('DROP DATABASE ' . $name, array());
     }
 
     /**
@@ -74,7 +74,7 @@ class Doctrine_Export_Mssql extends Doctrine_Export
     public function getTemporaryTableQuery()
     {
         return '';
-    }  
+    }
 
     public function dropIndexSql($table, $name)
     {
@@ -170,7 +170,7 @@ class Doctrine_Export_Mssql extends Doctrine_Export
      * @param boolean $check     indicates whether the function should just check if the DBMS driver
      *                             can perform the requested table alterations if the value is true or
      *                             actually perform them otherwise.
-     * @return void
+     * @return bool|int
      */
     public function alterTable($name, array $changes, $check = false)
     {
@@ -228,7 +228,7 @@ class Doctrine_Export_Mssql extends Doctrine_Export
 
             $dropped = array();
             foreach ($changes['remove'] as $fieldName => $field) {
-                
+
                 $fieldName = $this->conn->quoteIdentifier($fieldName, true);
                 $dropped[] = $fieldName;
             }
@@ -339,12 +339,12 @@ class Doctrine_Export_Mssql extends Doctrine_Export
      *                              'charset' => 'utf8',
      *                              'collate' => 'utf8_unicode_ci',
      *                          );
-     * @return string
+     * @return true
      */
     public function createSequence($seqName, $start = 1, array $options = array())
     {
         $sequenceName = $this->conn->quoteIdentifier($this->conn->getSequenceName($seqName), true);
-        $seqcolName = $this->conn->quoteIdentifier($this->conn->options['seqcol_name'], true);
+        $seqcolName = $this->conn->quoteIdentifier($this->conn->getOption('seqcol_name'), true);
         $query = 'CREATE TABLE ' . $sequenceName . ' (' . $seqcolName .
                  ' INT PRIMARY KEY CLUSTERED IDENTITY(' . $start . ', 1) NOT NULL)';
 
@@ -368,7 +368,7 @@ class Doctrine_Export_Mssql extends Doctrine_Export
      * This function drops an existing sequence
      *
      * @param string $seqName      name of the sequence to be dropped
-     * @return void
+     * @return string
      */
     public function dropSequenceSql($seqName)
     {
@@ -402,7 +402,7 @@ class Doctrine_Export_Mssql extends Doctrine_Export
      *                          );
      * @param array $options  An associative array of table options:
      *
-     * @return string
+     * @return array
      */
     public function createTableSql($name, array $fields, array $options = array())
     {
@@ -439,7 +439,7 @@ class Doctrine_Export_Mssql extends Doctrine_Export
         }
 
         $query = 'CREATE TABLE ' . $this->conn->quoteIdentifier($name, true) . ' (' . $queryFields;
-        
+
         $check = $this->getCheckDeclaration($fields);
 
         if ( ! empty($check)) {
@@ -449,7 +449,7 @@ class Doctrine_Export_Mssql extends Doctrine_Export
         $query .= ')';
 
         $sql[] = $query;
-        
+
         if (isset($options['indexes']) && ! empty($options['indexes'])) {
             foreach($options['indexes'] as $index => $definition) {
                 if (is_array($definition)) {
@@ -457,7 +457,7 @@ class Doctrine_Export_Mssql extends Doctrine_Export
                 }
             }
         }
-        
+
         if (isset($options['foreignKeys'])) {
             foreach ((array) $options['foreignKeys'] as $k => $definition) {
                 if (is_array($definition)) {
@@ -474,13 +474,13 @@ class Doctrine_Export_Mssql extends Doctrine_Export
      * Obtain DBMS specific SQL code portion needed to set a NOT NULL
      * declaration to be used in statements like CREATE TABLE.
      *
-     * @param array $field      field definition array
+     * @param array $definition field definition array
      * @return string           DBMS specific SQL code portion needed to set a default value
      */
     public function getNotNullFieldDeclaration(array $definition)
     {
         return (
-            (isset($definition['notnull']) && $definition['notnull']) || 
+            (isset($definition['notnull']) && $definition['notnull']) ||
             (isset($definition['primary']) && $definition['primary'])
         ) ? ' NOT NULL' : ' NULL';
     }
@@ -518,7 +518,7 @@ class Doctrine_Export_Mssql extends Doctrine_Export
                 ? 'NULL'
                 : $this->conn->quote($field['default'], $field['type']));
         }
-        
+
         return $default;
     }
 }

@@ -130,13 +130,11 @@ class Doctrine_Expression_Pgsql extends Doctrine_Expression_Driver
     /**
      * PostgreSQLs CONCAT() function
      *
-     * @param  an array of values
+     * @param  mixed ...$args values to concat
      * @return string
      */
-    public function concat()
+    public function concat(...$args)
     {
-        $args = func_get_args();
-
         return join(' || ' , $args);
     }
 
@@ -163,7 +161,7 @@ class Doctrine_Expression_Pgsql extends Doctrine_Expression_Driver
     /**
      * return string to call a function to get random value inside an SQL statement
      *
-     * @return return string to generate float between 0 and 1
+     * @return string string to generate float between 0 and 1
      * @access public
      */
     public function random()
@@ -242,7 +240,7 @@ class Doctrine_Expression_Pgsql extends Doctrine_Expression_Driver
     {
         return $this->position($substr, $str);
     }
-    
+
     /**
      * position
      *
@@ -254,7 +252,7 @@ class Doctrine_Expression_Pgsql extends Doctrine_Expression_Driver
     {
         $substr = $this->getIdentifier($substr);
         $str = $this->getIdentifier($str);
-        
+
         return sprintf('POSITION(%s IN %s)', $substr, $str);
     }
 }

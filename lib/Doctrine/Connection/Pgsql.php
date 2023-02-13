@@ -42,7 +42,7 @@ class Doctrine_Connection_Pgsql extends Doctrine_Connection_Common
      * the constructor
      *
      * @param Doctrine_Manager $manager
-     * @param PDO $pdo                          database handle
+     * @param PDO|Doctrine_Adapter_Interface $adapter                          database handle
      */
     public function __construct(Doctrine_Manager $manager, $adapter)
     {
@@ -82,7 +82,7 @@ class Doctrine_Connection_Pgsql extends Doctrine_Connection_Common
     /**
      * Set the charset on the current connection
      *
-     * @param string    charset
+     * @param string    $charset
      *
      * @return void
      */
@@ -101,7 +101,7 @@ class Doctrine_Connection_Pgsql extends Doctrine_Connection_Common
      * This method takes care of that conversion
      *
      * @param array $item
-     * @return void
+     * @return array|string
      */
     public function convertBooleans($item)
     {
@@ -123,7 +123,7 @@ class Doctrine_Connection_Pgsql extends Doctrine_Connection_Common
      * Changes a query string for various DBMS specific reasons
      *
      * @param string $query         query to modify
-     * @param integer $limit        limit the number of rows
+     * @param integer $limit|false        limit the number of rows
      * @param integer $offset       start reading from given offset
      * @param boolean $isManip      if the query is a DML query
      * @return string               modified query
@@ -139,6 +139,10 @@ class Doctrine_Connection_Pgsql extends Doctrine_Connection_Common
 
             if ($isManip) {
                 $manip = preg_replace('/^(DELETE FROM|UPDATE).*$/', '\\1', $query);
+                // $match was previously undefined, setting as an empty array for static analysis
+                // as PHP implicitly makes the empty array when accessed below. Behavior here probably isn't
+                // working as originally expected
+                $match = array();
                 $from  = $match[2];
                 $where = $match[3];
                 $query = $manip . ' ' . $from . ' WHERE ctid=(SELECT ctid FROM '
@@ -198,7 +202,7 @@ class Doctrine_Connection_Pgsql extends Doctrine_Connection_Common
      * Inserts a table row with specified data.
      *
      * @param Doctrine_Table $table     The table to insert data into.
-     * @param array $values             An associative array containing column-value pairs.
+     * @param array $fields             An associative array containing column-value pairs.
      *                                  Values can be strings or Doctrine_Expression instances.
      * @return integer                  the number of affected rows. Boolean false if empty value array was given,
      */
@@ -210,9 +214,9 @@ class Doctrine_Connection_Pgsql extends Doctrine_Connection_Common
         $cols = array();
         // the query VALUES will contain either expresions (eg 'NOW()') or ?
         $a = array();
-        
+
         foreach ($fields as $fieldName => $value) {
-        	if ($table->isIdentifier($fieldName) 
+        	if ($table->isIdentifier($fieldName)
         	           && $table->isIdentifierAutoincrement()
         	           && $value == null) {
         		// Autoincrement fields should not be added to the insert statement
@@ -228,12 +232,12 @@ class Doctrine_Connection_Pgsql extends Doctrine_Connection_Common
                 $a[] = '?';
             }
         }
-        
+
         if (count($fields) == 0) {
-        	// Real fix #1786 and #2327 (default values when table is just 'id' as PK)        	
+        	// Real fix #1786 and #2327 (default values when table is just 'id' as PK)
             return $this->exec('INSERT INTO ' . $this->quoteIdentifier($tableName)
                               . ' '
-                              . ' VALUES (DEFAULT)');        	
+                              . ' VALUES (DEFAULT)');
         }
 
         // build the statement
@@ -242,5 +246,5 @@ class Doctrine_Connection_Pgsql extends Doctrine_Connection_Common
                 . ' VALUES (' . implode(', ', $a) . ')';
 
         return $this->exec($query, array_values($fields));
-    }    
+    }
 }

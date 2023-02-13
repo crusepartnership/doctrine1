@@ -70,7 +70,7 @@ class Doctrine_View
     protected $_dql;
 
     /**
-     * @var string $_sql The view sql string
+     * @var string|false $_sql The view sql string
      */
     protected $_sql;
 
@@ -173,7 +173,7 @@ class Doctrine_View
     /**
      * Get the view sql string
      *
-     * @return string $sql
+     * @return string|false $sql
      */
     public function getViewSql()
     {

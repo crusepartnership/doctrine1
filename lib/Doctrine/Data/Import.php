@@ -35,7 +35,7 @@ class Doctrine_Data_Import extends Doctrine_Data
     /**
      * Array of imported objects for processing and saving
      *
-     * @var array
+     * @var Doctrine_Record[]
      */
     protected $_importedObjects = array();
 
@@ -83,7 +83,7 @@ class Doctrine_Data_Import extends Doctrine_Data
                 } else if (is_dir($dir)) {
                     $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir),
                                                             RecursiveIteratorIterator::LEAVES_ONLY);
-                    $filesOrdered = array();                                        
+                    $filesOrdered = array();
                     foreach ($it as $file) {
                         $filesOrdered[] = $file;
                     }
@@ -138,7 +138,7 @@ class Doctrine_Data_Import extends Doctrine_Data
                         $rel = $table->getRelation($key);
                         $relClassName = $rel->getTable()->getOption('name');
                         $relRowKey = $rowKey . '_' . $relClassName;
-            
+
                         if ($rel->getType() == Doctrine_Relation::ONE) {
                             $val = array($relRowKey => $value);
                             $this->_rows[$className][$rowKey][$key] = $relRowKey;
@@ -146,7 +146,7 @@ class Doctrine_Data_Import extends Doctrine_Data
                             $val = $value;
                             $this->_rows[$className][$rowKey][$key] = array_keys($val);
                         }
-            
+
                         $this->_buildRows($relClassName, $val);
                     }
                 }
@@ -183,7 +183,7 @@ class Doctrine_Data_Import extends Doctrine_Data
      */
     protected function _getImportedObject($rowKey, Doctrine_Record $record, $relationName, $referringRowKey)
     {
-        $relation = $record->getTable()->getRelation($relationName); 
+        $relation = $record->getTable()->getRelation($relationName);
         $rowKey = $this->_getRowKeyPrefix($relation->getTable()) . $rowKey;
 
         if ( ! isset($this->_importedObjects[$rowKey])) {
@@ -265,8 +265,8 @@ class Doctrine_Data_Import extends Doctrine_Data
     *
     * This method returns true if the given $data is a nested set in 'natural' form.
     *
-    * @param $className
-    * @param $data
+    * @param string $className
+    * @param array $data
     * @return boolean
     */
     protected function _hasNaturalNestedSetFormat($className, array &$data)
@@ -287,7 +287,7 @@ class Doctrine_Data_Import extends Doctrine_Data
     /**
      * Perform the loading of the data from the passed array
      *
-     * @param string $array
+     * @param array $array
      * @return void
      */
     protected function _loadData(array $array)
@@ -354,8 +354,8 @@ class Doctrine_Data_Import extends Doctrine_Data
      * Load nested set data for models with nested set enabled
      *
      * @param string $model
-     * @param string $nestedSetData
-     * @param string $parent
+     * @param array $nestedSetData
+     * @param Doctrine_Record $parent
      * @return void
      */
     protected function _loadNestedSetData($model, $nestedSetData, $parent = null)

@@ -35,7 +35,7 @@ class Doctrine_Transaction_Mssql extends Doctrine_Transaction
     /**
      * Set the transacton isolation level.
      *
-     * @param   string  standard isolation level (SQL-92)
+     * @param   string  $isolation standard isolation level (SQL-92)
      *      portable modes:
      *                  READ UNCOMMITTED (allows dirty reads)
      *                  READ COMMITTED (prevents dirty reads)
@@ -65,7 +65,7 @@ class Doctrine_Transaction_Mssql extends Doctrine_Transaction
 
         $this->conn->execute($query);
     }
-    
+
     /**
      * Performs the rollback.
      */
@@ -73,7 +73,7 @@ class Doctrine_Transaction_Mssql extends Doctrine_Transaction
     {
         $this->conn->getDbh()->exec('ROLLBACK TRANSACTION');
     }
-    
+
     /**
      * Performs the commit.
      */
@@ -81,7 +81,7 @@ class Doctrine_Transaction_Mssql extends Doctrine_Transaction
     {
         $this->conn->getDbh()->exec('COMMIT TRANSACTION');
     }
-    
+
     /**
      * Begins a database transaction.
      */

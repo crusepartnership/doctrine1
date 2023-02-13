@@ -38,11 +38,14 @@ class Doctrine_Validator extends Doctrine_Locator_Injectable
      */
     private static $validators = array();
 
+    // This was undefined, added for static analysis and set to public so api isn't changed
+    public $stack;
+
     /**
      * Get a validator instance for the passed $name
      *
      * @param  string   $name  Name of the validator or the validator class name
-     * @return Doctrine_Validator_Interface $validator
+     * @return Doctrine_Validator_Driver $validator
      */
     public static function getValidator($name)
     {
@@ -84,7 +87,7 @@ class Doctrine_Validator extends Doctrine_Locator_Injectable
      *
      * @param  string  $value         Value to validate
      * @param  string  $type          Type of field being validated
-     * @param  string  $maximumLength Maximum length allowed for the column
+     * @param  string|null|int  $maximumLength Maximum length allowed for the column
      * @return boolean $success       True/false for whether the value passed validation
      */
     public static function validateLength($value, $type, $maximumLength)

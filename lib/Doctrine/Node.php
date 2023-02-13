@@ -55,21 +55,21 @@ class Doctrine_Node implements IteratorAggregate
     /**
      * The tree to which the node belongs.
      *
-     * @var unknown_type
+     * @var Doctrine_Tree|false
      */
     protected $_tree;
 
     /**
      * contructor, creates node with reference to record and any options
      *
-     * @param object $record                    instance of Doctrine_Record
+     * @param Doctrine_Record $record                    instance of Doctrine_Record
      * @param array $options                    options
      */
     public function __construct(Doctrine_Record $record, $options)
     {
         $this->record = $record;
         $this->options = $options;
-        
+
         // Make sure that the tree object of the root class is used in the case
         // of column aggregation inheritance (single table inheritance).
         $class = $record->getTable()->getComponentName();
@@ -106,7 +106,7 @@ class Doctrine_Node implements IteratorAggregate
      * This is a factory method that returns node instance based upon chosen
      * implementation.
      *
-     * @param object $record                    instance of Doctrine_Record
+     * @param Doctrine_Record $record                    instance of Doctrine_Record
      * @param string $implName                  implementation (NestedSet, AdjacencyList, MaterializedPath)
      * @param array $options                    options
      * @return Doctrine_Node
@@ -126,7 +126,7 @@ class Doctrine_Node implements IteratorAggregate
     /**
      * setter for record attribute
      *
-     * @param object $record                    instance of Doctrine_Record
+     * @param Doctrine_Record $record                    instance of Doctrine_Record
      */
     public function setRecord(Doctrine_Record $record)
     {
@@ -179,7 +179,7 @@ class Doctrine_Node implements IteratorAggregate
     /**
      * sets node's iterator type
      *
-     * @param int
+     * @param int $type
      */
     public function setIteratorType($type)
     {
@@ -189,7 +189,7 @@ class Doctrine_Node implements IteratorAggregate
     /**
      * sets node's iterator options
      *
-     * @param int
+     * @param array $options
      */
     public function setIteratorOptions($options)
     {

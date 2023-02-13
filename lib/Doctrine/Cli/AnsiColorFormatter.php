@@ -56,8 +56,8 @@ class Doctrine_Cli_AnsiColorFormatter extends Doctrine_Cli_Formatter
     /**
      * Sets a new style.
      *
-     * @param string The style name
-     * @param array  An array of options
+     * @param string $name The style name
+     * @param array  $options An array of options
      */
     public function setStyle($name, $options = array())
     {
@@ -67,8 +67,8 @@ class Doctrine_Cli_AnsiColorFormatter extends Doctrine_Cli_Formatter
     /**
      * Formats a text according to the given style or parameters.
      *
-     * @param  string The test to style
-     * @param  mixed  An array of options or a style name
+     * @param  string $text The test to style
+     * @param  mixed  $parameters An array of options or a style name
      *
      * @return string The styled text
      */
@@ -90,11 +90,11 @@ class Doctrine_Cli_AnsiColorFormatter extends Doctrine_Cli_Formatter
         if (isset($parameters['fg'])) {
             $codes[] = $this->_foreground[$parameters['fg']];
         }
-        
+
         if (isset($parameters['bg'])) {
             $codes[] = $this->_background[$parameters['bg']];
         }
-        
+
         foreach ($this->_options as $option => $value) {
             if (isset($parameters[$option]) && $parameters[$option]) {
                 $codes[] = $value;
@@ -107,9 +107,9 @@ class Doctrine_Cli_AnsiColorFormatter extends Doctrine_Cli_Formatter
     /**
      * Formats a message within a section.
      *
-     * @param string  The section name
-     * @param string  The text message
-     * @param integer The maximum size allowed for a line (65 by default)
+     * @param string  $section The section name
+     * @param string  $text  The text message
+     * @param integer $size The maximum size allowed for a line (65 by default)
      */
     public function formatSection($section, $text, $size = null)
     {
@@ -121,15 +121,15 @@ class Doctrine_Cli_AnsiColorFormatter extends Doctrine_Cli_Formatter
     /**
      * Truncates a line.
      *
-     * @param string  The text
-     * @param integer The maximum size of the returned string (65 by default)
+     * @param string  $text The text
+     * @param integer $size The maximum size of the returned string (65 by default)
      *
      * @return string The truncated string
      */
     public function excerpt($text, $size = null)
     {
         if ( ! $size) {
-            $size = $this->size;
+            $size = $this->_size;
         }
 
         if (strlen($text) < $size) {
@@ -149,7 +149,7 @@ class Doctrine_Cli_AnsiColorFormatter extends Doctrine_Cli_Formatter
      *  -  windows
      *  -  non tty consoles
      *
-     * @param  mixed A stream
+     * @param  mixed $stream A stream
      *
      * @return Boolean true if the stream supports colorization, false otherwise
      */

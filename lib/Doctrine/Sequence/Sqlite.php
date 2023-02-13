@@ -54,7 +54,7 @@ class Doctrine_Sequence_Sqlite extends Doctrine_Sequence
                 // we know the first id = 1 so initialize the
                 // sequence at 2
                 try {
-                    $result = $this->conn->export->createSequence($seqName, 2);
+                    $this->conn->export->createSequence($seqName, 2);
                 } catch(Doctrine_Exception $e) {
                     throw new Doctrine_Sequence_Exception('on demand sequence ' . $seqName . ' could not be created');
                 }
@@ -68,10 +68,10 @@ class Doctrine_Sequence_Sqlite extends Doctrine_Sequence
         $value = $this->conn->getDbh()->lastInsertId();
 
         if (is_numeric($value)) {
-            $query = 'DELETE FROM ' . $sequenceName . ' WHERE ' . $seqcolName . ' < ' . $value;            
+            $query = 'DELETE FROM ' . $sequenceName . ' WHERE ' . $seqcolName . ' < ' . $value;
             $this->conn->exec($query);
         }
-        
+
         return $value;
     }
 
@@ -79,8 +79,8 @@ class Doctrine_Sequence_Sqlite extends Doctrine_Sequence
      * Returns the autoincrement ID if supported or $id or fetches the current
      * ID in a sequence called: $table.(empty($field) ? '' : '_'.$field)
      *
-     * @param   string  name of the table into which a new row was inserted
-     * @param   string  name of the field into which a new row was inserted
+     * @param   string  $table  name of the table into which a new row was inserted
+     * @param   string  $field  name of the field into which a new row was inserted
      * @return integer|boolean
      */
     public function lastInsertId($table = null, $field = null)

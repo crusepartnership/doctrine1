@@ -27,7 +27,7 @@ class sfYamlInline
    *
    * @param string $value A YAML string
    *
-   * @return array A PHP array representing the YAML string
+   * @return array|string A PHP array representing the YAML string
    */
   static public function load($value)
   {
@@ -69,7 +69,7 @@ class sfYamlInline
    *
    * @param mixed $value The PHP variable to convert
    *
-   * @return string The YAML string representing the PHP array
+   * @return string|bool|int The YAML string representing the PHP array
    */
   static public function dump($value)
   {
@@ -162,8 +162,8 @@ class sfYamlInline
    * Parses a scalar to a YAML string.
    *
    * @param scalar  $scalar
-   * @param string  $delimiters
-   * @param array   $stringDelimiter
+   * @param array  $delimiters
+   * @param array   $stringDelimiters
    * @param integer $i
    * @param boolean $evaluate
    *
@@ -209,7 +209,7 @@ class sfYamlInline
   /**
    * Parses a quoted scalar to YAML.
    *
-   * @param string  $scalar
+   * @param scalar  $scalar
    * @param integer $i
    *
    * @return string A YAML string
@@ -245,7 +245,7 @@ class sfYamlInline
    * @param string  $sequence
    * @param integer $i
    *
-   * @return string A YAML string
+   * @return array
    */
   static protected function parseSequence($sequence, &$i = 0)
   {
@@ -305,7 +305,7 @@ class sfYamlInline
    * @param string  $mapping
    * @param integer $i
    *
-   * @return string A YAML string
+   * @return array
    */
   static protected function parseMapping($mapping, &$i = 0)
   {
@@ -371,7 +371,7 @@ class sfYamlInline
    *
    * @param string $scalar
    *
-   * @return string A YAML string
+   * @return string|bool|null A YAML string
    */
   static protected function evaluateScalar($scalar)
   {

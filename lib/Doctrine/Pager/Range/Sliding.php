@@ -70,7 +70,7 @@ class Doctrine_Pager_Range_Sliding extends Doctrine_Pager_Range
      *
      * Defines the size of the chunk
      *
-     * @param $chunkLength       Chunk length
+     * @param int $chunkLength       Chunk length
      * @return void
      */
     protected function _setChunkLength($chunkLength)

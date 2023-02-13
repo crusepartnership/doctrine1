@@ -31,6 +31,12 @@
  */
 class Doctrine_Import_Mysql extends Doctrine_Import
 {
+    /**
+     * @var Doctrine_Connection_Mysql $conn       Doctrine_Connection object, every connection
+     *                                            module holds an instance of Doctrine_Connection
+     */
+    protected $conn;
+
     protected $sql  = array(
                             'listDatabases'   => 'SHOW DATABASES',
                             'listTableFields' => 'DESCRIBE %s',
@@ -100,7 +106,7 @@ class Doctrine_Import_Mysql extends Doctrine_Import
     /**
      * lists table relations
      *
-     * Expects an array of this format to be returned with all the relationships in it where the key is 
+     * Expects an array of this format to be returned with all the relationships in it where the key is
      * the name of the foreign table, and the value is an array containing the local and foreign column
      * name
      *
@@ -113,7 +119,7 @@ class Doctrine_Import_Mysql extends Doctrine_Import
      *     )
      * )
      *
-     * @param string $table     database table name
+     * @param string $tableName     database table name
      * @return array
      */
     public function listTableRelations($tableName)
@@ -164,8 +170,8 @@ class Doctrine_Import_Mysql extends Doctrine_Import
                           'values'        => $values,
                           'primary'       => (strtolower($val['key']) == 'pri'),
                           'default'       => $val['default'],
-                          'notnull'       => (bool) ($val['null'] != 'YES'),
-                          'autoincrement' => (bool) (strpos($val['extra'], 'auto_increment') !== false),
+                          'notnull'       => ($val['null'] != 'YES'),
+                          'autoincrement' => (strpos($val['extra'], 'auto_increment') !== false),
                           );
             if (isset($decl['scale'])) {
                 $description['scale'] = $decl['scale'];

@@ -39,7 +39,7 @@ class Doctrine_Connection_Statement implements Doctrine_Adapter_Statement_Interf
     protected $_conn;
 
     /**
-     * @var mixed $_stmt                    PDOStatement object, boolean false or Doctrine_Adapter_Statement object
+     * @var PDOStatement|Doctrine_Adapter_Statement_Interface $_stmt   PDOStatement or object that implements Doctrine_Adapter_Statement_Interface
      */
     protected $_stmt;
 
@@ -48,7 +48,7 @@ class Doctrine_Connection_Statement implements Doctrine_Adapter_Statement_Interf
      *
      * @param Doctrine_Connection $conn     Doctrine_Connection object, every connection
      *                                      statement holds an instance of Doctrine_Connection
-     * @param mixed $stmt
+     * @param PDOStatement|Doctrine_Adapter_Statement_Interface $stmt
      */
     public function __construct(Doctrine_Connection $conn, $stmt)
     {
@@ -71,6 +71,9 @@ class Doctrine_Connection_Statement implements Doctrine_Adapter_Statement_Interf
         return $this->_conn;
     }
 
+    /**
+     * @return PDOStatement|Doctrine_Adapter_Statement_Interface
+     */
     public function getStatement()
     {
         return $this->_stmt;
@@ -137,7 +140,7 @@ class Doctrine_Connection_Statement implements Doctrine_Adapter_Statement_Interf
      * of stored procedures that return data as output parameters, and some also as input/output
      * parameters that both send in data and are updated to receive it.
      *
-     * @param mixed $param          Parameter identifier. For a prepared statement using named placeholders,
+     * @param mixed $column          Parameter identifier. For a prepared statement using named placeholders,
      *                              this will be a parameter name of the form :name. For a prepared statement
      *                              using question mark placeholders, this will be the 1-indexed position of the parameter
      *
@@ -275,7 +278,7 @@ class Doctrine_Connection_Statement implements Doctrine_Adapter_Statement_Interf
      * fetch
      *
      * @see Doctrine_Core::FETCH_* constants
-     * @param integer $fetchStyle           Controls how the next row will be returned to the caller.
+     * @param integer $fetchMode           Controls how the next row will be returned to the caller.
      *                                      This value must be one of the Doctrine_Core::FETCH_* constants,
      *                                      defaulting to Doctrine_Core::FETCH_BOTH
      *
@@ -338,6 +341,7 @@ class Doctrine_Connection_Statement implements Doctrine_Adapter_Statement_Interf
         $event = new Doctrine_Event($this, Doctrine_Event::STMT_FETCHALL, $this->getQuery());
         $event->fetchMode = $fetchMode;
         $event->columnIndex = $columnIndex;
+        $data = array();
 
         $this->_conn->getListener()->preFetchAll($event);
 
@@ -484,6 +488,6 @@ class Doctrine_Connection_Statement implements Doctrine_Adapter_Statement_Interf
             return $this->_stmt->setFetchMode($mode, $arg1, $arg2);
         } else {
             return $this->_stmt->setFetchMode($mode);
-        } 
+        }
     }
 }

@@ -32,6 +32,9 @@
  */
 class Doctrine_Validator_Country extends Doctrine_Validator_Driver
 {
+    /**
+     * @var string[]
+     */
     private static $countries = array(
         'ad' =>    'Andorra',
         'ae' =>    'United Arab Emirates',
@@ -280,7 +283,7 @@ class Doctrine_Validator_Country extends Doctrine_Validator_Driver
     /**
      * returns all available country codes
      *
-     * @return array
+     * @return string[]
      */
     public static function getCountries()
     {

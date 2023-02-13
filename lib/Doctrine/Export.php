@@ -51,7 +51,7 @@ class Doctrine_Export extends Doctrine_Connection_Module
      * drop an existing database
      * (this method is implemented by the drivers)
      *
-     * @param string $name name of the database that should be dropped
+     * @param string $database name of the database that should be dropped
      * @return void
      */
     public function dropDatabase($database)
@@ -65,8 +65,8 @@ class Doctrine_Export extends Doctrine_Connection_Module
      * drop an existing database
      * (this method is implemented by the drivers)
      *
-     * @param string $name name of the database that should be dropped
-     * @return void
+     * @param string $database name of the database that should be dropped
+     * @return string|array
      */
     public function dropDatabaseSql($database)
     {
@@ -102,7 +102,7 @@ class Doctrine_Export extends Doctrine_Connection_Module
      *
      * @param string    $table        name of table that should be used in method
      * @param string    $name         name of the index to be dropped
-     * @return void
+     * @return int
      */
     public function dropIndex($table, $name)
     {
@@ -119,7 +119,7 @@ class Doctrine_Export extends Doctrine_Connection_Module
     public function dropIndexSql($table, $name)
     {
         $name = $this->conn->quoteIdentifier($this->conn->formatter->getIndexName($name));
-        
+
         return 'DROP INDEX ' . $name;
     }
 
@@ -128,14 +128,14 @@ class Doctrine_Export extends Doctrine_Connection_Module
      *
      * @param string    $table        name of table that should be used in method
      * @param string    $name         name of the constraint to be dropped
-     * @param string    $primary      hint if the constraint is primary
-     * @return void
+     * @param bool    $primary      hint if the constraint is primary
+     * @return int
      */
     public function dropConstraint($table, $name, $primary = false)
     {
         $table = $this->conn->quoteIdentifier($table);
         $name  = $this->conn->quoteIdentifier($name);
-        
+
         return $this->conn->exec('ALTER TABLE ' . $table . ' DROP CONSTRAINT ' . $name);
     }
 
@@ -144,7 +144,7 @@ class Doctrine_Export extends Doctrine_Connection_Module
      *
      * @param string    $table        name of table that should be used in method
      * @param string    $name         name of the foreign key to be dropped
-     * @return void
+     * @return int
      */
     public function dropForeignKey($table, $name)
     {
@@ -158,7 +158,7 @@ class Doctrine_Export extends Doctrine_Connection_Module
      *
      * @throws Doctrine_Connection_Exception     if something fails at database level
      * @param string $sequenceName      name of the sequence to be dropped
-     * @return void
+     * @return int
      */
     public function dropSequence($sequenceName)
     {
@@ -171,7 +171,7 @@ class Doctrine_Export extends Doctrine_Connection_Module
      *
      * @throws Doctrine_Connection_Exception     if something fails at database level
      * @param string $sequenceName name of the sequence to be dropped
-     * @return void
+     * @return string
      */
     public function dropSequenceSql($sequenceName)
     {
@@ -182,7 +182,7 @@ class Doctrine_Export extends Doctrine_Connection_Module
      * create a new database
      * (this method is implemented by the drivers)
      *
-     * @param string $name name of the database that should be created
+     * @param string $database name of the database that should be created
      * @return void
      */
     public function createDatabase($database)
@@ -194,7 +194,7 @@ class Doctrine_Export extends Doctrine_Connection_Module
      * create a new database
      * (this method is implemented by the drivers)
      *
-     * @param string $name name of the database that should be created
+     * @param string $database name of the database that should be created
      * @return string
      */
     public function createDatabaseSql($database)
@@ -228,7 +228,7 @@ class Doctrine_Export extends Doctrine_Connection_Module
      *                          );
      * @param array $options  An associative array of table options:
      *
-     * @return string
+     * @return array
      */
     public function createTableSql($name, array $fields, array $options = array())
     {
@@ -254,12 +254,12 @@ class Doctrine_Export extends Doctrine_Connection_Module
                 // append only created index declarations
                 if ( ! is_null($indexDeclaration)) {
                     $queryFields .= ', '.$indexDeclaration;
-                } 
+                }
             }
         }
 
         $query = 'CREATE TABLE ' . $this->conn->quoteIdentifier($name, true) . ' (' . $queryFields;
-        
+
         $check = $this->getCheckDeclaration($fields);
 
         if ( ! empty($check)) {
@@ -318,14 +318,14 @@ class Doctrine_Export extends Doctrine_Connection_Module
      *
      * @throws Doctrine_Connection_Exception     if something fails at database level
      * @param string    $seqName        name of the sequence to be created
-     * @param string    $start          start value of the sequence; default is 1
+     * @param int    $start          start value of the sequence; default is 1
      * @param array     $options  An associative array of table options:
      *                          array(
      *                              'comment' => 'Foo',
      *                              'charset' => 'utf8',
      *                              'collate' => 'utf8_unicode_ci',
      *                          );
-     * @return void
+     * @return Doctrine_Adapter_Statement_Interface|PDOStatement
      */
     public function createSequence($seqName, $start = 1, array $options = array())
     {
@@ -338,7 +338,7 @@ class Doctrine_Export extends Doctrine_Connection_Module
      *
      * @throws Doctrine_Connection_Exception     if something fails at database level
      * @param string    $seqName        name of the sequence to be created
-     * @param string    $start          start value of the sequence; default is 1
+     * @param int    $start          start value of the sequence; default is 1
      * @param array     $options  An associative array of table options:
      *                          array(
      *                              'comment' => 'Foo',
@@ -371,12 +371,12 @@ class Doctrine_Export extends Doctrine_Connection_Module
      *                                            'last_login' => array()
      *                                        )
      *                                    )
-     * @return void
+     * @return int
      */
     public function createConstraint($table, $name, $definition)
     {
         $sql = $this->createConstraintSql($table, $name, $definition);
-        
+
         return $this->conn->exec($sql);
     }
 
@@ -399,7 +399,7 @@ class Doctrine_Export extends Doctrine_Connection_Module
      *                                            'last_login' => array()
      *                                        )
      *                                    )
-     * @return void
+     * @return string
      */
     public function createConstraintSql($table, $name, $definition)
     {
@@ -451,7 +451,7 @@ class Doctrine_Export extends Doctrine_Connection_Module
      *                                            'last_login' => array()
      *                                        )
      *                                    )
-     * @return void
+     * @return Doctrine_Adapter_Statement_Interface|PDOStatement
      */
     public function createIndex($table, $name, array $definition)
     {
@@ -472,7 +472,7 @@ class Doctrine_Export extends Doctrine_Connection_Module
         $table  = $this->conn->quoteIdentifier($table);
         $name   = $this->conn->quoteIdentifier($name);
         $type   = '';
-        
+
         if (isset($definition['type'])) {
             switch (strtolower($definition['type'])) {
                 case 'unique':
@@ -494,7 +494,7 @@ class Doctrine_Export extends Doctrine_Connection_Module
         $query .= ' (' . implode(', ', $fields) . ')';
 
         return $query;
-    }    
+    }
     /**
      * createForeignKeySql
      *
@@ -515,12 +515,12 @@ class Doctrine_Export extends Doctrine_Connection_Module
      *
      * @param string    $table         name of the table on which the foreign key is to be created
      * @param array     $definition    associative array that defines properties of the foreign key to be created.
-     * @return string
+     * @return Doctrine_Adapter_Statement_Interface|PDOStatement
      */
     public function createForeignKey($table, array $definition)
     {
         $sql = $this->createForeignKeySql($table, $definition);
-        
+
         return $this->conn->execute($sql);
     }
 
@@ -616,7 +616,7 @@ class Doctrine_Export extends Doctrine_Connection_Module
     public function alterTable($name, array $changes, $check = false)
     {
         $sql = $this->alterTableSql($name, $changes, $check);
-        
+
         if (is_string($sql) && $sql) {
             $this->conn->execute($sql);
         }
@@ -670,6 +670,8 @@ class Doctrine_Export extends Doctrine_Connection_Module
      */
     public function getFieldDeclarationList(array $fields)
     {
+        $queryFields = array();
+
         foreach ($fields as $fieldName => $field) {
             $query = $this->getDeclaration($fieldName, $field);
 
@@ -783,21 +785,21 @@ class Doctrine_Export extends Doctrine_Connection_Module
 
         return $default;
     }
-    
+
 
     /**
      * getNotNullFieldDeclaration
      * Obtain DBMS specific SQL code portion needed to set a NOT NULL
      * declaration to be used in statements like CREATE TABLE.
      *
-     * @param array $field      field definition array
+     * @param array $definition      field definition array
      * @return string           DBMS specific SQL code portion needed to set a default value
      */
     public function getNotNullFieldDeclaration(array $definition)
     {
         return (isset($definition['notnull']) && $definition['notnull']) ? ' NOT NULL' : '';
     }
-    
+
 
     /**
      * Obtain DBMS specific SQL code portion needed to set a CHECK constraint
@@ -977,7 +979,6 @@ class Doctrine_Export extends Doctrine_Connection_Module
      *
      * @throws Doctrine_Exception_Exception     if unknown referential action given
      * @param string $action    foreign key referential action
-     * @param string            foreign key referential action in uppercase
      */
     public function getForeignKeyReferentialAction($action)
     {
@@ -1232,14 +1233,14 @@ class Doctrine_Export extends Doctrine_Connection_Module
      * @throws Doctrine_Connection_Exception    if some error other than Doctrine_Core::ERR_ALREADY_EXISTS
      *                                          occurred during the create table operation
      * @param array $classes
-     * @return void
+     * @return array
      */
     public function exportClassesSql(array $classes)
     {
         $models = Doctrine_Core::filterInvalidModels($classes);
-        
+
         $sql = array();
-        
+
         foreach ($models as $name) {
             $record = new $name();
             $table = $record->getTable();
@@ -1271,14 +1272,14 @@ class Doctrine_Export extends Doctrine_Connection_Module
             if ($table->getAttribute(Doctrine_Core::ATTR_EXPORT) & Doctrine_Core::EXPORT_PLUGINS) {
                 $sql = array_merge($sql, $this->exportGeneratorsSql($table));
             }
-            
+
             // DC-474: Remove dummy $record from repository to not pollute it during export
             $table->getRepository()->evict($record->getOid());
             unset($record);
         }
-        
+
         $sql = array_unique($sql);
-        
+
         rsort($sql);
 
         return $sql;
@@ -1296,13 +1297,13 @@ class Doctrine_Export extends Doctrine_Connection_Module
 
         foreach ($table->getGenerators() as $name => $generator) {
             if ($generator === null) {
-                continue;                     	
+                continue;
             }
 
             $generators[] = $generator;
 
             $generatorTable = $generator->getTable();
-            
+
             if ($generatorTable instanceof Doctrine_Table) {
                 $generators = array_merge($generators, $this->getAllGenerators($generatorTable));
             }
@@ -1324,7 +1325,7 @@ class Doctrine_Export extends Doctrine_Connection_Module
 
         foreach ($this->getAllGenerators($table) as $name => $generator) {
             $table = $generator->getTable();
-            
+
             // Make sure plugin has a valid table
             if ($table instanceof Doctrine_Table) {
                 $data = $table->getExportableFormat();
@@ -1351,7 +1352,7 @@ class Doctrine_Export extends Doctrine_Connection_Module
      * @throws Doctrine_Connection_Exception    if some error other than Doctrine_Core::ERR_ALREADY_EXISTS
      *                                          occurred during the create table operation
      * @param string $directory     optional directory parameter
-     * @return void
+     * @return array
      */
     public function exportSql($directory = null)
     {
@@ -1360,7 +1361,7 @@ class Doctrine_Export extends Doctrine_Connection_Module
         } else {
             $models = Doctrine_Core::getLoadedModels();
         }
-        
+
         return $this->exportSortedClassesSql($models, false);
     }
 

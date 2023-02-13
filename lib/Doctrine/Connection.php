@@ -52,11 +52,35 @@
  * @version     $Revision: 7490 $
  * @author      Konsta Vesterinen <kvesteri@cc.hut.fi>
  * @author      Lukas Smith <smith@pooteeweet.org> (MDB2 library)
+ *
+ * From $modules array
+ * @property Doctrine_Formatter $formatter
+ * @property Doctrine_Connection_UnitOfWork $unitOfWork
+ * @property Doctrine_Transaction $transaction
+ * @property Doctrine_Expression_Driver $expression
+ * @property Doctrine_DataDict $dataDict
+ * @property Doctrine_Export $export
+ * @property Doctrine_Import $import
+ * @property Doctrine_Sequence $sequence
+ * @property Doctrine_Util $util
+ *
+ * From $properties array
+ * @property array $identifier_quoting
+ * @property int $max_identifier_length
+ * @property array $sql_comments
+ * @property string $sql_file_delimiter
+ * @property array $string_quoting
+ * @property int $varchar_max_length
+ * @property array $wildcards
+ * Not initially defined, but added later
+ * @property string $dsn
+ * Set by Doctrine_Connection_Oracle
+ * @property int $number_max_precision
  */
 abstract class Doctrine_Connection extends Doctrine_Configurable implements Countable, IteratorAggregate, Serializable
 {
     /**
-     * @var $dbh                                the database handler
+     * @var PDO|Doctrine_Adapter_Interface $dbh                                the database handler
      */
     protected $dbh;
 
@@ -184,10 +208,15 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
         );
 
     /**
+     * @var Doctrine_Manager $parent   the parent of this component
+     */
+    protected $parent;
+
+    /**
      * the constructor
      *
      * @param Doctrine_Manager $manager                 the manager object
-     * @param PDO|Doctrine_Adapter_Interface $adapter   database driver
+     * @param PDO|Doctrine_Adapter_Interface|array $adapter   database driver
      */
     public function __construct(Doctrine_Manager $manager, $adapter, $user = null, $pass = null)
     {
@@ -236,7 +265,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      *
      * Get array of all options
      *
-     * @return void
+     * @return array
      */
     public function getOptions()
     {
@@ -249,7 +278,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      * Retrieves option
      *
      * @param string $option
-     * @return void
+     * @return mixed
      */
     public function getOption($option)
     {
@@ -264,7 +293,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      * Set option value
      *
      * @param string $option
-     * @return void
+     * @return mixed
      */
     public function setOption($option, $value)
     {
@@ -330,7 +359,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      *
      * @param integer $attribute
      * @param mixed $value
-     * @return boolean
+     * @return $this
      */
     public function setAttribute($attribute, $value)
     {
@@ -376,7 +405,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      *
      * Gets the name of the instance driver
      *
-     * @return void
+     * @return string
      */
     public function getDriverName()
     {
@@ -394,7 +423,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      * @see Doctrine_Connection::$modules       all availible modules
      * @param string $name                      the name of the module to get
      * @throws Doctrine_Connection_Exception    if trying to get an unknown module
-     * @return Doctrine_Connection_Module       connection module
+     * @return mixed       connection module
      */
     public function __get($name)
     {
@@ -435,7 +464,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
     /**
      * returns the database handler of which this connection uses
      *
-     * @return PDO              the database handler
+     * @return PDO|Doctrine_Adapter_Interface              the database handler
      */
     public function getDbh()
     {
@@ -510,7 +539,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
     /**
      * converts given driver name
      *
-     * @param
+     * @param string $name
      */
     public function driverName($name)
     {
@@ -540,10 +569,10 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      * query isemulated through this method for other DBMS using standard types
      * of queries inside a transaction to assure the atomicity of the operation.
      *
-     * @param                   string  name of the table on which the REPLACE query will
+     * @param   Doctrine_Table  $table  name of the table on which the REPLACE query will
      *                          be executed.
      *
-     * @param   array           an associative array that describes the fields and the
+     * @param   array           $fields an associative array that describes the fields and the
      *                          values that will be inserted or updated in the specified table. The
      *                          indexes of the array are the names of all the fields of the table.
      *
@@ -599,7 +628,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      * deletes table row(s) matching the specified identifier
      *
      * @throws Doctrine_Connection_Exception    if something went wrong at the database level
-     * @param string $table         The table to delete data from
+     * @param Doctrine_Table $table         The table to delete data from
      * @param array $identifier     An associateve array containing identifier column-value pairs.
      * @return integer              The number of affected rows
      */
@@ -623,9 +652,9 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      *
      * @throws Doctrine_Connection_Exception    if something went wrong at the database level
      * @param Doctrine_Table $table     The table to insert data into
-     * @param array $values             An associative array containing column-value pairs.
+     * @param array $fields             An associative array containing column-value pairs.
      *                                  Values can be strings or Doctrine_Expression instances.
-     * @return integer                  the number of affected rows. Boolean false if empty value array was given,
+     * @return integer|false            the number of affected rows. Boolean false if empty value array was given,
      */
     public function update(Doctrine_Table $table, array $fields, array $identifier)
     {
@@ -657,7 +686,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      * Inserts a table row with specified data.
      *
      * @param Doctrine_Table $table     The table to insert data into.
-     * @param array $values             An associative array containing column-value pairs.
+     * @param array $fields             An associative array containing column-value pairs.
      *                                  Values can be strings or Doctrine_Expression instances.
      * @return integer                  the number of affected rows. Boolean false if empty value array was given,
      */
@@ -738,7 +767,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      * @param array $arr           identifiers array to be quoted
      * @param bool $checkOption     check the 'quote_identifier' option
      *
-     * @return string               quoted identifier string
+     * @return array
      */
     public function quoteMultipleIdentifier($arr, $checkOption = true)
     {
@@ -756,8 +785,8 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      *
      * This method takes care of that conversion
      *
-     * @param array $item
-     * @return void
+     * @param array|bool $item
+     * @return array|int
      */
     public function convertBooleans($item)
     {
@@ -780,7 +809,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
     /**
      * Set the date/time format for the current connection
      *
-     * @param string    time format
+     * @param string $format   time format
      *
      * @return void
      */
@@ -904,6 +933,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      * prepare
      *
      * @param string $statement
+     * @return Doctrine_Connection_Statement
      */
     public function prepare($statement)
     {
@@ -966,7 +996,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      * @param string $query
      * @param integer $limit
      * @param integer $offset
-     * @return Doctrine_Connection_Statement
+     * @return PDOStatement|Doctrine_Adapter_Statement_Interface
      */
     public function select($query, $limit = 0, $offset = 0)
     {
@@ -982,7 +1012,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      * @param string $query     sql query
      * @param array $params     query parameters
      *
-     * @return PDOStatement|Doctrine_Adapter_Statement
+     * @return PDOStatement|Doctrine_Adapter_Statement_Interface
      */
     public function standaloneQuery($query, $params = array())
     {
@@ -994,7 +1024,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      * @param string $query     sql query
      * @param array $params     query parameters
      *
-     * @return PDOStatement|Doctrine_Adapter_Statement
+     * @return PDOStatement|Doctrine_Adapter_Statement_Interface
      */
     public function execute($query, array $params = array())
     {
@@ -1169,7 +1199,7 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      * addTable
      * adds a Doctrine_Table object into connection registry
      *
-     * @param $table                a Doctrine_Table object to be added into registry
+     * @param Doctrine_Table  $table                a Doctrine_Table object to be added into registry
      * @return boolean
      */
     public function addTable(Doctrine_Table $table)
@@ -1488,8 +1518,8 @@ abstract class Doctrine_Connection extends Doctrine_Configurable implements Coun
      * which is always guaranteed to exist. Mysql: 'mysql', PostgreSQL: 'postgres', etc.
      * This value is set in the Doctrine_Export_{DRIVER} classes if required
      *
-     * @param string $info
-     * @return void
+     * @param array $info
+     * @return Doctrine_Connection
      */
     public function getTmpConnection($info)
     {
