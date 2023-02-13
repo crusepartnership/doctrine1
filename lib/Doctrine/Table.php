@@ -454,7 +454,7 @@ class Doctrine_Table extends Doctrine_Configurable implements Countable
                             $fullName,
                             $definition['type'],
                             $definition['length'],
-                                $definition,
+                            $definition,
                             true
                         );
                     }
@@ -1369,7 +1369,6 @@ class Doctrine_Table extends Doctrine_Configurable implements Countable
                 case 'string':
                 case 'clob':
                 case 'float':
-                case 'integer':
                 case 'array':
                 case 'object':
                 case 'blob':

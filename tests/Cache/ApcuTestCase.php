@@ -20,32 +20,32 @@
  */
 
 /**
- * Doctrine_Ticket_2032_TestCase
+ * Doctrine_Cache_Apc_TestCase
  *
  * @package     Doctrine
+ * @subpackage  Doctrine_Cache
+ * @author      David Abdemoulaie <dave@hobodave.com>
+ * @author      Ross Motley <ross.motley@gmail.com>
  * @license     http://www.opensource.org/licenses/lgpl-license.php LGPL
  * @category    Object Relational Mapping
  * @link        www.doctrine-project.org
- * @since       1.1
+ * @since       1.2
  * @version     $Revision$
  */
-class Doctrine_Ticket_2032_TestCase extends Doctrine_UnitTestCase
+class Doctrine_Cache_Apcu_TestCase extends Doctrine_Cache_Abstract_TestCase
 {
-    /**
-     * Tests non-spaced orderby parameters
-     */
-    public function testNonSpacedOrderByIsParsedCorrectly()
+    protected function _clearCache()
     {
-        $q = Doctrine_Query::create()
-                ->select('u.*')
-                ->from('User u')
-                ->orderby('u.name,u.id,u.password');
+        apcu_clear_cache();
+    }
 
-        try {
-            $u = $q->execute();
-            $this->pass();
-        } catch (Exception $e) {
-            $this->fail($e->getMessage());
-        }
+    protected function _isEnabled()
+    {
+        return extension_loaded('apcu');
+    }
+
+    protected function _getCacheDriver()
+    {
+        return new Doctrine_Cache_Apcu();
     }
 }

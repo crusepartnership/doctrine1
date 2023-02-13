@@ -650,7 +650,7 @@ class Doctrine_Core
 
                 $it = new RecursiveIteratorIterator(
                     new RecursiveDirectoryIterator($dir),
-                                                        RecursiveIteratorIterator::LEAVES_ONLY
+                    RecursiveIteratorIterator::LEAVES_ONLY
                 );
 
                 foreach ($it as $file) {
@@ -1120,12 +1120,6 @@ class Doctrine_Core
      */
     public static function autoload($className)
     {
-        if (strpos($className, 'sfYaml') === 0) {
-            require dirname(__FILE__) . '/Parser/sfYaml/' . $className . '.php';
-
-            return true;
-        }
-
         if (0 !== stripos($className, 'Doctrine') || class_exists($className, false) || interface_exists($className, false)) {
             return false;
         }

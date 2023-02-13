@@ -516,6 +516,7 @@ requiring needless code duplication.</description>
      </dir> <!-- /tests/Cache/Query -->
      <file name="AbstractTestCase.php" role="test" />
      <file name="ApcTestCase.php" role="test" />
+     <file name="ApcuTestCase.php" role="test" />
      <file name="ArrayTestCase.php" role="test" />
      <file name="DbTestCase.php" role="test" />
      <file name="MemcacheTestCase.php" role="test" />

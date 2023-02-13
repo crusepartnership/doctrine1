@@ -277,6 +277,7 @@ $test->addTestCase($search);
 $cache = new GroupTest('Cache Tests', 'cache');
 $cache->addTestCase(new Doctrine_Query_Cache_TestCase());
 $cache->addTestCase(new Doctrine_Cache_Apc_TestCase());
+$cache->addTestCase(new Doctrine_Cache_Apcu_TestCase());
 $cache->addTestCase(new Doctrine_Cache_Array_TestCase());
 $cache->addTestCase(new Doctrine_Cache_Db_TestCase());
 $cache->addTestCase(new Doctrine_Cache_Memcache_TestCase());

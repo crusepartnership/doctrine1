@@ -5,6 +5,10 @@ if (!extension_loaded('apc')) {
     require_once __DIR__ . '/vendor/jetbrains/phpstorm-stubs/apc/apc.php';
 }
 
+if (!extension_loaded('apcu')) {
+    require_once __DIR__ . '/vendor/jetbrains/phpstorm-stubs/apcu/apcu.php';
+}
+
 if (!extension_loaded('ctype')) {
     require_once __DIR__ . '/vendor/jetbrains/phpstorm-stubs/ctype/ctype.php';
 }
