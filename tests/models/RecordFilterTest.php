@@ -7,10 +7,12 @@ class RecordFilterTest extends Doctrine_Record
         $this->hasColumn("name", "string", 200);
         $this->hasColumn("password", "string", 32);
     }
-    public function setPassword($password) {
-        return md5($password);
+
+    public function setPassword($value, $load, $fieldName) {
+        $this->_set($fieldName, md5($value), $load);
     }
-    public function getName($name) {
-        return strtoupper($name);
+
+    public function getName($load, $fieldName) {
+        return strtoupper($this->_get($fieldName, $load));
     }
 }

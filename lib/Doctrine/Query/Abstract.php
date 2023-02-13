@@ -869,12 +869,17 @@ abstract class Doctrine_Query_Abstract
      *
      * @return string    the hash
      */
-    public function calculateQueryCacheHash()
+    public function calculateQueryCacheHash($params = array())
     {
+        $paramString = '';
         $dql = $this->getDql();
-        $dsn = $this->getConnection()->getOption("dsn");
-        $hash = md5($dql . var_export($this->_pendingJoinConditions, true) . 'DOCTRINE_QUERY_CACHE_SALT' .$dsn);
+        $params = $this->getFlattenedParams($params);
+        foreach ($params as $array) {
+            $count = is_array($array) ? count($array) : 1;
+            $paramString .= '|' . $count;
+        }
 
+        $hash = md5($dql . var_export($this->_pendingJoinConditions, true) . $paramString . 'DOCTRINE_QUERY_CACHE_SALT');
         return $hash;
     }
 
@@ -931,7 +936,7 @@ abstract class Doctrine_Query_Abstract
         if ( ! $this->_view) {
             if ($this->_queryCache !== false && ($this->_queryCache || $this->_conn->getAttribute(Doctrine_Core::ATTR_QUERY_CACHE))) {
                 $queryCacheDriver = $this->getQueryCacheDriver();
-                $hash = $this->calculateQueryCacheHash();
+                $hash = $this->calculateQueryCacheHash($params);
                 $cached = $queryCacheDriver->fetch($hash);
 
                 // If we have a cached query...
@@ -1118,8 +1123,8 @@ abstract class Doctrine_Query_Abstract
                 $params = array('component' => $component, 'alias' => $alias);
                 $event = new Doctrine_Event($record, $callback['const'], $this, $params);
 
-                $record->$callback['callback']($event);
-                $table->getRecordListener()->$callback['callback']($event);
+		$record->{$callback['callback']}($event);
+		$table->getRecordListener()->{$callback['callback']}($event);
             }
         }
 
@@ -1149,7 +1154,11 @@ abstract class Doctrine_Query_Abstract
         $copy->free();
 
         if ($componentsBefore !== $componentsAfter) {
+<<<<<<< HEAD
             return @array_diff_assoc($componentsAfter, $componentsBefore);
+=======
+            return $this->array_diff_assoc_recursive($componentsAfter, $componentsBefore);
+>>>>>>> v2.0.0
         } else {
             return $componentsAfter;
         }
@@ -1367,7 +1376,7 @@ abstract class Doctrine_Query_Abstract
     public function andWhereIn($expr, $params = array(), $not = false)
     {
         // if there's no params, return (else we'll get a WHERE IN (), invalid SQL)
-        if (isset($params) and (count($params) == 0)) {
+        if (isset($params) and is_array($params) and (count($params) == 0)) {
             return $this;
         }
 
@@ -1394,7 +1403,7 @@ abstract class Doctrine_Query_Abstract
     public function orWhereIn($expr, $params = array(), $not = false)
     {
         // if there's no params, return (else we'll get a WHERE IN (), invalid SQL)
-        if (isset($params) and (count($params) == 0)) {
+        if (isset($params) and is_array($params) and (count($params) == 0)) {
             return $this;
         }
 
@@ -1413,7 +1422,7 @@ abstract class Doctrine_Query_Abstract
         $params = (array) $params;
 
         // if there's no params, return (else we'll get a WHERE IN (), invalid SQL)
-        if (count($params) == 0) {
+        if (is_array($params) && count($params) == 0) {
             throw new Doctrine_Query_Exception('You must pass at least one parameter when using an IN() condition.');
         }
 
@@ -2168,4 +2177,32 @@ abstract class Doctrine_Query_Abstract
     {
         $this->disableLimitSubquery = $disableLimitSubquery;
     }
+<<<<<<< HEAD
+=======
+
+    protected function array_diff_assoc_recursive($array1,$array2)
+    {
+        $difference = array();
+        foreach($array1 as $key => $value)
+        {
+            if( is_array($value) )
+            {
+                if( !isset($array2[$key]) || !is_array($array2[$key]) )
+                {
+                    $difference[$key] = $value;
+                } else {
+                    $new_diff = $this->array_diff_assoc_recursive($value, $array2[$key]);
+                    if( !empty($new_diff) )
+                    {
+                        $difference[$key] = $new_diff;
+                    }
+                }
+            } else if( !array_key_exists($key,$array2) || $array2[$key] !== $value ) {
+                $difference[$key] = $value;
+            }
+        }
+        return $difference;
+    }
+
+>>>>>>> v2.0.0
 }

@@ -826,7 +826,9 @@ abstract class Doctrine_Record extends Doctrine_Record_Abstract implements Count
                 switch ($this->_table->getTypeOf($k)) {
                     case 'array':
                     case 'object':
-                        $vars['_data'][$k] = serialize($vars['_data'][$k]);
+                        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
+                            $vars['_data'][$k] = serialize($vars['_data'][$k]);
+                        }
                         break;
                     case 'gzip':
                         $vars['_data'][$k] = gzcompress($vars['_data'][$k]);
@@ -875,7 +877,9 @@ abstract class Doctrine_Record extends Doctrine_Record_Abstract implements Count
             switch ($this->_table->getTypeOf($k)) {
                 case 'array':
                 case 'object':
-                    $this->_data[$k] = unserialize($this->_data[$k]);
+                    if (version_compare(PHP_VERSION, '5.4.0', '<')) {
+                        $this->_data[$k] = unserialize($this->_data[$k]);
+                    }
                     break;
                 case 'gzip':
                     $this->_data[$k] = gzuncompress($this->_data[$k]);

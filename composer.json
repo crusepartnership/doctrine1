@@ -1,24 +1,31 @@
 {
-    "name": "doctrine/doctrine1",
+    "name": "diablomedia/doctrine1",
     "type": "library",
-    "description": "PHP 5 Doctrine1 Object Relational Mapper (ORM)",
-    "keywords": [
-        "php",
-        "doctrine1",
-        "orm",
-        "database"
-    ],
+    "description": "PHP5+ Database ORM",
+    "keywords": ["orm", "database"],
     "homepage": "http://www.doctrine-project.org",
     "license": "LGPL",
     "authors": [
         {"name": "Konsta Vesterinen", "email": "kvesteri@cc.hut.fi"},
         {"name": "Jonathan Wage", "email": "jonwage@gmail.com"}
     ],
+    "autoload": {
+        "psr-0": {
+            "Doctrine_": "lib/",
+            "sfYaml": "lib/Doctrine/Parser/sfYaml/"
+        }
+    },
+    "include-path": [
+        "lib/"
+    ],
+    "replace": {
+        "doctrine/doctrine1": "*"
+    },
     "require": {
-        "php": ">=5.2.3",
+        "php": ">=5.6",
         "ext-pdo": "*"
     },
-    "autoload": {
-        "psr-0": { "Doctrine_": "lib/" }
+    "require-dev": {
+        "phpunit/php-code-coverage": "^4.0 || ^5.0"
     }
 }
